@@ -1,0 +1,18 @@
+Resize image:
+<style type="text/css">
+    img {
+        width: 400px;
+    }
+</style>
+
+pip install jupyterthemes
+jt -t monokai -N -kl
+
+settings.json ->
+
+    "notebook.markup.fontFamily": "'Inter', 'Lato', 'Arial', sans-serif",
+    "editor.fontWeight": "normal",
+    "notebook.markdown.lineHeight": 27,
+    "notebook.markup.fontSize": 15
+
+
