@@ -1,0 +1,40 @@
+{
+  "chart": {
+    "title": "Death rate attributed to household and ambient air pollution",
+    "subtitle": "Estimated annual number of deaths attributed to household and ambient air pollution per 100,000 people.",
+    "note": "To allow for comparisons between countries and over time, this metric is [age-standardized](#dod:age_standardized).",
+    "citation": "World Health Organization",
+    "originalChartUrl": "https://ourworldindata.org/grapher/death-rate-household-and-ambient-air-pollution?v=1&csvType=full&useColumnShortNames=false",
+    "selection": [
+      "Central and Southern Asia (UN)",
+      "Europe (UN)",
+      "Oceania (UN)",
+      "Northern Africa (UN)",
+      "Northern America (UN)",
+      "Sub-Saharan Africa (UN)",
+      "Eastern and South-Eastern Asia (UN)",
+      "Latin America and the Caribbean (UN)",
+      "World"
+    ]
+  },
+  "columns": {
+    "3.9.1 - Age-standardized mortality rate attributed to household and ambient air pollution (deaths per 100,000 population) - SH_STA_ASAIRP": {
+      "titleShort": "3.9.1 - Age-standardized mortality rate attributed to household and ambient air pollution (deaths per 100,000 population) - SH_STA_ASAIRP",
+      "titleLong": "3.9.1 - Age-standardized mortality rate attributed to household and ambient air pollution (deaths per 100,000 population) - SH_STA_ASAIRP",
+      "descriptionShort": "Age-standardized mortality rate attributed to household and ambient air pollution (deaths per 100,000 population)",
+      "shortUnit": "",
+      "unit": "per 100,000 population",
+      "timespan": "2019-2019",
+      "type": "Integer",
+      "owidVariableId": 995487,
+      "shortName": "_3_9_1__sh_sta_asairp",
+      "lastUpdated": "2024-08-27",
+      "nextUpdate": "2026-08-27",
+      "citationShort": "World Health Organization – processed by Our World in Data",
+      "citationLong": "World Health Organization – processed by Our World in Data. “3.9.1 - Age-standardized mortality rate attributed to household and ambient air pollution (deaths per 100,000 population) - SH_STA_ASAIRP” [dataset]. World Health Organization, “Global Health Observatory (GHO), World Health Organisation (WHO)” [original data].",
+      "fullMetadata": "https://api.ourworldindata.org/v1/indicators/995487.metadata.json"
+    }
+  },
+  "dateDownloaded": "2025-03-16",
+  "activeFilters": {}
+}

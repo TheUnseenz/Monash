@@ -1,0 +1,32 @@
+{
+  "chart": {
+    "title": "Share of global mismanaged plastic waste",
+    "subtitle": "Mismanaged plastic waste is waste that is not recycled, incinerated, or kept in sealed landfills. It includes materials burned in open pits, dumped into seas or open waters, or disposed of in unsanitary landfills and dumpsites.",
+    "citation": "Meijer et al. (2021)",
+    "originalChartUrl": "https://ourworldindata.org/grapher/share-of-global-mismanaged-plastic-waste?v=1&csvType=full&useColumnShortNames=false",
+    "selection": [
+      "India",
+      "China",
+      "United States",
+      "Philippines",
+      "Bangladesh",
+      "Brazil",
+      "South Africa"
+    ]
+  },
+  "columns": {
+    "Share of global mismanaged plastic waste": {
+      "titleShort": "Share of global mismanaged plastic waste",
+      "titleLong": "Share of global mismanaged plastic waste",
+      "unit": "",
+      "timespan": "",
+      "type": "Numeric",
+      "owidVariableId": 146459,
+      "citationShort": " – processed by Our World in Data",
+      "citationLong": " – processed by Our World in Data. “Share of global mismanaged plastic waste” [dataset]. Meijer et al. (2021). More than 1000 rivers account for 80% of global riverine plastic emissions into the ocean. Science Advances. [original data].",
+      "fullMetadata": "https://api.ourworldindata.org/v1/indicators/146459.metadata.json"
+    }
+  },
+  "dateDownloaded": "2025-03-16",
+  "activeFilters": {}
+}

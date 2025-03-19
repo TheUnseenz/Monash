@@ -1,0 +1,46 @@
+{
+  "chart": {
+    "title": "GDP per capita",
+    "subtitle": "This data is adjusted for inflation and for differences in living costs between countries.",
+    "note": "This data is expressed in [international-$](#dod:int_dollar_abbreviation) at 2021 prices.",
+    "citation": "Data compiled from multiple sources by World Bank (2025)",
+    "originalChartUrl": "https://ourworldindata.org/grapher/gdp-per-capita-worldbank?v=1&csvType=full&useColumnShortNames=false",
+    "selection": [
+      "United States",
+      "Germany",
+      "United Kingdom",
+      "France",
+      "South Korea",
+      "Japan",
+      "China",
+      "India"
+    ]
+  },
+  "columns": {
+    "GDP per capita, PPP (constant 2021 international $)": {
+      "titleShort": "GDP per capita",
+      "titleLong": "GDP per capita - World Bank – In constant international-$",
+      "descriptionShort": "Average economic output per person in a country or region per year. This data is adjusted for inflation and for differences in living costs between countries.",
+      "descriptionKey": [
+        "Gross domestic product (GDP) is a measure of the total value added from the production of goods and services in a country or region each year. GDP per capita is GDP divided by population.",
+        "This GDP per capita indicator provides information on economic growth and income levels from 1990.",
+        "This data is adjusted for inflation and for differences in living costs between countries.",
+        "This data is expressed in [international-$](#dod:int_dollar_abbreviation) at 2021 prices.",
+        "For GDP per capita estimates in the long run, explore the [Maddison Project Database's indicator](https://ourworldindata.org/grapher/gdp-per-capita-maddison)."
+      ],
+      "shortUnit": "$",
+      "unit": "international-$ in 2021 prices",
+      "timespan": "1990-2023",
+      "type": "Numeric",
+      "owidVariableId": 1008370,
+      "shortName": "ny_gdp_pcap_pp_kd",
+      "lastUpdated": "2025-01-24",
+      "nextUpdate": "2026-01-24",
+      "citationShort": "Data compiled from multiple sources by World Bank (2025) – with minor processing by Our World in Data",
+      "citationLong": "Data compiled from multiple sources by World Bank (2025) – with minor processing by Our World in Data. “GDP per capita – World Bank – In constant international-$” [dataset]. Data compiled from multiple sources by World Bank, “World Development Indicators” [original data].",
+      "fullMetadata": "https://api.ourworldindata.org/v1/indicators/1008370.metadata.json"
+    }
+  },
+  "dateDownloaded": "2025-03-16",
+  "activeFilters": {}
+}
