@@ -16,3 +16,4 @@ settings.json ->
     "notebook.markup.fontSize": 15
 
 
+settings -> R: LSP Enable -> Disabled
