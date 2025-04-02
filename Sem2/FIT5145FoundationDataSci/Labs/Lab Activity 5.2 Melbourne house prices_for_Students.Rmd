@@ -1,0 +1,314 @@
+---
+title: "Applied Class 5.2 - Melbourne House Prices"
+author: "Quang Bui and updated by Chris Yun"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: show
+    highlight: haddock
+    theme: flatly
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Melbourne house price
+
+House price data from the [Melbourne housing market](https://www.kaggle.com/anthonypino/melbourne-housing-market) was constructed by scraping auction reports over several years and adding more information on property details by scraping the web pages of the properties from the property website [domain.com](https://www.domain.com.au/).
+
+In this applied class, we deal with a common issue in real-world data sets: Detecting and dealing with missing values.
+
+### Read the data
+
+Before you begin, read the house data from the [FIT5145-data](https://github.com/quangvanbui/FIT5145-data/blob/master/Melbourne_housing_FULL.csv) repository on GitHub: 
+
+* Load the `tidyverse`, which contains the `read_csv()` function to read .csv files in R.
+* Reading in `Melbourne_housing_FULL.csv`:
+  * Go to the [`Melbourne_housing_FULL.csv`](https://github.com/quangvanbui/FIT5145-data/blob/master/Melbourne_housing_FULL.csv) then click **Downnload** or **View Raw** to open the file (as raw text) in your web browser. The [URL](https://raw.githubusercontent.com/quangvanbui/FIT5145-data/master/Melbourne_housing_FULL.csv) on this page will be used to read the data into R.
+  * Copy the URL and paste it inside the `read_csv()` function.
+  * Store the data in an object named `houses`. 
+
+```{r eval=FALSE}
+# Load tidyverse
+library(tidyverse)
+
+# Read house price data
+houses <- read_csv("Melbourne_housing_FULL.csv")
+```
+
+
+### Look at `houses`
+
+We want to learn how to detect and deal with missing values in the data. While imputation over missing values is a commonly technique to deal with them, there are situations when imputing data over missing values is inappropriate (especially when the missingness itself is a form of information (e.g., studies of income) or in some carefully designed scientific research studies).
+
+Before performing any analysis, look at what is inside of `houses`. Fill out the missing parts of the code chunk (`???`) to look at the data.
+
+```{r eval=FALSE}
+# Head of houses
+head(houses) 
+
+# Glimpse of houses
+glimpse(houses)
+```
+
+
+* How many rows (observations) and columns (variables) are in the `houses` data?
+* What does each observation represent?
+
+Subset the data to keep only the variables `Price`, `Rooms`, `Type`, `Distance`, `Bedroom2` and `Bathroom`:
+
+* Take `houses`, then pipe in the `select()` function
+* Inside of `select()` include variables `Price`, `Rooms`, `Type`, `Distance`, `Bedroom2` and `Bathroom`. Store data subset in an object named `houses_sub`.
+
+```{r eval=FALSE}
+# Keep only variables Price, Rooms, Type, Distance, Bedroom2, Bathroom
+houses_sub <- houses %>%
+  select(Price,Rooms,Type,Distance,Bedroom2,Bathroom)
+
+```
+
+
+Run the code chunk provide and describe the distribution of the continuous numerical variables in the data `houses_sub`.
+
+```{r message=FALSE, warning=FALSE}
+# Load GGally
+library(GGally)
+
+# Distribution of continuous numerical variables
+houses_sub %>%
+  select(Distance, Price) %>%
+  ggpairs()
+```
+
+Run the code chunk provide and describe the bar plots of the discrete numerical variables in the data `houses_sub`.
+
+```{r fig.height=5, fig.width=10}
+# Bar plots of discrete numerical variables
+houses_sub %>%
+  select(-Distance, -Price, -Type) %>%
+  gather(Variable, Value) %>%
+  ggplot(aes(x = Value)) +
+  geom_bar() +
+  facet_wrap(~ Variable, scales = "free")
+```
+
+## Detecting missing values
+
+### Missingness plot
+
+**Make an overview plot of the data**: 
+
+* Load the `visdat` package, which contains the functions `vis_dat()` and `vis_miss()` to produce a bird's eye view of the missingness in the data.
+* Produce missingness plots with the above functions from the `visdat` package.
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) and then run the code. The missingness plots are provided below for you to cross-check.
+
+```{r eval=FALSE}
+# Load visdat
+library(visdat)
+
+# Map of data coloured by variable type and NA
+houses_sub %>%
+  vis_dat()
+
+# Missingness map 
+houses_sub %>%
+  vis_miss()
+```
+
+
+
+* Which variables have missing values?
+* Which statement is correct?
+  * 11.5% of the data is missing.
+  * 11.5% of the variables are missing.
+  * 11.5% of the observations are missing.
+  * 11.5% of the data is missing across each variable, on average.
+
+
+
+### Missingness summary table
+
+**Make a missing values summary of all the data:**
+
+* Load the `naniar` package, which contains a function to produce summary tables of missing variables.
+* Use this function to produce missingness summary of the variables in `houses_sub`.
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) and then run the code.
+
+```{r eval=FALSE}
+# Load naniar
+library(naniar)
+
+# Missing variables summary table
+miss_var_summary(houses_sub)
+```
+
+
+
+* How many variables contain missing values? Is this same as your previous answer?
+* What proportion of observations are missing on `Price`?
+
+
+
+### Removing missing values
+
+**Remove the observations with missing house prices** because this is the response variable that we want to ultimately predict. (You can't build a stable model of house price with observations that do not contain house price.)
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) and then run the code.
+
+```{r eval=FALSE}
+# Remove missing house price values
+houses_sub <- houses_sub %>%
+  filter(!is.na(Price))
+```
+
+
+
+## Dealing with remaining missing values
+
+Using what we have learned about dealing with missing values, i.e., the shadow matrix, scatter plots with missing values, imputation methods, etc., work through the following questions:
+
+#### 1. **Bind the shadow matrix of `houses_sub` to itself and call this data frame `houses_sub_shadow`.**
+
+Using `houses_sub_shadow`, produce a scatter plot of `Bathroom` against `Bedroom2` coloured by missingness on `Bedroom2`. Why don't any missing values show up? Use the comments in the following code chunk to guide you.
+
+```{r eval=FALSE}
+# 1. Bind the shadow matrix houses_sub 
+houses_sub_shadow <- houses_sub %>%
+  bind_shadow()
+
+# Scatter plot of bath vs. bed coloured by missingess in bed 
+houses_sub_shadow %>%
+  ggplot(aes(x = Bathroom, y = Bedroom2, colour = Bedroom2_NA)) +
+  geom_point(alpha = 0.4) +
+  # Dark2 palette to accommodate colour blindness
+  scale_colour_brewer("Miss bedroom", palette = "Dark2")
+
+# Missing values don't show because all missing values in bedroom are also missing in bathroom
+
+# Missingness map with just bathroom and bedroom
+houses_sub_shadow %>%
+  select(Bathroom, Bedroom2) %>%
+  vis_miss()
+
+# Missingness map based on missings in bedroom
+houses_sub_shadow %>%
+  select(Bathroom, Bedroom2) %>%
+  filter(is.na(Bedroom2)) %>%
+  vis_miss()
+```
+
+
+
+
+
+#### 2. **Impute the missing values for `Bedroom2` and `Bathroom`, by using mean imputation.**
+
+Use the comments in the following code chunk to guide you.
+
+```{r eval=FALSE}
+# Impute missing values in bed and bath with their mean
+houses_sub_shadow_mean <- houses_sub_shadow %>%
+  impute_mean_at(vars(c(Bedroom2, Bathroom)))
+
+```
+
+
+
+#### 3. **Produce a scatter plot of the two variables with the imputed values coloured.**
+
+Describe the pattern that you see. Use the comments in the following code chunk to guide you.
+
+```{r eval=FALSE}
+# Scatter plot of bath vs. bed coloured by imputed values
+houses_sub_shadow_mean %>%
+  ggplot(aes(x = Bathroom, y = Bedroom2, colour = Bathroom_NA))  +
+  geom_point(alpha = 0.4) +
+  scale_colour_brewer("Miss bedroom", palette = "Dark2")
+
+```
+
+The scatter plot is provided below for you to cross-check.
+
+
+
+Based on the scatter plot, describe whether each statement is true:
+
+* The number of bedrooms and bathrooms in a house are positively correlated, i.e., as the number of bathrooms increase, the number of bedrooms tend to increase (at a fairly linear/constant way).
+* All houses in the data without information about the number of bedrooms of their house are also missing information about the number of bathrooms. 
+
+
+This scatter plot is quick to generate and intended for a specialised audience. Many improvements are required to turn this plot into one that can be communicated to a broader audience. Describe how you might improve this plot so that it is as close to publication quality as possible.
+
+
+#### 4. **Impute the missing values for `Bedroom2` and `Bathroom` using a linear regression model on the variable `Rooms`.**
+
+Linear regression models will be covered in future weeks. For this applied class, it is sufficient to run the following code chunk, which will train two linear regression models using the `houses_sub_shadow` data.
+
+```{r}
+# Linear regression
+
+# Use houses_sub_shadow and not houses_sub_shadow_mean because houses_sub_shadow_mean
+# has imputed missing values in bath and bed with the mean
+
+# Run a linear regression model of bedroom on room
+br2 <- lm(Bedroom2 ~ Rooms, data = houses_sub_shadow)
+
+# Run a linear regression model of bathroom on room
+ba <- lm(Bathroom ~ Rooms, data = houses_sub_shadow)
+```
+
+* `Rooms` does not represent the total number of rooms in the house but it does take on values that are very close to `Bedroom2`. What do you think is the difference between `Rooms` and `Bedroom2`?
+* Given the similarity between `Rooms` and `Bedrooms2`, suggest another reasonable imputation over the missing values in `Bedroom2`.
+
+
+#### 5. **Produce a scatter plot of the two variables with the imputed values coloured.**
+
+Is this better or worse than the mean value imputed values? Explain your thinking.
+
+The following code chunk will impute missing bedroom and bathroom values using the linear regression models trained above. It uses the `predict()` function, which will return predictions of bedroom and bathroom values
+
+```{r}
+# Impute missing values for  bedroom and bathroom based on above regression
+houses_sub_shadow_linreg <- houses_sub_shadow %>%
+  mutate(Bedroom2 = ifelse(is.na(Bedroom2), predict(br2, new = houses_sub_shadow), Bedroom2),
+         Bathroom = ifelse(is.na(Bathroom), predict(ba, new = houses_sub_shadow), Bathroom))
+```
+
+Use the comments in the following code chunk to guide you.
+
+```{r eval=FALSE}
+# Scatter plot of bath vs. bed coloured by imputed values
+
+
+```
+
+The scatter plot is provided below for you to cross-check.
+
+
+Beautification in 3, 2, 1...
+
+```{r echo=FALSE}
+# Scatter plot of bath vs. bed coloured by imputed values
+houses_sub_shadow_linreg %>%
+  ggplot(aes(x = Bathroom, y = Bedroom2, colour = Bathroom_NA))  +
+  geom_point(alpha = 0.4) +
+  labs(title = "Relationship between no. of bedrooms and bathrooms",
+       y = "Bedroom") +
+  scale_x_continuous(limits = c(0, 9), breaks = seq(0, 9, 1)) +
+  scale_colour_brewer(palette = "Dark2", name = "", labels = c("Not imputed", "Imputed")) +
+  theme_bw()
+```
+
+
+
+
+
