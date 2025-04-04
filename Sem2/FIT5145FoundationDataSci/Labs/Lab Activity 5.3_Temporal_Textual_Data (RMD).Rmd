@@ -323,7 +323,7 @@ Fill out the missing parts of the code chunk (`???`) to create corpus object.
 
 # DataframeSource function only accepts a dataframe with two columns named `doc_id` and `text`. 
 # The `doc_id` column is just row index so please create it.
-essay$doc_id <- essay[0]
+essay$doc_id <- seq(nrow(essay))
 
 # Create your DataFrameSource
 essay_source <- DataFrameSource(essay)
@@ -359,19 +359,19 @@ Fill out the missing parts of the code chunk (`???`) to perform the text removal
 
 ```{r eval=FALSE}
 # remove stop words
-essay_corpus <- ???(essay_corpus, ???, ???) 
+essay_corpus <- tm_map(essay_corpus, removeWords, stopwords("english")) 
 
 # remove punctuation
-essay_corpus <- ???(essay_corpus, ???) 
+essay_corpus <- tm_map(essay_corpus, removePunctuation) 
 
 # remove all numbers
-essay_corpus <- ???(essay_corpus, ???)
+essay_corpus <- tm_map(essay_corpus, removeNumbers)
 
 # remove redundant spaces
-essay_corpus <- ???(essay_corpus, ???) 
+essay_corpus <- tm_map(essay_corpus, stripWhitespace) 
 
 # case normalisation
-essay_corpus <- ???(essay_corpus, ???)
+essay_corpus <- tm_map(essay_corpus, content_transformer(tolower))
 ```
 
 
@@ -404,10 +404,10 @@ Fill out the missing parts (`???`) and then run the code.
 
 ```{r eval=FALSE}
 # perform stemming to reduce inflected and derived words to their root form
-essay_stem <- ???(essay_corpus, ???) 
+essay_stem <- tm_map(essay_corpus, stemDocument) 
 
 # Inspect the stemmed corpus
-???(essay_stem[1])
+inspect(essay_stem[1])
 ```
 
 
@@ -440,10 +440,10 @@ lemmatise_text <- function(text) {
 }
 
 # Apply lemmatisation to the corpus
-essay_lemma <- ???(essay_corpus, ???)
+essay_lemma <- tm_map(essay_corpus, content_transformer(lemmatise_text))
 
 # Inspect the lemmatised corpus
-???(essay_lemma[1])
+inspect(essay_lemma[1])
 ```
 
 
