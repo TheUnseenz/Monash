@@ -5,7 +5,6 @@ Section 0: Load data
 # install.packages('leaflet')
 
 # install.packages("this.path")
-# install.packages('plyr')
 # install.packages('dplyr')
 ```
 ```{r eval=FALSE}
@@ -51,18 +50,18 @@ top_10_data <- ausstage %>%
   filter(Venue.Name %in% top_10_names)
 
 # Step 4: Count the occurrences of each Category within the top 10 names
-top_10_category_counts <- top_10_data %>%
-  group_by(Venue.Name, Primary.Genre, Suburb, Latitude, Longitude) %>%
+data <- top_10_data %>%
+  group_by(Venue.Name, Primary.Genre, Suburb, Latitude, Longitude, First.Year, Last.Year) %>%
   summarise(Count = n()) %>%
   ungroup()
 
 # Step 5: Order the 'Name' factor based on their total count (within the top 10) for plotting
-top_10_category_counts_ordered <- top_10_category_counts %>%
+data_ordered <- data %>%
   left_join(name_totals %>% filter(Venue.Name %in% top_10_names), by = "Venue.Name") %>%
   mutate(Venue.Name = factor(Venue.Name, levels = head(name_totals$Venue.Name, 10)))
 
 # Step 6: Create the stacked bar chart for the top 10 names
-vis <- ggplot(top_10_category_counts_ordered, aes(x = Venue.Name, y = Count, fill = Primary.Genre)) +
+data_vis <- ggplot(data_ordered, aes(x = Venue.Name, y = Count, fill = Primary.Genre)) +
   geom_bar(stat = "identity") +
   labs(title = "Top 10 Names by Frequency (Stacked by Category)",
        x = "Name",
@@ -99,28 +98,50 @@ An interactive proportional symbol map using Leaflet.
 ```{r eval=FALSE}
 
 # Step 5: Define a color palette for the categories (assuming 5 categories)
-category_colors <- colorFactor(palette = "plasma", domain = top_10_category_counts$Primary.Genre)
+category_colors <- colorFactor(palette = "plasma", domain = data$Primary.Genre)
 
 # Step 6: Scale the radius based on the count (adjust the multiplier as needed)
-scale_factor <- 3 # Adjust this to control the size of the circles
+scale_factor <- 5 # Adjust this to control the size of the circles
 
+# Function to add circles with common properties
+add_circles <- function(map, data) {
+  map %>%
+    addCircleMarkers(
+      data = data,
+      color = ~category_colors(data$Primary.Genre),
+      radius = ~sqrt(data$Count)*scale_factor,
+      fillOpacity = 0.2,
+      label = ~lapply(paste(
+        "<b>Venue Name:</b>", Venue.Name, "<br>",
+        "<b>Suburb:</b>", Suburb, "<br>",
+        "<b>Primary Genre:</b>", Primary.Genre, "<br>",
+        "<b>Number of Events:</b>", Count
+      ), HTML)
+  )
+}
 
-interactive_map <- leaflet() %>%
+data_map <- leaflet() %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   setView(lng = 144.962, lat = -37.8162, zoom = 12) %>%
   addTiles() %>%
-  addLegend(pal = category_colors, values = top_10_category_counts$Primary.Genre, title = "Primary.Genre") %>%
-  addCircleMarkers(data = top_10_category_counts,
-  color = ~category_colors(top_10_category_counts$Primary.Genre),
-  radius = ~sqrt(top_10_category_counts$Count*scale_factor),
-  fillOpacity = 0.2,
-  label = ~lapply(paste(
-    "<b>Venue Name:</b>", Venue.Name, "<br>",
-    "<b>Suburb:</b>", Suburb, "<br>",
-    "<b>Primary Genre:</b>", Primary.Genre, "<br>",
-    "<b>Number of Events:</b>", Count
-    ), HTML)
-  )
+  addLegend(pal = category_colors, values = data$Primary.Genre, title = "Primary.Genre") %>%
+  add_circles(map=., data=data)
+  # addCircleMarkers(
+  #   data = data,
+  #   color = ~category_colors(data$Primary.Genre),
+  #   radius = ~sqrt(data$Count*scale_factor),
+  #   fillOpacity = 0.2,
+  #   label = ~lapply(paste(
+  #     "<b>Venue Name:</b>", Venue.Name, "<br>",
+  #     "<b>Suburb:</b>", Suburb, "<br>",
+  #     "<b>Primary Genre:</b>", Primary.Genre, "<br>",
+  #     "<b>Number of Events:</b>", Count
+  #   ), HTML)
+  # )
+```
+```{r eval=FALSE}
+data_vis
+data_map
 ```
 Section 3: Data Visualisation Narrative 
 use a fixedPage (not a fluidPage) layout and are expected to position the 
@@ -140,8 +161,68 @@ visualisation elements in an appropriate number of rows and columns.
     d)  date of the version of the original data used for the visualisation. 
 
 ```{r eval=FALSE}
-# vis
-interactive_map
+data_vis
+data_map
+library(shiny) # For sliderInput
+
+# --- 5. Create the HTML Structure for the Fixed Page Layout ---
+page_title <- "Venue and Category Analysis"
+map_description <- "This interactive map displays the top 10 most frequent venues, with circle markers representing the number of events for each category at that venue. Hover over a marker for details. Use the slider below to filter venues by the year they occurred in."
+bar_chart_description <- "This stacked bar chart shows the breakdown of event counts by category for each of the top 10 most frequent venues."
+data_source_info <- "Data source: [Insert your data source information here]"
+
+# --- 6. Create the Shiny UI for the Fixed Page Layout with Slider ---
+ui <- fixedPage(
+  title = page_title,
+  h1(page_title),
+  # div(leafletOutput("map"), style = "width:100%;height:400px"),
+  fixedRow(column(12, leafletOutput("map", height = "600px"))),
+  p(map_description),
+  fluidRow(
+    div(renderPlot({data_vis}), style = "width:60%;float:left;"),
+    div(p(bar_chart_description), style = "width:40%;float:right;")
+  ),
+  hr(),
+  p(data_source_info),
+  hr(),
+  sliderInput(
+    inputId = "year_range",
+    label = "Filter Map by Year:",
+    min = min(data$First.Year, data$Last.Year, na.rm = TRUE),
+    max = max(data$First.Year, data$Last.Year, na.rm = TRUE),
+    value = c(min(data$First.Year, data$Last.Year, na.rm = TRUE), max(data$First.Year, data$Last.Year, na.rm = TRUE)),
+    step = 1,
+    sep = "",
+    animate = FALSE
+  )
+)
+
+
+# --- 7. Create the Shiny Server Logic for Interactive Filtering ---
+server <- function(input, output, session) {
+  output$map <- renderLeaflet({
+    data_map
+  })
+
+  observe({
+    min_year <- input$year_range[1]
+    max_year <- input$year_range[2]
+
+    filtered_map_data <- data %>%
+      filter(data$First.Year >= min_year & data$Last.Year <= max_year) %>%
+      group_by(data$Venue.Name, data$Primary.Genre, data$Latitude, data$Longitude) %>%
+      summarise(Count = n()) %>%
+      ungroup()
+
+    leafletProxy("map", data = filtered_map_data) %>%
+      clearMarkers() %>%
+      add_circles(map=., data=filtered_map_data)
+  })
+}
+
+# --- 8. Run the Shiny App ---
+shinyApp(ui = ui, server = server)
+
 ```
 ```{r eval=FALSE}
 library(dplyr)
@@ -152,19 +233,19 @@ library(htmlwidgets)
 library(shiny) # For sliderInput
 
 # Assuming your data frame is named 'data' and has columns:
-# 'Name', 'Category', 'Latitude', 'Longitude', 'StartYear', 'EndYear'
+# 'Name', 'Category', 'Latitude', 'Longitude', 'First.Year', 'Last.Year'
 
 # --- 1. Data Preparation (Same as before) ---
 name_totals <- data %>% group_by(Name) %>% summarise(TotalCount = n()) %>% arrange(desc(TotalCount))
 top_10_names <- head(name_totals, 10)$Name
 top_10_data <- data %>% filter(Name %in% top_10_names)
-top_10_category_counts <- top_10_data %>% group_by(Name, Category, Latitude, Longitude) %>% summarise(Count = n()) %>% ungroup()
-category_colors_factor <- factor(unique(top_10_category_counts$Category))
+data <- top_10_data %>% group_by(Name, Category, Latitude, Longitude) %>% summarise(Count = n()) %>% ungroup()
+category_colors_factor <- factor(unique(data$Category))
 category_colors <- colorFactor(palette = "Set2", domain = category_colors_factor)
 scale_factor <- 5
 
 # --- 2. Create the Interactive Map with Leaflet (Slightly Modified for Single Page) ---
-m <- leaflet(top_10_category_counts) %>%
+m <- leaflet(data) %>%
   addTiles() %>%
   addLegend(pal = category_colors, values = ~Category, title = "Category") %>%
   addCircleMarkers(
@@ -203,11 +284,11 @@ create_year_filtered_map <- function(data_subset) {
 }
 
 # --- 4. Create the Stacked Bar Chart ---
-top_10_category_counts_ordered <- top_10_category_counts %>%
+data_ordered <- data %>%
   left_join(name_totals %>% filter(Name %in% top_10_names), by = "Name") %>%
   mutate(Name = factor(Name, levels = head(name_totals$Name, 10)))
 
-stacked_bar_chart <- ggplot(top_10_category_counts_ordered, aes(x = Name, y = Count, fill = Category)) +
+stacked_bar_chart <- ggplot(data_ordered, aes(x = Name, y = Count, fill = Category)) +
   geom_bar(stat = "identity") +
   labs(title = "Category Breakdown of Top 10 Names",
        x = "Name",
@@ -238,9 +319,9 @@ ui <- fixedPage(
   sliderInput(
     inputId = "year_range",
     label = "Filter Map by Year:",
-    min = min(data$StartYear, data$EndYear, na.rm = TRUE),
-    max = max(data$StartYear, data$EndYear, na.rm = TRUE),
-    value = c(min(data$StartYear, data$EndYear, na.rm = TRUE), max(data$StartYear, data$EndYear, na.rm = TRUE)),
+    min = min(data$First.Year, data$Last.Year, na.rm = TRUE),
+    max = max(data$First.Year, data$Last.Year, na.rm = TRUE),
+    value = c(min(data$First.Year, data$Last.Year, na.rm = TRUE), max(data$First.Year, data$Last.Year, na.rm = TRUE)),
     step = 1,
     sep = "",
     animate = FALSE
@@ -250,7 +331,7 @@ ui <- fixedPage(
 # --- 7. Create the Shiny Server Logic for Interactive Filtering ---
 server <- function(input, output, session) {
   output$map <- renderLeaflet({
-    leaflet(top_10_category_counts) %>%
+    leaflet(data) %>%
       addTiles() %>%
       addLegend(pal = category_colors, values = ~Category, title = "Category") %>%
       addCircleMarkers(
@@ -273,7 +354,7 @@ server <- function(input, output, session) {
     max_year <- input$year_range[2]
 
     filtered_map_data <- top_10_data %>%
-      filter(StartYear >= min_year & EndYear <= max_year) %>%
+      filter(First.Year >= min_year & Last.Year <= max_year) %>%
       group_by(Name, Category, Latitude, Longitude) %>%
       summarise(Count = n()) %>%
       ungroup()
@@ -299,4 +380,55 @@ server <- function(input, output, session) {
 # --- 8. Run the Shiny App ---
 shinyApp(ui = ui, server = server)
 
+```
+
+
+```
+# Define UI
+ui <- fixedPage(
+  # Title
+  titlePanel("My Interactive Data Visualization App"),
+  
+  # First fixedRow for the map with its description
+  fixedRow(
+    column(12, 
+           leafletOutput("map", height = "600px")  # Set height for the map
+    ),
+    column(12, 
+           p("This is the interactive map that displays data points of interest. You can zoom in and out to explore the map.")  # Description for map
+    )
+  ),
+  
+  # Second fixedRow for the bar chart and its description (side by side)
+  fixedRow(
+    column(6, 
+           plotOutput("chart", height = "400px")  # Set height for the chart
+    ),
+    column(6, 
+           p("This bar chart represents the miles per gallon (mpg) of cars in the dataset, categorized by the number of cylinders (cyl).")  # Description for the chart
+    )
+  ),
+  
+  # Third fixedRow for the final description text
+  fixedRow(
+    column(12, 
+           p("This page demonstrates how to combine different types of data visualizations: an interactive map and a static bar chart, with accompanying descriptions.")  # Final description
+    )
+  )
+)
+
+# Define server logic
+server <- function(input, output, session) {
+
+  # Render the interactive Leaflet map
+  output$map <- renderLeaflet({
+    data_map
+  })
+
+  # Render the static bar chart
+  output$chart <- renderPlot({
+    data_chart
+  })
+
+}
 ```
