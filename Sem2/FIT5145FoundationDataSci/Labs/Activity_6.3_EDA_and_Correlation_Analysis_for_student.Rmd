@@ -1,0 +1,407 @@
+---
+title: "EDA and Correlation Analysis"
+author: "Quang Bui and Chris Yun"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: haddock
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(this.path)
+setwd(this.path::here())
+```
+
+---
+
+## Pedestrian activity
+
+Previously, we created some line plots and side-by-side box plots using the hourly Melbourne pedestrian count data after wrangling the data into a tidy long form.
+
+In this applied class we will explore 3 locations: **Melbourne Central** and **Southbank**, and **Bourke Street Mall (North)**.
+
+---
+
+## Exploratory data analysis
+
+An exploratory data analysis (EDA) analysis is performed at the beginning a data science project after the data has been collected and read into R. It involves a lot of data wrangling and exploratory data visualisation (informative visualisations for you or other data scientists that you are working closely with). Doing this will help you learn about missing values, seasonal patterns, anomalies, etc., which is information that can determine what you need to do next in your analysis. 
+
+### Prepare the data
+
+Read the hourly pedestrian counts data from 2016 to 2018 for sensors located in **Melbourne Central**, **Southbank** and **Bourke Street Mall (North)**. 
+
+* Load the `tidyverse` package
+* Read the pedestrian count data, ped_melb.south.bourke.csv
+
+```{r eval=FALSE}
+# Load tidyverse
+library(tidyverse)
+
+# Read ped_melb.south.bourke.csv
+ped_melb.south.bourke <- read.csv("ped_melb.south.bourke.csv")
+```
+
+
+You can explore the [City of Melbourne Pedestrian Counting System](http://www.pedestrian.melbourne.vic.gov.au/#date=22-09-2019&sensor=RMIT80_T&time=13) to identify these locations on an interactive map. 
+
+### Look at the data
+
+Look at `ped_melb.south.bourke` using the `glimpse()` function and answer the following questions:
+
+* What does each observation represent?
+* What does each variable represent?
+
+```{r eval=FALSE}
+# Look at the data
+glimpse(ped_melb.south.bourke)
+```
+
+
+
+A glimpse of the data shows that each observation is an hourly log of the reading from the sensor device. The variables in the data include:
+
+ * __`Date_Time`__ - date and time of the reading
+ * __`Time`__ - hour of the day 
+ * __`Sensor`__ - location of the sensor device
+ * __`Count`__ - total sensor count of pedestrians
+
+It is important that the students understand that this is a temporal/time-series data. You can explain the difference between a temporal and cross-sectional data by comparing this data set with the space lauches data used in tutorial 4. 
+
+
+### Create time variables by decomposing the date
+
+Using what you have learned about **dates**, create the following variables, which are decomposed from the variable __`Date`__. 
+
+ * __`year`__ - year 
+ * __`month`__ - month of the year
+ * __`wday`__ - day of the week 
+ * __`day`__ - day of the month 
+
+To do so, fill out the missing parts of the code chunk (`???`) below.
+
+```{r echo=TRUE, eval=FALSE}
+# Load lubridate
+library(lubridate)
+
+# Create 'time' variables
+ped_melb.south.bourke <- ped_melb.south.bourke %>%
+  mutate(year = year(Date_Time),
+         month = month(Date_Time, label = TRUE, abbr = TRUE), 
+         wday = wday(Date_Time, label = TRUE, abbr = TRUE, week_start = 1),
+         day = day(Date_Time))
+```
+
+
+## Exploring time gaps
+
+The pedestrian sensor devices count the __number__ of pedestrians over each hour of the day. For many reasons, sensors can malfunction or produce abnormal readings. This means that it's crucial for you to thoroughly examine missing values and outliers in the data (this is not to say that all missing values and outliers are due to faulty sensor devices).
+
+Check for missing values/time gaps in the data.
+
+The code chunk below is partially filled out but will guide you through the steps. Filling out the missing parts of the code chunk (`???`) will produce plots of the pedestrian count in each year for each sensor.
+
+```{r fig.width=8, eval=FALSE}
+#  Melbourne Central time gaps
+ped_melb.south.bourke %>% 
+  filter(Sensor == "Melbourne Central") %>%
+  ggplot(aes(x=Date_Time, y=Count)) + 
+  geom_point(size = 0.7) +
+  facet_wrap(year ~., scales = "free_x", nrow = 3) +
+  labs(title = "Melbourne Central", y = "Count", x = "Date-Time")
+
+#  Southbank time gaps
+ped_melb.south.bourke %>% 
+  filter(Sensor == "Southbank") %>%
+  ggplot(aes(x=Date_Time, y=Count)) + 
+  geom_point(size = 0.7) +
+  facet_wrap(year ~., scales = "free_x", nrow = 3) +
+  labs(title = "Southbank", y = "Count", x = "Date-Time")
+
+#  Bourke Street Mall (North) time gaps
+ped_melb.south.bourke %>% 
+  filter(Sensor == "Bourke Street Mall (North)") %>%
+  ggplot(aes(x=Date_Time, y=Count)) + 
+  geom_point(size = 0.7) +
+  facet_wrap(year ~., scales = "free_x", nrow = 3) +
+  labs(title = "Bourke Street Mall (North)", y = "Count", x = "Date-Time")
+```
+
+
+Answer the following questions based on the plots above:
+
+* During which period from 2016 to 2018 do you observe time gaps for each location?
+* Which location contains the least number of time gaps?
+* Provide some reasons to explain why you have observed time gaps in this data set.
+* How can time gaps become problematic when analysing the data?
+
+### Distribution of count
+
+It is useful to be able to quantitative describe the **central tendency** of numerical variables in the data. Running the following code chunk will return the **mean** and **median** hourly pedestrian counts in **Melbourne Central**, **Southbank** and **Bourke Street Mall (North)**.
+
+```{r eval=FALSE}
+# Table of mean and median pedestrian count
+ped_melb.south.bourke %>% 
+  group_by(Sensor) %>%
+  summarise(meanCount = mean(Count, na.rm=TRUE),
+            medianCount = median(Count, na.rm=TRUE)) %>%
+  ungroup()
+```
+
+Notice that the median is __lower__ than the mean, which indicates that the distribution of hourly pedestrian counts is __positively__ skewed. (If this is unclear, think about which of the two measures of central tendency is more sensitive to large values.)
+
+Fill out the missing parts of the code chunk (`???`) below to produce a histogram of the pedestrian count for each location.
+
+```{r fig.height=9, fig.width=7, eval=FALSE}
+# Histogram of pedestrian count
+ped_melb.south.bourke %>%
+  ggplot(aes(x = Count)) +
+  geom_point(0.7) +
+  labs(title = "Distribution of hourly pedestrian count", 
+       x = "Pedestrians detected",
+       y = "Frequency") +
+  facet_wrap(~ Sensor, scales = "free", nrow = 3)
+```
+
+
+Based on the distribution of pedestrian count which statistic would provide a representative measure of central tendency of pedestrian count? Why?
+
+Use this measure of central tendency to compute the 'typical' pedestrian count for each month and location. Once you have done this, convert the data into a wide form.
+
+The following code chunk is partially filled out but can guide you through the step.
+
+```{r eval=FALSE}
+ped_melb.south.bourke %>% 
+  ???(Sensor, ???) %>%
+  summarise(??? = ???(???, na.rm=TRUE)) %>%
+  ungroup() %>%
+  ???(Sensor, ???)
+```
+
+
+### Line plot of median hourly pedestrian count
+
+For a challenge, reproduce the following line plot. The code chunk provide is partially filled out but can guide you through the steps.
+
+
+```{r echo=TRUE, eval=FALSE}
+# Challenge: Line plots median hourly pedestrian count
+ped_melb.south.bourke %>% 
+  group_by(Sensor, month) %>%
+  summarise(medianCount = median(Count, na.rm=TRUE)) %>%
+  ungroup() %>%
+  ggplot(aes(???, ???, ???, ???)) +
+  geom_???() +
+  geom_???() +
+  labs(title = "Median Hourly Pedestrian Counts, 2016-2018", 
+       subtitle = "Generally more pedestrians detected in Southbank across all months.",
+       x = "Month", 
+       y = "Median Counts")
+```
+
+
+## Box plots of pedestrian counts
+
+You can use box plots to help visualise __how__ the distribution of pedestrian counts change from hour to hour. 
+
+Fill out the missing parts of the code chunk (`???`) below to produce a side-by-side box plots of the pedestrian count for each hour of the day facetted by year. You will need to set your code chunk figure options to `fig.height=9, fig.width=12`.
+
+
+```{r echo=TRUE, eval=FALSE}
+# Box plot of pedestrian counts
+ped_melb.south.bourke %>% 
+  ggplot(aes(x = as.factor(Time), y = ???, colour = ???)) + 
+  geom_???(alpha = 0.5) +
+  facet_???(~ ???, nrow = ???) +
+  theme(legend.position = "bottom") + # change the legend position
+  labs(title = "Distribution of pedestrian counts at each hour of the day", y = "Pedestrian Counts", x = "Hour of the day")
+```
+
+
+
+Answer the following questions based on the side-by-side box plots above:
+
+1. In the box plot, the interquartile range (IQR) is the difference between edges of the box, i.e., the 3rd quartile minus the 1st quartile. The larger the box, the greater the IQR, and hence the greater the variability of the variable. Explore the box plots of pedestrian counts at Southbank. During which hour of the day is the IQR __largest__? Explain why this might be the case.
+
+2. During which hours of the day and at what location did the sensor detect the highest pedestrian count?   
+
+3. The highest detected pedestrian count is approximately 9,000. Approximately how many times larger is the highest detected pedestrian count to the overall median pedestrian count in this location?
+
+4. Provide an explanation for the high frequency of pedestrian count in Southbank during the later hours of the day.
+
+
+
+## Pedestrian count prior to NYE fireworks
+
+A reasonable explanation for the large number of pedestrians detected prior to midnight is that these observations occurred on New Year's Eve. 
+
+It would be reasonable to expect the city's New Year's Eve festivities, which include entertainment, activities and fireworks, to attract many locals and tourists to the city.  Confirm your hypothesis by filling in the code chunk to produce the below line plots of pedestrian count __during__ the days prior to New Year's Eve. 
+
+```{r eval=FALSE, fig.height=6, fig.width=8}
+# Fill out ??? 
+ped_melb.south.bourke %>%
+  filter(month == ???, day %in% 24:31) %>%
+  ggplot(aes(x = ???, y = ???, colour = ???)) + 
+  geom_???(alpha = 0.5) +
+  facet_wrap(??? ~., scales = "free_x", nrow = 3) +
+  theme(legend.position = "bottom") + # change the legend position
+  ???(title = "Pedestrian count at each hour of the day leading up to NYE", y = "Pedestrian Count", x = "Hour of the day")
+```
+
+
+
+Once you've produced your plot, answer the following questions:
+
+1. Which year is the pedestrian count in Melbourne Central missing for the days leading up to NYE?
+2. Compare the pedestrian count of each location during the hours leading up to the midnight fireworks. Of the 3 locations, which is likely to be the more popular vantage point to view the midnight fireworks?
+3. Which areas are best for viewing the midnight fireworks in Melbourne? _(Hint: Search the web to help identify the best viewing areas.)_
+
+
+
+<br>
+
+---
+
+## Correlation analysis
+
+Correlation analysis is a statistical technique used to identify and quantify the strength and direction of relationships between variables. This is useful in understanding how changes in one variable may be associated with changes in another variable. Additionally, correlation analysis is often used to select variables for predictive modeling. Variables that are highly correlated with the target variable may be good candidates for inclusion in predictive models.
+
+There are several methods used for correlation analysis, depending on the types of variables. We will explore some of the methods, as shown below:
+
+* **Pearson Correlation**: Measure the linear relationship between two continuous variables.
+* **Spearman Rank Correlation**: Assess the strength and direction of association between two ordinal variables. 
+* **Chi-Square Test**: Assess the association between two nominal variables.
+* **Visualising Correlation**: Visually observe the relationship between variables
+
+We will examine when to use a specific method, rather than focusing on how each method computes correlations between variables.
+
+To explore correlation analysis, we will use the student performance data (StudentsPerformance.csv). This dataset, obtained from Kaggle, has been manipulated for this activity. You can download the dataset from Moodle.
+
+Let's first import the dataset and conduct various correlation analyses to investigate the dataset.
+
+<br>
+
+### Read and look at data
+
+* Read `StudentsPerformance.csv` and store the data in an object named `student`. 
+* Print data and check data type of each variable
+
+Note: The higher the value of Family Income level, the higher the family income in the dataset.
+
+Fill out the missing parts of the code chunk (`???`) to look at the data.
+
+```{r eval=FALSE}
+# Read student data
+student <- ???("StudentsPerformance.csv")
+
+# Head of student data
+???(student) 
+
+# Check data type
+???(student)
+```
+
+
+<br>
+
+* How many rows (observations) and columns (variables) are in the `student` data?
+* Can you identify continuous, discrete, ordinal, and nominal variables from the dataset?
+
+<br>
+
+### Pearson and Spearman Correlation, and Chi-Square Test
+
+Now we want to identify the relationships between variables but different methods have to be used for different variable types, as mentioned above.
+
+* To perform Pearson Correlation and Spearman Rank Correlation, please use `cor` function together with `method` argument.
+* To perform Chi-Square Test, please use `chisq.test` function. First, create a contingency table for two variables, using `table` function, then apply `chisq.test`.
+
+**Please note that when you use the ordinal variable, you need to convert its values into numbers reflecting order(rank), since the corresponding method only accepts numbers**
+
+Fill out the missing parts of the code chunk (`???`) to look at the data.
+
+```{r eval=FALSE}
+### Perform pearson Correlation for two variables
+???(student$???, student$???, method = ???)
+
+### Perform Spearman Rank Correlation for two variables
+# First, convert the corresponding variable values into numbers, using the 'recode' function
+student <- student %>%
+  mutate(parental_level_of_education = ???(parental_level_of_education, "primary school" = 1, ???),
+         family_Income_level = ???(family_Income_level, ???))
+
+# Perform Spearman Rank Correlation
+???(student$???, student$???, method = ???)
+
+### Perform Chi-Square test for two variables
+# Create a contingency table, using the 'table' function
+contingency_table <- ???(student$???, student$???)
+
+# Perform Chi-Square test
+???(contingency_table)
+```
+
+
+* Please interpret the results of each correlation analysis method by explaining whether it indicates a relationship and how strong it is.
+* What's the difference between pearson Correlation, Spearman Rank Correlation, and Chi-Square test? Please explain it based on the results of the analysis above.
+
+<br>
+
+There are additional tasks below:
+
+* Please compute the correlation between 4 variables (total_study_hours, math_score, reading_score, and writing_score) and display them in one table.
+* Please compute the correlation between a continuous variable and a nominal variable, using the `ANOVA (an analysis of variance)` test.
+
+Fill out the missing parts of the code chunk (`???`) to look at the data.
+
+```{r eval=FALSE}
+
+### Compute the correlation values between the 4 variables
+temp <- student %>% ???
+???(temp, method = ???)
+
+### Compute the correlation between a continuous variable and a nominal variable.
+# Perform ANOVA test
+anova_result <- ???(student$??? ~ student$???, data = ???)
+summary(anova_result)
+
+```
+
+
+* Please look into what is the `ANOVA` test.
+* Please interpret the result of the `ANOVA` test.
+
+<br>
+
+### Visualising correlation 
+
+We can also perform correlation analysis by drawing various plots. Visualisation helps in understanding the strength and direction of relationships between multiple variables.
+
+* Choose two continuous variables and draw a plot to see their correlation
+* Draw a plot to see the relationship between a nominal variable and a continuous variable
+
+
+``````{r eval=FALSE}
+
+### Draw a plot to see the correlation of two continuous variables
+???(student$???, student$???, xlab = "???", ylab = "???", main = "???")
+
+### Draw a plot to see the relationship between a nominal variable and a continuous variable
+ggplot(student, aes(x = ???, y = ???, fill = ???)) + 
+  ??? +
+  labs(x = ???, y = ???,
+       title = ???) + 
+  theme_minimal()
+
+```
+
+
+* Please interpret the plots above.
+
+<br>
+
+All of the material is copyrighted under the [Creative Commons BY-SA 4.0](https://creativecommons.org/licenses/by/4.0/) copyright.
