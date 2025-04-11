@@ -1,0 +1,46 @@
+```{r eval=FALSE}
+install.packages('igraph')
+```
+
+```{r eval=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(igraph)
+g <- graph.formula(1-2, 1-3, 2-3, 2-4) # the connections, 1 to 2, 1 to 3 etc.
+# or 
+# g <- graph(c(1,2,1,3,2,3,2,4), directed = FALSE)
+plot(g)
+V(g)
+E(g)
+diameter(g)
+as_adjacency_matrix(g)
+V(g)$name <- c("Adam", "Bob", "Con", "Doug")
+# and replot using $name
+plot(g, vertex.label = V(g)$name) # add labels
+get.adjacency(g) # have a look at the new matrix
+
+
+
+```
+```{r eval=FALSE}
+dg <- graph.formula(1-+2, 1-+3, 2-+3, 2-+4) # so '1' owes '2'and '3' etc.
+
+plot(dg)
+V(dg)$name <- c("Adam", "Bob", "Con", "Doug") # names! 
+
+plot(dg, vertex.label = V(dg)$name)
+    
+wdg <- dg # copy, wdg is going to be a weighted directed graph
+
+E(wdg)$weights <- runif(ecount(wdg)) * 1000 # random debts, up to $1000
+
+plot(wdg, vertex.label = V(wdg)$name, edge.width=E(wdg)$weights)    
+E(wdg)$weights # as specified, random values from 0 to 1000
+
+# so scale, but we might lose our arrows...
+
+plot(wdg, vertex.label = V(wdg)$name, edge.width=E(wdg)$weights / 100) 
+
+
+
+
+```

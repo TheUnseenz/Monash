@@ -1,0 +1,94 @@
+Install packages
+```{r eval=FALSE}
+install.packages('tidyverse')
+install.packages('readxl')
+```
+Set libraries
+```{r eval=FALSE}
+# Change directory to file location, sourced from: https://stackoverflow.com/a/74626705
+library(this.path)
+setwd(this.path::here())
+# Libraries
+library(tidyverse)
+library(readxl)
+```
+Converting gdp exports into csv file
+```{r eval=FALSE}
+# --- STEP 1: Read your Excel file ---
+# Replace "your_file.xlsx" with the actual path to your Excel file
+# Replace "Sheet1" with the name of the sheet containing your data if it's different
+gdp_exports <- read_excel("data/gdp_exports.xlsx", sheet = "Data", skip = 3)
+# print(gdp_exports)
+
+# --- STEP 2: Identify the columns to pivot ---
+# We need to identify the columns that represent the years.
+# Assuming the year columns start from the 5th column (after country, code, indicator, indicator code)
+year_cols <- names(gdp_exports)[5:ncol(gdp_exports)]
+
+# --- STEP 3: Pivot the data to long format ---
+gdp_exports_long <- gdp_exports %>%
+  pivot_longer(
+    cols = all_of(year_cols),
+    names_to = "Year",
+    values_to = "Export GDP Ratio"
+  )
+
+# --- STEP 4: Clean the 'year' column (optional but recommended) ---
+# The 'year' column will initially contain the year as character.
+# You might want to convert it to numeric.
+gdp_exports_long <- gdp_exports_long %>%
+  mutate(Year = as.numeric(Year))
+
+# --- STEP 5: Arrange the columns in the desired order (optional) ---
+gdp_exports_long <- gdp_exports_long %>%
+    select('Country Name', 'Country Code', 'Year', 'Export GDP Ratio', 'Indicator Name', 'Indicator Code')
+
+# --- STEP 6: View the resulting long format data ---
+print(gdp_exports_long)
+
+# --- STEP 7: Save the long format data to a new file (optional) ---
+write_csv(gdp_exports_long, "data/gdp_exports_long.csv")
+# or
+# write_excel_csv(gdp_exports_long, "long_format_data.xlsx")
+```
+
+```{r eval=FALSE}
+# --- STEP 1: Read your Excel file ---
+# Replace "your_file.xlsx" with the actual path to your Excel file
+# Replace "Sheet1" with the name of the sheet containing your data if it's different
+gdp_imports <- read_excel("data/gdp_imports.xlsx", sheet = "Data", skip = 3)
+# print(gdp_imports)
+
+# --- STEP 2: Identify the columns to pivot ---
+# We need to identify the columns that represent the years.
+# Assuming the year columns start from the 5th column (after country, code, indicator, indicator code)
+year_cols <- names(gdp_imports)[5:ncol(gdp_imports)]
+
+# --- STEP 3: Pivot the data to long format ---
+gdp_imports_long <- gdp_imports %>%
+  pivot_longer(
+    cols = all_of(year_cols),
+    names_to = "Year",
+    values_to = "Import GDP Ratio"
+  )
+
+# --- STEP 4: Clean the 'year' column (optional but recommended) ---
+# The 'year' column will initially contain the year as character.
+# You might want to convert it to numeric.
+gdp_imports_long <- gdp_imports_long %>%
+  mutate(Year = as.numeric(Year))
+
+# --- STEP 5: Arrange the columns in the desired order (optional) ---
+gdp_imports_long <- gdp_imports_long %>%
+    select('Country Name', 'Country Code', 'Year', 'Import GDP Ratio', 'Indicator Name', 'Indicator Code')
+
+# --- STEP 6: View the resulting long format data ---
+print(gdp_imports_long)
+
+# --- STEP 7: Save the long format data to a new file (optional) ---
+write_csv(gdp_imports_long, "data/gdp_imports_long.csv")
+```
+
+```{r eval=FALSE}
+
+```
