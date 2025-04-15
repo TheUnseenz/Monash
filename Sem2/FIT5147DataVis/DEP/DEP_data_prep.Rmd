@@ -1,0 +1,272 @@
+Install packages
+```{r eval=FALSE}
+# install.packages("tidyverse")
+# install.packages("readxl")
+```
+Set libraries
+```{r eval=FALSE}
+# Change directory to file location, sourced from: https://stackoverflow.com/a/74626705
+library(this.path)
+setwd(this.path::here())
+# Libraries
+library(tidyverse)
+library(readxl)
+```
+Converting gdp exports into csv file
+```{r eval=FALSE}
+# --- STEP 1: Read your Excel file ---
+# Replace "your_file.xlsx" with the actual path to your Excel file
+# Replace "Sheet1" with the name of the sheet containing your data if it's different
+gdp_exports <- read_excel("data/gdp_exports_source.xlsx", sheet = "Data", skip = 3)
+# print(gdp_exports)
+
+# --- STEP 2: Identify the columns to pivot ---
+# We need to identify the columns that represent the years.
+# Assuming the year columns start from the 5th column (after country, code, indicator, indicator code)
+year_cols <- names(gdp_exports)[5:ncol(gdp_exports)]
+
+# --- STEP 3: Pivot the data to long format ---
+gdp_exports_long <- gdp_exports %>%
+  pivot_longer(
+    cols = all_of(year_cols),
+    names_to = "Year",
+    values_to = "Export GDP Ratio"
+  )
+
+# --- STEP 4: Clean the 'year' column (optional but recommended) ---
+# The 'year' column will initially contain the year as character.
+# You might want to convert it to numeric.
+gdp_exports_long <- gdp_exports_long %>%
+  mutate(Year = as.numeric(Year))
+
+# --- STEP 5: Arrange the columns in the desired order (optional) ---
+gdp_exports_long <- gdp_exports_long %>%
+  select("Country Name", "Country Code", "Year", "Export GDP Ratio")
+
+# --- STEP 6: View the resulting long format data ---
+print(gdp_exports_long)
+
+# --- STEP 7: Save the long format data to a new file (optional) ---
+write_csv(gdp_exports_long, "data/gdp_exports.csv")
+# or
+# write_excel_csv(gdp_exports_long, "long_format_data.xlsx")
+```
+Converting gdp imports into csv file
+```{r eval=FALSE}
+# --- STEP 1: Read your Excel file ---
+# Replace "your_file.xlsx" with the actual path to your Excel file
+# Replace "Sheet1" with the name of the sheet containing your data if it's different
+gdp_imports <- read_excel("data/gdp_imports_source.xlsx", sheet = "Data", skip = 3)
+# print(gdp_imports)
+
+# --- STEP 2: Identify the columns to pivot ---
+# We need to identify the columns that represent the years.
+# Assuming the year columns start from the 5th column (after country, code, indicator, indicator code)
+year_cols <- names(gdp_imports)[5:ncol(gdp_imports)]
+
+# --- STEP 3: Pivot the data to long format ---
+gdp_imports_long <- gdp_imports %>%
+  pivot_longer(
+    cols = all_of(year_cols),
+    names_to = "Year",
+    values_to = "Import GDP Ratio"
+  )
+
+# --- STEP 4: Clean the 'year' column (optional but recommended) ---
+# The 'year' column will initially contain the year as character.
+# You might want to convert it to numeric.
+gdp_imports_long <- gdp_imports_long %>%
+  mutate(Year = as.numeric(Year))
+
+# --- STEP 5: Arrange the columns in the desired order (optional) ---
+gdp_imports_long <- gdp_imports_long %>%
+  select("Country Name", "Country Code", "Year", "Import GDP Ratio")
+
+# --- STEP 6: View the resulting long format data ---
+print(gdp_imports_long)
+
+# --- STEP 7: Save the long format data to a new file (optional) ---
+write_csv(gdp_imports_long, "data/gdp_imports.csv")
+```
+Merge data into joint table
+```{r eval=FALSE}
+# install.packages('readr')
+# install.packages('fs')
+library(tidyverse)
+library(readr)
+library(fs) # For easy file listing
+
+# Assuming your CSV files are in a specific directory
+data_directory <- "data/" # Replace with the actual directory
+
+# List all CSV files in the directory
+file_paths <- dir_ls(data_directory, glob = "*.csv")
+
+# Function to read a CSV file and add a source identifier (keeping value)
+read_and_tag_long <- function(file_path) {
+  file_name_without_ext <- path_ext_remove(path_file(file_path))
+  read_csv(file_path, col_names = FALSE, skip = 1) %>%
+    set_names(c("country_name", "country_code", "year", "value")) %>%
+    mutate(
+      country_name = str_trim(country_name),
+      country_code = str_trim(country_code),
+      year = as.numeric(str_trim(year)),
+      indicator = file_name_without_ext # Use filename as the indicator name
+    )
+}
+
+# Read and tag all files, keeping them in long format
+all_data_long <- map_dfr(file_paths, read_and_tag_long)
+
+# Now, pivot the combined long format data
+all_data_wide_merged <- all_data_long %>%
+  pivot_wider(
+    id_cols = c("country_name", "country_code", "year"),
+    names_from = "indicator",
+    values_from = "value" # Now we correctly pivot the 'value'
+  )
+
+# # Now 'all_data_wide' is a single data frame with columns:
+# # country_name, country_code, year, <filename1>, <filename2>, ..., <filename5>
+
+# Display the first few rows of the merged data
+print(head(all_data_wide_merged))
+
+# You can now proceed with data exploration and visualization using this merged data frame.
+```
+Converting income group metadata to csv
+```{r eval=FALSE}
+# --- STEP 1: Read your Excel file ---
+# Replace "your_file.xlsx" with the actual path to your Excel file
+# Replace "Sheet1" with the name of the sheet containing your data if it's different
+gdp_exports <- read_excel("data/gdp_exports_source.xlsx", sheet = "Data", skip = 3)
+# print(gdp_exports)
+
+# --- STEP 2: Identify the columns to pivot ---
+# We need to identify the columns that represent the years.
+# Assuming the year columns start from the 5th column (after country, code, indicator, indicator code)
+year_cols <- names(gdp_exports)[5:ncol(gdp_exports)]
+
+# --- STEP 3: Pivot the data to long format ---
+gdp_exports_long <- gdp_exports %>%
+  pivot_longer(
+    cols = all_of(year_cols),
+    names_to = "Year",
+    values_to = "Export GDP Ratio"
+  )
+
+# --- STEP 4: Clean the 'year' column (optional but recommended) ---
+# The 'year' column will initially contain the year as character.
+# You might want to convert it to numeric.
+gdp_exports_long <- gdp_exports_long %>%
+  mutate(Year = as.numeric(Year))
+
+# --- STEP 5: Arrange the columns in the desired order (optional) ---
+gdp_exports_long <- gdp_exports_long %>%
+  select("Country Name", "Country Code", "Year", "Export GDP Ratio")
+
+# --- STEP 6: View the resulting long format data ---
+print(gdp_exports_long)
+
+# --- STEP 7: Save the long format data to a new file (optional) ---
+write_csv(gdp_exports_long, "data/gdp_exports.csv")
+# or
+# write_excel_csv(gdp_exports_long, "long_format_data.xlsx")
+```
+
+Add in population.csv
+```{r eval=FALSE}
+library(tidyverse)
+library(readr)
+
+# 1. Load the GDP per capita data
+gdp_per_capita_file <- "data/gdp_per_capita.csv"
+gdp_data <- read_csv(gdp_per_capita_file)
+
+# Rename columns for consistency
+gdp_data <- gdp_data %>%
+  rename(
+    country_name = Entity,
+    country_code = Code,
+    year = Year,
+    gdp_per_capita_ppp = `GDP per capita, PPP`
+  )
+
+# 2. Load population data
+population_file <- "data/population_data.csv"
+population_data <- read_csv(population_file)
+
+# Rename columns to be consistent
+population_data <- population_data %>%
+  rename(
+    country_name = Entity,
+    year = Year,
+    population = `all years`
+  )
+
+# 3. Merge GDP per capita and population data by country name and year
+gdp_data_with_pop <- gdp_data %>%
+  left_join(population_data, by = c("country_name", "year"))
+
+# 4. Calculate total GDP for each country and year
+gdp_data_with_pop <- gdp_data_with_pop %>%
+  mutate(
+    total_gdp_ppp = gdp_per_capita_ppp * population
+  )
+
+# 5. Calculate world GDP for each year, CORRECTED
+world_gdp_by_year <- gdp_data_with_pop %>%
+  # Filter for rows where country_name is "World"
+  filter(country_name == "World") %>%
+  group_by(year) %>%
+  summarise(
+    world_gdp_ppp = sum(total_gdp_ppp, na.rm = TRUE)
+  )
+
+# 6. Merge world GDP data back into the main data frame
+gdp_data_with_pop <- gdp_data_with_pop %>%
+  left_join(world_gdp_by_year, by = "year")
+
+# 7. Calculate percentage of world GDP for each country and year
+gdp_data_with_pop <- gdp_data_with_pop %>%
+  mutate(
+    percentage_of_world_gdp = (total_gdp_ppp / world_gdp_ppp) * 100
+  )
+
+# 8. Select and rename columns for the final output
+gdp_percentage_of_world <- gdp_data_with_pop %>%
+  select(country_name, country_code, year, percentage_of_world_gdp) %>%
+  rename(
+    Entity = country_name,
+    Code = country_code,
+    Year = year,
+    `Percentage of World GDP` = percentage_of_world_gdp
+  )
+
+# 9. Save the result to a new CSV file
+output_file <- "data/percentage_of_world_gdp.csv"
+write_csv(gdp_percentage_of_world, output_file)
+
+print(paste("Percentage of World GDP data saved to:", output_file))
+```
+```{r eval=FALSE}
+
+```
+```{r eval=FALSE}
+
+```
+```{r eval=FALSE}
+
+```
+```{r eval=FALSE}
+
+```
+```{r eval=FALSE}
+
+```
+```{r eval=FALSE}
+
+```
+```{r eval=FALSE}
+
+```
