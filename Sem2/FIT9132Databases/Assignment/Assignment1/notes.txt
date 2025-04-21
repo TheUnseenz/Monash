@@ -1,0 +1,52 @@
+OO
+Passengers
+
+
+
+Ships
+Operator company
+- Operator ID
+- Company name
+- CEO name
+	- Operator operates multiple ships
+Ship code
+Ship name
+Date commissioned
+Tonnage
+Max guest capacity
+Name of country of registration
+
+Cabins
+Cabin number (reused across ships)
+Cabin sleeping capacity
+Cabin class
+
+
+
+
+Cruises
+Ship code (only 1 ship)
+Departure date and time
+Cruise ID
+Cruise name
+Cruise description
+
+Passengers
+Cruise booking
+Passenger ID
+Passenger first name
+Passenger last name
+Passenger gender
+Passenger date of birth
+Passenger is minor?
+Passenger guardian - guardian passenger ID
+Passenger address
+Address street and street number
+Address town
+Address postcode
+Address country
+
+Ports
+
+
+
