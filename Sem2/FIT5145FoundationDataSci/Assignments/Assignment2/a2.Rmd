@@ -1,0 +1,74 @@
+Let’s take a look at the file Wastes.csv. 
+```{r eval = FALSE} 
+# Change directory to file location, sourced from: https://stackoverflow.com/a/74626705
+library(this.path)
+setwd(this.path::here())
+
+wastes <- read.csv("Wastes.csv")
+```
+1.  How many unique “Category” values are there in the data file (6 marks)? 
+```{r eval = FALSE} 
+unique_categories <- unique(wastes$Category)
+print(length(unique_categories))
+```
+2.  How  many  negative  feedback  comments  are  in  the  'Description'  column  with  an 
+environmental impact score of 2 or 3 (4 marks)? 
+```{r eval = FALSE} 
+library(dplyr)
+negative_env_score <- length(grep(" 3/10.| 2/10.", wastes$Description))
+print(negative_env_score)
+```
+3.  For each Category value, write code to calculate the fractions of waste tonnes of different 
+waste sources, and then draw a chart to visualise the fraction numbers specific to the Category 
+value (3 marks). 
+```{r eval = FALSE} 
+
+```
+4.  Please add the 'Year' and 'State' values from Year_State_ID.csv to Wastes.csv, compute the 
+total waste tonnes for each year and state, and store the result in a dataset named 'temp'. Then, 
+use a single R function/command to display the statistical information (i.e., Min, Max, and 
+Mean)  of  the  total  waste  tonnes  for  each  state  in  ‘temp’  (Note: You may use multiple 
+functions/commands  to  prepare  the pre-processed data table, but when you compute and 
+display the statistical information, you need to use a single R function/command.) (6 marks). 
+```{r eval = FALSE} 
+
+```
+5.  Write code to draw a chart showing a yearly trend of total waste tonnes of food organics for 
+each state. To draw the chart, please convert the Year-Year formats of all Year values into Year 
+formats (3 marks).  
+```{r eval = FALSE} 
+
+```
+6.  Write code to display the most recycled waste Type and the most disposed waste Type with the 
+corresponding year. Write code to display the most increased waste Type over years (4 marks). 
+```{r eval = FALSE} 
+
+```
+7.  Please investigate the factors influencing environmental impact scores. (Note: You may use 
+variables  from  both  Wastes.csv  and  Year_State_ID.csv  for  your analysis.) Marks will be 
+awarded based on the depth of your investigation (including analyses and discussions) and the 
+strength of your reasoning (how insights and conclusions are drawn) (5 marks). 
+```{r eval = FALSE} 
+
+```
+8.  Write code to only keep data records where the Category value is Hazardous wastes, the Type 
+value is Tyres (T140) and  tonnes value is more than 0, then write code to add a new column 
+named  “Tonnes_range”  and  fill  it  with  one  of  the  following  values  based  on  the 
+corresponding “Tonnes” value: 
+○        [0, 10000) 
+○        [10000, 20000) 
+○        [20000, 40000) 
+○        [40000, 80000] 
+Then, for each state, display a chart to show the number of cases of different score_range 
+values. What do you observe? (4 marks) 
+```{r eval = FALSE} 
+
+```
+9.  Using both original datasets and external sources, please investigate the factors influencing 
+the yearly trend of total C&D waste tonnes. Marks will be awarded based on the depth of your 
+investigation (including analyses and discussions) and the strength of your reasoning (how 
+insights and conclusions are drawn). (Note: Please provide the source links for any external 
+data used) (7 marks). 
+```{r eval = FALSE} 
+
+```
