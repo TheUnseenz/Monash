@@ -59,6 +59,7 @@ corresponding “Tonnes” value:
 ○        [10000, 20000) 
 ○        [20000, 40000) 
 ○        [40000, 80000] 
+
 Then, for each state, display a chart to show the number of cases of different score_range 
 values. What do you observe? (4 marks) 
 ```{r eval = FALSE} 
