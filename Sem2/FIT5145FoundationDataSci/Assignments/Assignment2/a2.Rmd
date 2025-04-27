@@ -23,6 +23,11 @@ waste sources, and then draw a chart to visualise the fraction numbers specific 
 value (3 marks). 
 ```{r eval = FALSE} 
 
+# Calculate the sum of 'value' for each category
+category_sums <- aggregate(Tonnes ~ Category, data = wastes, sum)
+
+# Print the category sums (optional, but good to check)
+print(category_sums)
 ```
 4.  Please add the 'Year' and 'State' values from Year_State_ID.csv to Wastes.csv, compute the 
 total waste tonnes for each year and state, and store the result in a dataset named 'temp'. Then, 
