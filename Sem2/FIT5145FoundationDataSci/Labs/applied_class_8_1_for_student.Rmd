@@ -1,0 +1,348 @@
+---
+title: "Applied Class 8"
+author: "Quang Bui and updated by Chris Yun"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: haddock
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## PISA
+
+The [OECD Programme for International Student Assessment (PISA)](http://www.oecd.org/pisa/data/) conducts an annual test for 15-year-olds across the globe to measure their performance in reading, mathematics and science knowledge. It provides test scores on maths, science and reading, along with information on the student, teacher and parent through questionnaires. A subset of this data (Australian students) will be studied in this step by applying linear models you've learned.
+
+### Load the data
+
+The question of interest is whether **more** time spent studying science is associated with **higher** science scores and how this varies with the enjoyment of science. Begin by downloading the PISA data `pisa_au.rda` from Moodle and storing the file in your working directory and import pisa_au.rda, using `load` function. 
+
+
+```{r}
+# Load PISA data file
+load("pisa_au.rda")
+```
+
+### Data wrangling and cleaning
+
+Once you've loaded the PISA data into your R session, you will need to apply the following data wrangling and cleaning steps:
+
+1. **Create a variable** called `science`, which represents the student's science score based on the average of 10 **plausible value** (PV) scores in science.
+2. **Rename** the following variables so that they better reflect what they represent:
+  * `ST094Q01NA`* represents the student's enjoyment of science.
+  * `SMINS` represents the student's time spent studying science per week.
+  * `W_FSTUWT` represents the student's weighting, which is an indication of how many other students they
+represent in Australia, relative to their socioeconomic and demographic characteristics.
+  * `ST004D01T` represents the student's gender (NA is also a category here but there are no NAs for this variable in this data set). Any 'missingness' in this variable is information and should not be removed or corrected.
+  * `ANXTEST` represents the student's test anxiety level.
+3. **Filter** out anomalies and missing values, and then **convert** the variables into appropriate classes.
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) and then run.
+
+```{r load-wrangle, eval=FALSE}
+# Load tidyverse
+library(tidyverse)
+
+# Create data frame of science scores
+pisa_au_science <- pisa_au %>% 
+  # Create science score based on the 10 PV science scores
+  mutate(science = (PV1SCIE + PV2SCIE + PV3SCIE + PV4SCIE + PV5SCIE + 
+    PV6SCIE + PV7SCIE + PV8SCIE + PV9SCIE + PV10SCIE) / 10) %>% 
+  # Select and rename ambiguous names
+  ???(science, science_fun = ST094Q01NA, science_time = SMINS,
+    stuweight = W_FSTUWT, gender=ST004D01T, anxtest = ANXTEST) %>%
+  # Recode gender variable
+  mutate(gender = factor(gender, levels=c(1,2), labels=c("girl", "boy")), exclude = NULL) %>%
+  # Filter out missing values in science_time
+  filter(!is.na(science_fun), !is.na(???)) %>% 
+  # Convert science_fun into a factor
+  mutate(science_fun = ???(science_fun), science_time = as.numeric(science_time)) %>%
+  # Filter for science_time greater than 0
+  filter(science_time > 0)
+```
+
+
+
+### Wrangling challenge
+
+Notice that science score was created by taking the average of the 10 PV of science scores:
+
+```{r echo=FALSE, eval=FALSE}
+pisa_au %>% 
+  mutate(science = (PV1SCIE + PV2SCIE + PV3SCIE + PV4SCIE + PV5SCIE + 
+    PV6SCIE + PV7SCIE + PV8SCIE + PV9SCIE + PV10SCIE) / 10) %>%
+  select(science, everything())
+```
+
+How might we calculate the mean across columns in a smarter way, i.e., without typing out each individual column? The following functions can help us:
+
+* `rowMeans()`
+* `select_at()`
+* `vars()`
+* `starts_with()`
+* `ends_with()`
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) and then run.
+
+```{r eval=FALSE}
+pisa_au %>% 
+  mutate(science = ???(select_at(., vars(starts_with("???") & ends_with("???"))))) %>%
+  select(science, everything())
+```
+
+
+
+## Relationship score & time spend studying
+
+The goal is to develop a linear regression model of science score to understand how the independent variables effect a student's science score. Before developing the linear regression model, we should explore the relationship between a student's science score and factors that we expect impact science score, e.g., the time that students spend studying science.
+
+Below is a scatter plot of science score against time spent studying science per week:
+
+```{r}
+pisa_au_science %>% 
+  ggplot(aes(x = science_time, y = science)) + 
+  geom_point()
+```
+
+* What is the relationship between science score and time spent studying science?
+* Is this what you expected?
+* Are there any unusual points in the scatter plot?
+* What do these points do to the graph?
+
+
+
+Below is a density plot (similar to a histogram in that it provides a visualisation of the distribution of a continuous numerical variable, but the y-axis represents the density, not the count) of time spent studying science each week:
+
+```{r}
+pisa_au_science %>% 
+  ggplot(aes(x = science_time)) + 
+  geom_density()
+```
+
+Notice that the time spent studying science is highly positively skewed.
+
+### Log transformation I
+
+Applying a log transformation on a numerical variable (note: we cannot take the log of variable that contains zeros or negative values) will scale back any large numbers. The code chunk below shows the effect on the distribution of time spent studying science before and after the log transformation. 
+
+```{r fig.height=9, fig.width=7}
+dens_sci_time <- pisa_au_science %>% 
+  ggplot(aes(x = science_time)) + 
+  geom_density() +
+  geom_histogram(aes(y = ..density..), alpha = 0.5) +
+  labs(title = "Distribution of time spent studying science **before** log transformation")
+
+dens_log_sci_time <- pisa_au_science %>% 
+  ggplot(aes(x = science_time)) + 
+  geom_density() +
+  geom_histogram(aes(y = ..density..), alpha = 0.5) +
+  scale_x_log10() + # apply a log transformation on the x-axis
+  labs(title = "Distribution of time spent studying science **after** log transformation")
+
+gridExtra::grid.arrange(dens_sci_time, dens_log_sci_time, nrow = 2)
+```
+
+* What was layered into the `ggplot` call to apply a log transformation to time spent studying science (the x-axis log-scaled)?
+* Describe the difference in the distribution of time spent studying science before and after the log transformation.
+* What should we expect to see when we produce a scatter plot of science score against the log of time spent studying science? 
+
+
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) to produce a scatter plot of science score against the log of time spent studying science.
+
+```{r eval=FALSE}
+pisa_au_science %>% 
+  ggplot(aes(x = ???, y = ???)) + 
+  geom_???(alpha = 0.1) + 
+  scale_???() +
+  labs(title = "Relationship between science score and time spent studying it",
+       subtitle = "Students are grouped based on how much they enjoy science",
+       caption = "*x-axis is plotted on a log scale",
+       x = "Time spent studying science per week*",
+       y = "Science score")
+```
+
+
+
+### Controlling for science enjoyment
+
+By grouping students based on their enjoyment of science (using the `facet_wrap()` function), you are controlling for the impact that the student's enjoyment of science has on their science score (as students whose enjoyment of science are the same are grouped together). 
+
+Fill out the missing parts of the code chunk (`???`) to plot science score against time spent studying science.
+
+```{r plot-interaction, eval=FALSE}
+pisa_au_science %>% 
+  ggplot(aes(x = science_time, y = science, colour = science_fun)) + 
+  geom_point(alpha = 0.1) + 
+  facet_???(~ ???, ncol = 2) + 
+  scale_colour_brewer("Enjoy science", palette = "Dark2") +
+  # convert x to log10 scale
+  scale_x_log10() +
+  theme(legend.position = "bottom") + 
+  labs(title = "Relationship between science score and time spent studying it",
+       subtitle = "Students are grouped based on how much they enjoy science",
+       caption = "*x-axis is plotted on a log scale",
+       x = "Time spent studying science per week*",
+       y = "Science score")
+```
+
+### Log transformation II
+
+We want to explore the relationship between science score and the time spent studying and, of course, there will be some outliers, i.e., a small number of students who spend an extremely long time studying science each week. These outliers do not help to explain science scores. A log transformation on time spend studying science will 'scale back' these extreme values (think about how a positively skewed variable becomes more symmetric when you've taken the log of it), which will produce a more meaningful plot of science score against time spend studying science.
+
+
+
+Based on the scatter plot of science score against (log) time spent studying science per week, conditional on the enjoyment of science:
+
+* If you did not apply a log transformation to study time, how would you describe its distribution?
+* Based on the log scaled x-axis, how would you describe the relationship between science score and time spent studying?
+* Are students who enjoy science more likely to receive higher scores, given they spend an equal amount of time studying science?
+
+
+
+Remove **`scale_x_log10() +`** from the code chunk. What do you see?
+
+
+## Modelling science score
+
+There are two possible models for you to consider:
+
+$$
+\begin{align}
+  1)\ science &= \beta_0 + \beta_1 log(science\_time) + \beta_2 science\_fun\_2 \\
+  &+ \beta_3 science\_fun\_3 + \beta_4 science\_fun\_4 + \varepsilon \\
+  \\
+  2)\ science &= \beta_0 + \beta_1 log(science\_time) + \beta_2 science\_fun\_2 \\
+  &+ \beta_3 science\_fun\_3 + \beta_4 science\_fun\_4 \\ 
+  &+ \beta_5 log(science\_time)^{*}science\_fun\_2 \\
+  &+ \beta_6 log(science\_time)^{*}science\_fun\_3 \\
+  &+ \beta_7 log(science\_time)^{*}science\_fun\_4 + \varepsilon
+\end{align}   
+$$
+where, 
+
+* $science$ - science score
+* $science\_time$ - time spent studying science
+* $science\_fun$ - level of science enjoyment (1: strongly disagree, 2: disagree, 3: agree, 4: strongly agree)
+
+Note that one category of `science_fun` is omitted from the linear regression model, i.e., strongly disagree that science is enjoyable (`science_fun = 1`). This category is used as a **base dummy variable**.
+
+Model 2 has interaction terms between the log of time spent studying science and science enjoyment. This means that the slope of the log of time spent studying science can vary at different levels of science enjoyment. Since the time spent studying science is heavily skewed, and we do not want the extreme values of the study time to influence science score, we use the log transformation of study time as an independent variable in the model.
+
+### Training the model
+
+Fill out the missing parts of the code chunk (`???`) to train the 2 models of student's science scores using the `pisa_au_science` data. 
+
+In the PISA survey, each student was given a different weighting that depended on their school and other factors. You'll notice that each student's weighting is taken into account by specifying the variable `stuweight` in the `weights` argument of the `lm()` function.
+
+```{r eval=FALSE}
+# Fit both models of student's science score
+mod1 <- ???(formula = ??? ~ ??? + ???,
+  data = ???, weights = stuweight)
+mod2 <- lm(??? ~ ??? * ???,
+  data = ???, weights = stuweight)
+```
+
+
+
+Now load the `broom` package and print out the output of both trained/fitted models using the `tidy()` and `glance()` function:
+
+```{r eval=FALSE}
+# Load broom, which contains tidy() and glance()
+library(???)
+
+# Output of first fitted model
+tidy(???)
+???(mod1)
+
+# Output of second fitted model
+tidy(???)
+???(mod2)
+```
+
+
+The intercept term in a regression table tells us the average expected value for the response variable when all of the predictor variables are equal to zero. The intercept coefficient at that point is the regression coefficient [(Ref.)](https://www.statology.org/how-to-interpret-regression-coefficients/).
+
+Using the output of both fitted models:
+
+* Provide an interpretation of the intercept coefficients for both fitted models.
+* Write down each fitted model in equation form.
+* Which model is better, and why?
+
+### How does science score relate to text anxiety and gender?
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+pisa_au_science %>% 
+  ggplot(aes(x = anxtest, y = science, colour = as.factor(gender))) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  theme(legend.position = "bottom") + 
+  ggtitle("Relationship between science score and anxiety level") +
+  labs(colour = "Gender") +
+  xlab("Anxiety level") + 
+  ylab("Science score")
+```
+
+Generate the above scatter plot of student's science score against a measure of their test anxiety level (`anxtest`), coloured by `gender`, by appropriately filling out `???` in the code chunk below. 
+
+* How many missing values were omitted from the plot?
+* Does it look like an interaction term between anxiety level and gender could improve the model of students' science score?
+
+```{r eval=FALSE}
+# Plot science score against anxiety level
+pisa_au_science %>% 
+  ggplot(aes(x = ???, y = science, colour = as.factor(???))) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  theme(legend.position = "bottom") + 
+  ggtitle("Relationship between science score and anxiety level") +
+  labs(colour = "Gender") +
+  xlab("Anxiety level") + 
+  ylab("Science score")
+```
+
+## Group exercise
+
+Fit two models of science score using information about the student's gender and anxiety level:
+
+1. A model of science score against gender and test anxiety level.
+2. A model of science score with an interaction between gender and test anxiety level
+
+To fit these models and return their output, complete the code by replacing parts that contain `???` in the following code chunk.
+
+```{r eval=FALSE}
+# Fit the models
+sci_lm1 <- lm(science ~ ??? + ???, data = pisa_au_science, weights = stuweight)
+sci_lm2 <- lm(science ~ ??? * ???, data = pisa_au_science, weights = stuweight)
+
+# Output of first fitted model
+tidy(sci_lm1)
+glance(???)
+
+# Output of second fitted model
+tidy(???)
+glance(sci_lm2)
+```
+
+Which model do you think is better?
+
+
+
+## A note about the modelling process
+
+For linear regression models, ideally, we want a model that helps to explain $y$ as much as possible with only independent variables that are statistically significant, i.e., they have a statistically significant impact on what we are modelling (here it is the science score). It is important to understand this because adding any other variables (those that do not have a true or statistically significant impact on science score) will increase the model's $R^2$ (a measure of how well the model fits the data, i.e., how much the independent variables in the model helps to explain the dependent variable), but lead to overfitting (so the model is great at predicting the science scores for students in the trained data set, but is unable to generalise well for new data (data of students that were not used to train the model)). So keeping this in mind, what does the model development process look like and how much trial and error should there be? 
+
+In practice, the model development stage does not occur until an in-depth exploration of the data has been performed. This involves exploring the variable to be modelled and variables that could help explain the variable to be modelled (think histograms and box plots to understand the distribution of the variables and scatter plots and correlation coefficients to explore the relationship between variables), which reduces the amount of trial and error required.
+
+Once the exploratory data analysis (EDA) has been performed, we move into the model development phase. Here, we take what we have learned from the EDA to guide us through our model development. Suppose we learn that a student's math score has a strong linear relationship with their science score (a scatter plot might show this). This would indicate to us that a math score could be a good variable to include in our linear model of science score. If we learn that the impact of maths score on science score differs by gender (same scatter plot, but points coloured by gender), we may want to include the interaction of maths score and gender into our model of science score.
+
+We drew these insights from our EDA and they guided us through model development (reducing the amount of trial and error). Without the EDA, we would not understand our data well, and it would turn into an exercise where we develop our model mostly through trial and error (Is Maths score a good predictor of science score? Is English score a good predictor? Does it differ by gender? Time spent studying? Does time spent studying impact science score differently between gender? What about schools?, etc.). These questions should be asked in the preliminary analysis when we explore the data. Once we have a good idea of what the data tells us (how or whether the variables available to us impacts science score, etc.), we can move into model development with less trial and error.
+
+All of the material is copyrighted under the [Creative Commons BY-SA 4.0](https://creativecommons.org/licenses/by/4.0/) copyright.

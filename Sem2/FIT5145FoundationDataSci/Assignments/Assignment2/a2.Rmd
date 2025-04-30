@@ -17,6 +17,8 @@ environmental impact score of 2 or 3 (4 marks)?
 ```{r} 
 negative_env_score <- length(grep(" 3/10.| 2/10.", wastes$Description))
 print(negative_env_score)
+# Data cleaning time: inconsistent categories
+# Unnamed category 1
 ```
 3.  For each Category value, write code to calculate the fractions of waste tonnes of different 
 waste sources, and then draw a chart to visualise the fraction numbers specific to the Category 
