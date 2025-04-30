@@ -4,6 +4,7 @@ Let’s take a look at the file Wastes.csv.
 library(this.path)
 setwd(this.path::here())
 
+library(dplyr)
 wastes <- read.csv("Wastes.csv")
 ```
 1.  How many unique “Category” values are there in the data file (6 marks)? 
@@ -14,7 +15,6 @@ print(length(unique_categories))
 2.  How  many  negative  feedback  comments  are  in  the  'Description'  column  with  an 
 environmental impact score of 2 or 3 (4 marks)? 
 ```{r} 
-library(dplyr)
 negative_env_score <- length(grep(" 3/10.| 2/10.", wastes$Description))
 print(negative_env_score)
 ```
@@ -22,7 +22,6 @@ print(negative_env_score)
 waste sources, and then draw a chart to visualise the fraction numbers specific to the Category 
 value (3 marks). 
 ```{r} 
-
 # Calculate the sum of 'value' for each category
 category_sums <- aggregate(Tonnes ~ Category, data = wastes, sum)
 
@@ -36,7 +35,15 @@ Mean)  of  the  total  waste  tonnes  for  each  state  in  ‘temp’  (Note: Y
 functions/commands  to  prepare  the pre-processed data table, but when you compute and 
 display the statistical information, you need to use a single R function/command.) (6 marks). 
 ```{r} 
+year_state <- read.csv("Year_State_ID.csv")
+# Merge the data frames based on the common identifier
+wastes <- merge(wastes, year_state[, c("ID", "Year", "State", "Economic_Growth")], by.x = "Year_State_ID", by.y = "ID", all.x = TRUE)
+wastes$ID <- NULL
 
+temp <- wastes %>%
+    group_by(Year, State) %>%
+    summarise(Total_Waste_Tonnes = sum(Tonnes, na.rm = TRUE))
+summary(temp)
 ```
 5.  Write code to draw a chart showing a yearly trend of total waste tonnes of food organics for 
 each state. To draw the chart, please convert the Year-Year formats of all Year values into Year 
