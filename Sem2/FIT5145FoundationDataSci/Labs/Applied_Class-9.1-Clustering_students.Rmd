@@ -1,0 +1,409 @@
+---
+title: "Applied Class 9.1 - Clustering data"
+author: "Chris Yun and Michael Niemann"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: haddock
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r klippy, echo=FALSE, include=TRUE}
+klippy::klippy(position = c('top', 'right'),
+               tooltip_message = 'Click to copy', tooltip_success = 'Copied!')
+```
+
+<br>
+
+## Clustering data
+
+
+For this activity, we will look at some data about three species of iris flowers. The data includes measurements for the length and width of the petals and sepals for a set of sample flowers. It also identifies which species each sample belongs to. As such we can already divide the data into three known groups. However, this is not always possible with data or we may have a new selection of samples for which we don't know their species. One solution is to try and identify clusters of similar records or observations in the data. Ideally, those clusters will correspond to the known species.
+
+```{r eval=TRUE}
+
+library(knitr)
+#library(gridExtra)
+#library(grid)
+# preload data + packages
+library(ggplot2)
+library(tidyverse)
+
+head(iris)
+```
+
+Let's start by looking at the spread of the values and the possible relationships.
+
+Look at a __summary()__ of the data, then a generalised pair plot.
+
+```{r echo=TRUE, EVAL=TRUE}
+summary(iris)
+```
+
+```{r pair-plot, fig.height = 8, echo=TRUE, eval=TRUE}
+library(GGally)
+iris %>% 
+  select(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, Species) %>% 
+  drop_na() %>% 
+  ggpairs()
+```
+
+- **What do these plots suggest about what measurements are commonly found in each species?**
+
+
+<br>
+
+
+### Correlations
+
+The above plots suggest that some of the attribute values may be correlated. This may help indicate the species. Plot the petal width and length, with the species being indicated by colour and shape.
+
+```{r echo=TRUE, eval=TRUE}
+ggplot(iris, aes(Petal.Length, Petal.Width, col=Species, shape=Species)) + 
+  geom_point() + 
+  ggtitle("Iris scatter plot - petals")
+```
+
+- **How could you evaluate the correlation between the petal length and width?**
+- **Is there a clear distinction in the values being plot between the species?**
+
+
+<br>
+
+
+### Clustering the data
+
+While we know the species for this data, it would be helpful if we could just identify a cluster for each species. 
+
+The k-means algorithm works by generating an initial centroid plot for each of the k clusters, then identifies which plots are closest to which centroid (an alternate approach is to randomly assign the plots to a cluster). Each centroid is then recalculated using the mean values of the cluster's population and the population is recalculated, until there is a stable population for each cluster.
+
+Start by setting a seed for the initial centroid. 
+
+```{r echo=TRUE, eval=TRUE}
+set.seed(55)
+cluster.iris <- kmeans(iris[, 3:4], 3, iter.max = 10, nstart = 10)
+cluster.iris
+```
+
+The above script uses k-means to generate 3 clusters. No more than 10 iterations are allowed. `nstart` allows it to have various random starts and select the one with the lowest variation within the clusters.
+
+- **What is the significance of the cluster means?**
+- **Why do you think a iteration limit was set if the algorithm will stop once the population is stable? **
+- **Do you get the same cluster populations if you set a different seed or change `nstart`? Why?**
+- **What if you change or remove the iteration limit?**
+
+
+<br>
+
+### Evaluating the performance of the clustering
+How can we evaluate the performance of the clustering? Can we compute the accuracy?
+
+
+<br>
+
+#### 1. Visual inspection
+
+#### 2. Silhouette Score
+
+#### 3. Elbow method
+
+---------------------------------------------
+
+#### 1. Visual inspection
+
+Sometimes, visualisation techniques like scatter plots or cluster diagrams can provide insights into the quality of clustering, especially if the data is low-dimensional.
+
+We can draw a scatter plot using the colour for the cluster.
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) and then run.
+
+```{r echo=TRUE, eval=FALSE}
+cluster.iris$cluster <- as.factor(cluster.iris$cluster)
+ggplot(cluster.iris$cluster, aes(Petal.Length, Petal.Width, color="red")) + 
+  geom_point() + 
+  ggtitle("iris cluster - petal vs species")
+```
+
+
+
+- **How many clusters can you see? How many clusters best represent the data?**
+- **How accurate is the clustering? Why?**
+
+
+
+<br>
+
+#### 2. Silhouette score
+
+The silhouette score is a metric used to evaluate the quality of clusters in a dataset. It measures how similar a point is to its own cluster (cohesion) compared to other clusters (separation).It ranges from -1 to 1:
+
+- A score close to +1 indicates that the sample is well-clustered and is far away from neighboring clusters.
+- A score close to 0 indicates that the sample is close to the decision boundary between two neighboring clusters.
+- A score close to -1 indicates that the sample may have been assigned to the wrong cluster.
+
+A high average silhouette score across all samples indicates better clustering. Thus, we can compare the quality of the different numbers of clusters.
+
+The following code chunk attempts to build k-means models based on clusters 2 to 10, computes the silhouette score for each model, and visualises them.
+
+The code chunk is partially complete. Fill out the missing parts (`???`) and then run.
+
+For using `silhouette` in r, please refer to https://www.rdocumentation.org/packages/cluster/versions/2.1.6/topics/silhouette
+
+```{r echo=TRUE, eval=FALSE}
+# Load required library for Silhouette analysis 
+library(cluster)
+
+# Using the for loop, perform a silhouette analysis for each k-means model built, with the number of clusters varying from 2 to 10
+silhouette_vals_a <- c()
+for (???) {
+  kmeans_result <- kmeans(???)
+  silhouette_val <- silhouette(kmeans_result$cluster, dist(iris[, 3:4]))
+  silhouette_vals_a <- c(silhouette_vals_a, ???)  # Compute the mean silhouette value for each cluster number
+}
+
+# Plot Silhouette values
+plot(2:10, silhouette_vals_a, type = "b", pch = 19, xlab = "Number of clusters",
+     ylab = "Mean Silhouette value", main = "Silhouette analysis for Iris data")
+
+
+```
+
+
+- **Please interpret the outcome of "silhouette(kmeans_result$cluster, dist(iris[, 3:4]))"**
+- **How many clusters are optimal?**
+- **When evaluating clustering performance, why is the silhouette score preferred over visual inspection?**
+
+
+
+<br>
+
+
+
+#### 3. Elbow method
+
+The elbow method is a heuristic technique used to determine the optimal number of clusters in a dataset for clustering algorithms like k-means. It involves plotting the within-cluster sum of squares (WCSS) against the number of clusters, and identifying the "elbow point" where the rate of decrease in WCSS slows down significantly. This point indicates the number of clusters where adding more clusters does not significantly improve the clustering quality.
+
+The following code chunk attempts to build k-means models based on clusters 1 to 10, computes the WCSS score for each model, and visualises them.
+The code chunk is partially complete. Fill out the missing parts (`???`) and then run.
+
+
+```{r echo=TRUE, eval=FALSE}
+# Elbow method: compute the WCSS value for each model, based on 1 to 10 clusters
+wss <- c()
+for (???) {
+  kmeans_result <- kmeans(???)
+  wss[i] <- kmeans_result$???
+}
+
+# Plot Elbow method with 10 models built above
+plot(???, wss, type = "b", pch = 19, xlab = "Number of clusters",
+     ylab = "Within-cluster sum of squares", main = "Elbow method for Iris data")
+
+
+```
+
+
+- **How many clusters are optimal?**
+- **Why is it necessary to select the "elbow point" where the rate of decrease in WCSS slows down significantly? How about choosing 10 clusters with the lowest WCSS in the plot?**
+
+
+
+
+<br>
+
+
+
+### Clustering using all variables
+
+We could try to cluster using all the data. Maybe the more information we have available, the easier it is to distinguish between the clusters and hence identify the species. We can try visual inspection, Silhouette Score, and Elbow method again.
+
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) and then run.
+
+```{r echo=TRUE,eval=FALSE}
+set.seed(55)
+# Use all the data to decide the clusters
+cluster.iris <- kmeans(iris[???], 3, iter.max = 10, nstart = 10)
+cluster.iris
+
+### Visual inspection
+cluster.iris$cluster <- as.factor(cluster.iris$cluster)
+# Plot using Sepal length and width as the axes
+ggplot(iris, aes(Petal.Length, Petal.Width, color=cluster.iris$cluster, shape=Species)) + 
+  geom_point() + 
+  ggtitle("iris cluster - sepal & petal vs species")
+
+### Silhouette Score
+# Using the for loop, perform a silhouette analysis for each k-means model built, with the number of clusters varying from 2 to 10
+silhouette_vals_b <- c()
+for (???) {
+  kmeans_result <- kmeans(???)
+  silhouette_val <- silhouette(kmeans_result$cluster, dist(iris[, 3:4]))
+  silhouette_vals_b <- c(silhouette_vals_b, ???)  # Compute the mean silhouette value for each cluster number
+}
+
+# Plot Silhouette values
+plot(2:10, silhouette_vals_b, type = "b", pch = 19, xlab = "Number of clusters",
+     ylab = "Mean Silhouette value", main = "Silhouette analysis for Iris data")
+
+### Elbow method
+# Elbow method: compute the WCSS value for each model, based on 1 to 10 clusters
+wss <- c()
+for (???) {
+  kmeans_result <- kmeans(???)
+  wss[i] <- kmeans_result$???
+}
+
+# Plot Elbow method with 10 models built above
+plot(???, wss, type = "b", pch = 19, xlab = "Number of clusters",
+     ylab = "Within-cluster sum of squares", main = "Elbow method for Iris data")
+```
+
+
+
+
+- **Has this improved the clustering?**
+- **The original iris data has three species but our k-means result suggests that two clusters are better for distinguishing the data. In this case, what should we do to find three clusters?**
+
+
+<br>
+
+<br>
+
+## Hierarchical clusters
+
+Another alternative is to group data in multiple clusters, such that each cluster is also the member of another cluster. The smallest cluster is a single plot and the largest cluster is the entire data. 
+
+This type of clustering can be bottom-up or top-down. Let's explore the bottom-up approach, which starts with the smallest cluster then at each iteration, determining which clusters are nearby and the cost of their linkage. 
+
+### Iris hierarchy
+
+R uses `hclust()` for this clustering. The default 'complete' method of deciding when to link two clusters is to measure the euclidean distances of all points in one cluster to each point in the other cluster, then find the maximum distance. A preference is to link clusters that are thus similar to each other by having a low maximum distance.
+
+```{r echo=TRUE, eval=TRUE}
+clusters <- hclust(dist(iris[, 3:4]), method = 'complete')
+clusters
+```
+
+These are normally visualised as a dendrogram. Unfortunately `ggplot2` isn't written to work with dendrograms, so most people use `plot()` to generate it.
+
+```{R echo=TRUE, eval=TRUE}
+plot(clusters)
+```
+
+The `ggdendro` package does try to use `ggplot2`, but still isn't quite always practical. It does still have some bonuses though.
+
+```{r echo=TRUE,eval=TRUE}
+library(ggdendro)
+dhc <- as.dendrogram(clusters)
+# Rectangular lines
+ddata <- dendro_data(dhc, type = "rectangle")
+
+p <- ggplot(segment(ddata)) + 
+  #geom_point() +
+  geom_segment(aes(x = x, y = y, xend = xend, yend = yend)) +
+  coord_flip() +                          # swap the axes
+  scale_y_reverse(expand = c(0.2, 0)) +   # start the new x axis with the highest on the left
+  theme_dendro() +                        # remove the axis
+  ggtitle("iris dendrogram - petal length and width")
+p
+```
+
+
+<br>
+
+
+### Cutting the tree
+
+A full tree may have more depth than needed, so you can choose to cut the tree at a certain number of clusters.
+
+```{r echo=TRUE, eval=TRUE}
+clusterCut <- cutree(clusters, 3)
+plot(clusters)
+rect.hclust(clusters, 3, border = 2:6)
+```
+
+For the iris data, we know there are three species, so we'll cut at a cluster height of three. 
+Then, we will evaluate the clustering, using the visual inspection and Silhouette Score.
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) and then run
+
+```{r echo=TRUE, eval=FALSE}
+## Cut after three
+clusterCut <- cutree(clusters, k=3)
+
+### Evaluate the performance of the clustering
+
+# visual inspection
+ggplot(iris, aes(???, ???)) + 
+  geom_point(col = ???) + 
+  ggtitle("iris dendrogram - petal vs species")
+
+# Compute the mean Silhouette Score over all points
+???
+
+```
+
+
+- **Has the score of the hierarchical clustering is better than the ones of the kmeans clustering?**<br>
+
+<br>
+
+<br>
+
+### Alternate linkage methods
+
+There are other ways to decide which clusters need to be linked. Another is __average__ which calculates the average distance between each point in the one cluster and each point in the other cluster. 
+
+```{r echo=TRUE,eval=TRUE}
+clusters <- hclust(dist(iris[, 3:4]), method = 'average')
+plot(clusters)
+```
+
+- **Does this look more reasonable?**
+- **Does it match the iris species better**?
+
+<br>
+
+
+
+To answer these questions, please perform the visual inspection and compute the Silhouette Score.
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) and then run
+
+```{r echo=TRUE, eval=FALSE}
+## Cut after three
+clusterCut <- cutree(clusters, 3)
+
+### Evaluate the performance of the clustering
+
+# visual inspection
+ggplot(iris, aes(???, ???)) + 
+  geom_point(col = ???) + 
+  ggtitle("iris dendrogram [average] - petal vs species")
+
+# Compute the mean Silhouette Score over all points
+???
+
+
+```
+
+
+<br>
+
+
+
+Try both the linkage methods for clusters based on the sepal length and width.
+
+- **Is the hierarchical clustering with the average method better than k-means?**
+- **What's the difference between k-means and hierarchical clustering?**
+
+
+
