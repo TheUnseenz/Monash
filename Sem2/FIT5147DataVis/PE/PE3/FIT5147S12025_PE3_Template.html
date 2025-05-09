@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PE3 Network Visualisation</title>
+  <style>
+    /* Main layout container */
+    #content {
+      border: 2px solid;
+      width: 1100px;
+      height: 650px;
+      text-align: center;
+      position: absolute;
+      top: 0; bottom: 0; left: 0; right: 0;
+      margin: auto;
+    }
+
+    /* Sidebar section for title/guide/insights */
+    #side-bar {
+      float: left;
+      background-color: lightgrey;
+      box-sizing: border-box;
+      width: 300px;
+      height: 650px;
+      padding: 20px;
+      text-align: left;
+      font-size: 14px;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Paragraph styling */
+    p {
+      font-size: 12px;
+    }
+
+    /* Data source */
+    #data-source {
+      font-size: 10px;
+      color: grey;
+      margin-top: auto;
+    }
+
+    /* SVG canvas container */
+    #canvas {
+      margin-left: 300px;
+    }
+
+    /* Style for node labels */
+    .label {
+      font: 12px sans-serif;
+      fill: black;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Default styling for links (edges) */
+    .link {
+      stroke: #ccc;
+    }
+
+    /* Styling for all nodes */
+    .node {
+      stroke: #fff;
+      stroke-width: 1.5px;
+      cursor: grab;
+    }
+    .node:active {
+      cursor: grabbing;
+    }
+
+    /* Legend box outline */
+    .legend-box {
+      fill: white;
+      stroke: black;
+      stroke-width: 1px;
+    }
+
+    /* Checkbox scaling */
+    input[type="checkbox"] {
+      transform: scale(0.9);
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    /* Label styling inside legend */
+    .legend-item {
+      font: 12px sans-serif;
+      fill: black;
+      user-select: none;
+      pointer-events: none;
+      stroke: none;
+      fill: black;
+    }
+
+    /* Tooltip container styling */
+    #tooltip {
+      position: absolute;
+      background-color: white;
+      border: 1px solid #999;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-family: sans-serif;
+      pointer-events: none;
+      display: none;
+      white-space: pre-wrap;
+      max-width: 240px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <div id="side-bar">
+      <h2><b><a href="https://en.wikipedia.org/wiki/Kelley_Abbey" target="blank">Kelley Abbey's</a></b> Victorian Stage Contribution and Collaboration Network</h2>
+      <p>The visualisation on the right shows a network diagram representing all the events in Victoria that Kelley Abbey has contributed to as well as the event collaborators. </p>
+      <p>The network can be zoomed in/out by scrolling. Clusters show each event's contributors. You can drag and move nodes to investigate the data. The legend shows the symbol for events and whether a contributor is male or female. </p>
+      <p>Hovering the mouse over a node will show the contributors to an event. Some events, such as Jesus Christ Superstar in 2017, had a large stage crew, whilst others had a small crew, such as Triple Bill in 1997. </p>   
+      <p>Removing the events (via the check box) from the network shows the collaboration network, with Kelly Abbey at the centre with 214 stage collaborators. The clusters and mouse-hover now show collaboration groups. The thickness of a link indicates the number of times two contributors have collaborated.</p>
+       <p id="data-source">Data source: AusStage. (n.d.). Kelley Abbey [Contributor profile]. AusStage: The Australian Live Performance Database. Retrieved May 9, 2025, from <a href="https://www.ausstage.edu.au/pages/contributor/234951" target="blank">www.ausstage.edu.au/pages/contributor/234951</a></p>
+    </div>
+    <div id="canvas"></div>
+    <div id="tooltip"></div>
+  </div>
+
+  <!-- Load D3 script -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  
+  <script type="module">
+    // Setup default values. Hint: These may be useful later.
+    const canvasWidth = 800;
+    const canvasHeight = 600;
+    const defaultRadius = 6;
+    const tooltip = d3.select("#tooltip");
+
+    let currentNetwork = "event_contribution_network.json";
+    let simulation;
+    let eventContributionNetwork = null;
+    let collaborationNetwork = null;
+
+    // Inital SVG Setup
+    const svg = d3.select("#canvas")
+      .append("svg")
+      .attr("width", canvasWidth)
+      .attr("height", canvasHeight);
+
+    // Setup pan/zoom
+    const zoomGroup = svg.append("g");
+
+    const zoom = d3.zoom()
+      .scaleExtent([0.1, 4])
+      .on("zoom", (event) => zoomGroup.attr("transform", event.transform));
+
+    svg.call(zoom);
+
+    // Setup legend
+    const legend = svg.append("g")
+      .attr("transform", `translate(${canvasWidth - 185}, 10)`);
+
+    legend.append("rect")
+      .attr("class", "legend-box")
+      .attr("width", 170)
+      .attr("height", 90)
+      .attr("rx", 6)
+      .attr("ry", 6);
+
+    legend.append("foreignObject")
+      .attr("x", 10)
+      .attr("y", 10)
+      .attr("width", 150)
+      .attr("height", 30)
+      .append("xhtml:div")
+      .html(`
+        <label style="font: 14px sans-serif;">
+          <input type="checkbox" id="toggle-checkbox" checked>
+          Show events
+        </label>
+      `);
+    
+    // Create checkbox for toggling networks
+    d3.select("#toggle-checkbox").on("change", function () {
+      currentNetwork = this.checked
+        ? "event_contribution_network.json"
+        : "collaboration_network.json";
+      
+      // Display the selected network
+      loadGraph(currentNetwork);
+    });
+
+    // Get the datasets and load the default network (event_contribution_network.json)
+    Promise.all([
+      d3.json("https://raw.githubusercontent.com/gavjmooney/FIT5147_S1_2025_PE3_Data/main/event_contribution_network.json"),
+      d3.json("https://raw.githubusercontent.com/gavjmooney/FIT5147_S1_2025_PE3_Data/main/collaboration_network.json")
+    ]).then(([eventContribution, collaboration]) => {
+      eventContributionNetwork = eventContribution;
+      collaborationNetwork     = collaboration;
+      loadGraph(currentNetwork);
+    });
+
+    function loadGraph(file) {
+      // Hint: file === "event_contribution_network.json" may be useful for tasks which apply to only one of the networks
+      const graph = (file === "event_contribution_network.json")
+        ? eventContributionNetwork
+        : collaborationNetwork;
+
+      // These variables may be used to access node and edge data
+      const nodes = graph.nodes;
+      const edges = graph.edges;
+
+      // Setup zoom group
+      zoomGroup.selectAll("*").remove();
+      if (simulation) simulation.stop();
+
+      // Setup force-simulation for node layout
+      simulation = d3.forceSimulation(nodes)
+        .force("link",   d3.forceLink(edges).id(d => d.id).distance(100))
+        .force("charge", d3.forceManyBody().strength(-250))
+        .force("center", d3.forceCenter(canvasWidth / 2, canvasHeight / 2));
+
+      // Default link rendering
+      let link = zoomGroup.append("g")
+        .selectAll("line")
+        .data(edges)
+        .join("line")
+        .attr("class", "link")
+        .attr("stroke-width", 1.5);
+
+      // Default node grouping
+      const node = zoomGroup.append("g")
+        .selectAll("g")
+        .data(nodes)
+        .join("g")
+        .attr("class", "node");
+        
+      // ADD YOUR CODE HERE FOLLOWING THE INSTRUCTION
+      // #TASK 1: 
+      // Take the node variable specified in the code (above) and use it to create a symbol representing each contributor and event in the network diagram;
+      // The symbol and visual variable used should be an appropriate design choice: 
+      // Choose a visual variable to distinguish between event and contributor nodes;
+      //  Use a different visual variable to differentiate between male and female contributors.       
+      // #END TASK 1
+
+      // Do not change/move - Required to enable dragging of nodes
+      node
+        .call(drag(simulation))
+
+      // #TASK 2: Make the node symbols proportional to the data 
+      // Map the size of the contributor nodes to the “number_of_collaborators” (i.e., the node’s degree). 
+      // This should be visible in both network diagrams.
+      // #END TASK 2
+
+      // #TASK 3: Make the collaboration network diagram links proportional to the data   
+      // Map the thickness of the links on the collaboration network using the “weight” property.
+      // #END TASK 3
+
+      // #TASK 4: Label all nodes
+      // Take the node variable and use it to create a suitable label;
+      // The label should be either the full name of the contributor, or the name of the event; 
+      // The label should be placed in a suitable location above the node so that it is associated with the node it belongs to; 
+      // Set the class attribute of the label to "label";
+      // Use a suitable design choice to differentiate between events and contributor labels, such as the use of bold for events. 
+      // #END TASK 4
+
+
+      // #TASK 5: Modify the legend
+      // Modify the legend to show the visual variables for nodes you have chosen in Task 1.
+      // (Note: Proportional symbol legends are NOT required)
+      // #END TASK 5
+      
+      // #TASK 6: Show the tooltip on mouse hover, when:
+      // Show and hide the tooltip when the mouse pointer is on or leaving a node;
+      //  The tooltip should show relevant attributes associated with the node being hovered including:
+      //   - for event nodes: "id", "name", "first_date", "last_date",  "venue_id”, "venue_name”, "suburb";. 
+      //   - for contributor nodes: id", "name", "nationality", "sex", "role", "number_of_collaborators”. 
+      //  Ensure each attribute and relevant information is on a new line.
+      // #END TASK 6
+
+      // #TASK 7: Highlighting nodes and links
+      // 
+      //   When the mouse pointer is on a node, highlight both the node and neighbouring links;
+      //   Choose an appropriate highlighting option, which may include changing the node/link color, size, or the opacity of other network elements;
+      //   Remove the highlighting / return the network diagram to the original state, when the mouse pointer leaves the node.
+      // #END TASK 7
+      // END OF YOUR TASK CODE HERE
+
+      // Run the force-simulation to position  nodes
+      simulation.on("tick", () => {
+        link
+          .attr("x1", d => d.source.x)
+          .attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x)
+          .attr("y2", d => d.target.y);
+
+        node.attr("transform", d => `translate(${d.x},${d.y})`);
+
+      });
+    }
+
+    // Enable dragging of nodes
+    function drag(simulation) {
+      return d3.drag()
+        .on("start", (event, d) => {
+          d.fx = d.x; d.fy = d.y;
+        })
+        .on("drag", (event, d) => {
+          d.fx = event.x; d.fy = event.y;
+          simulation.alpha(0.1).restart();
+        })
+        .on("end", (event, d) => {
+          d.fx = d.x; d.fy = d.y;
+          simulation.alpha(0);
+        });
+    }
+  </script>
+</body>
+</html>
