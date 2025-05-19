@@ -255,23 +255,10 @@
       // Take the node variable specified in the code (above) and use it to create a symbol representing each contributor and event in the network diagram;
       // The symbol and visual variable used should be an appropriate design choice:
       // Choose a visual variable to distinguish between event and contributor nodes;
-      //  Use a different visual variable to differentiate between male and female contributors.       
+      //  Use a different visual variable to differentiate between male and female contributors.
       // #END TASK 1
       const symbol = d3.symbol();
       node.append("path")
-        .attr("d", d => {
-          if (d.type === "event") {
-            return symbol.type(d3.symbolSquare).size(100)();
-          } else {
-            return symbol.type(d3.symbolCircle).size(100)();
-          }
-        })
-        .attr("fill", d => {
-          if (d.type === "contributor") {
-            return d.sex === "male" ? "steelblue" : "lightcoral";
-          }
-          return "grey"; // Default color for events
-        });
 
       // Do not change/move - Required to enable dragging of nodes
       node
@@ -283,12 +270,18 @@
       // #END TASK 2
       node.select("path")
         .attr("d", d => {
-          const size = d.type === "contributor" ? Math.sqrt(d.number_of_collaborators) * 10 : 100;
+          const size = d.type === "contributor" ? Math.sqrt(d.number_of_collaborators) * 10 : 250;
           if (d.type === "event") {
-            return symbol.type(d3.symbolSquare).size(size)();
+            return symbol.type(d3.symbolDiamond2).size(size)();
           } else {
             return symbol.type(d3.symbolCircle).size(size)();
           }
+        })
+        .attr("fill", d => {
+          if (d.type === "contributor") {
+            return d.sex === "Male" ? "cornflowerblue" : "crimson";
+          }
+          return "black"; // Default color for events
         });
 
       // #TASK 3: Make the collaboration network diagram links proportional to the data
@@ -310,6 +303,11 @@
         .attr("y", -10)
         .attr("text-anchor", "middle")
         .style("font-weight", d => d.type === "event" ? "bold" : "normal")
+        .style("fill", "black")       // Set the text color to black
+        .style("stroke", "white")     // Add a white outline
+        .style("stroke-width", 5) // Set the thickness of the outline
+        .style("paint-order", "stroke") // Ensure the stroke is drawn before the fill
+        .style("opacity", 0.7) // Default faded opacity
         .text(d => d.name || d.full_name);
 
       // #TASK 5: Modify the legend
@@ -318,12 +316,12 @@
       // #END TASK 5
       const legendItems = [
         { type: "event", label: "Event", shape: d3.symbolSquare },
-        { type: "contributor-male", label: "Male Contributor", color: "steelblue", shape: d3.symbolCircle },
-        { type: "contributor-female", label: "Female Contributor", color: "lightcoral", shape: d3.symbolCircle }
+        { type: "contributor-male", label: "Male Contributor", color: "cornflowerblue", shape: d3.symbolCircle },
+        { type: "contributor-female", label: "Female Contributor", color: "crimson", shape: d3.symbolCircle }
       ];
 
       const legendGroup = legend.append("g")
-        .attr("transform", `translate(10, 50)`);
+        .attr("transform", `translate(25, 40)`);
 
       const legendRows = legendGroup.selectAll(".legend-row")
         .data(legendItems)
@@ -350,9 +348,24 @@
       //   - for contributor nodes: id", "name", "nationality", "sex", "role", "number_of_collaborators”. 
       //  Ensure each attribute and relevant information is on a new line.
       // #END TASK 6
+
+      // #TASK 7: Highlighting nodes and links
+      //
+      //   When the mouse pointer is on a node, highlight both the node and neighbouring links;
+      //   Choose an appropriate highlighting option, which may include changing the node/link color, size, or the opacity of other network elements;
+      //   Remove the highlighting / return the network diagram to the original state, when the mouse pointer leaves the node.
+      // #END TASK 7
       node.on("mouseover", (event, d) => {
+        // Get the bounding rectangle of the canvas div
+        const canvasRect = document.getElementById("canvas").getBoundingClientRect();
+
+        // Calculate the mouse position relative to the canvas
+        const relativeX = event.pageX - canvasRect.left + 300; // not sure why this is offset
+        const relativeY = event.pageY - canvasRect.top;
+
         tooltip.style("display", "block")
           .html(() => {
+            // Create tooltip
             let details = "";
             if (d.type === "event") {
               details += `ID: ${d.id}<br>`;
@@ -364,7 +377,7 @@
               details += `Suburb: ${d.suburb}`;
             } else if (d.type === "contributor") {
               details += `ID: ${d.id}<br>`;
-              details += `Name: ${d.full_name}<br>`;
+              details += `Name: ${d.full_name || d.name}<br>`; // Use full_name if available, otherwise name
               details += `Nationality: ${d.nationality}<br>`;
               details += `Sex: ${d.sex}<br>`;
               details += `Role: ${d.role}<br>`;
@@ -372,48 +385,49 @@
             }
             return details;
           })
-          .style("left", `${event.pageX + 10}px`)
-          .style("top", `${event.pageY - 15}px`);
-      })
-        .on("mouseout", () => {
-          tooltip.style("display", "none");
-        });
-
-      // #TASK 7: Highlighting nodes and links
-      //
-      //   When the mouse pointer is on a node, highlight both the node and neighbouring links;
-      //   Choose an appropriate highlighting option, which may include changing the node/link color, size, or the opacity of other network elements;
-      //   Remove the highlighting / return the network diagram to the original state, when the mouse pointer leaves the node.
-      // #END TASK 7
-      node.on("mouseover", (event, d) => {
+          // Position the tooltip
+          .style("left", `${relativeX}px`)
+          .style("top", `${relativeY}px`);
         // Highlight the node
         d3.select(event.currentTarget).select("path")
           .attr("stroke", "black")
           .attr("stroke-width", 3);
         d3.select(event.currentTarget).select("text")
-          .style("font-weight", "bold");
+          .style("font-weight", "bold")
+          .style("opacity", 1);
 
         // Highlight the connected links
         link.style("stroke", linkD => {
           return linkD.source === d || linkD.target === d ? "black" : "#ccc";
         })
-          .style("stroke-width", linkD => (linkD.source === d || linkD.target === d ? 3 : 1.5));
+          .style("stroke-width", linkD => (linkD.source === d || linkD.target === d ? 0.7 : (file === "collaboration_network.json" && linkD.weight) ? Math.sqrt(linkD.weight) : 0.5));
 
+        // Fade out all other labels
+        node.selectAll(".label")
+          .filter(otherD => otherD !== d)
+          .style("opacity", 0.3);
         // Reduce opacity of other nodes and links
         node.style("opacity", nodeD => (nodeD === d || edges.some(e => e.source === d || e.target === d) ? 1 : 0.3));
         link.style("opacity", linkD => (linkD.source === d || linkD.target === d ? 1 : 0.3));
       })
         .on("mouseout", (event, d) => {
+          // Hide tooltip
+          tooltip.style("display", "none");
           // Reset node highlighting
           d3.select(event.currentTarget).select("path")
             .attr("stroke", "#fff")
             .attr("stroke-width", 1.5);
           d3.select(event.currentTarget).select("text")
-            .style("font-weight", d.type === "event" ? "bold" : "normal");
+            .style("font-weight", nodeD => nodeD.type === "event" ? "bold" : "normal");
 
           // Reset link styles
           link.style("stroke", "#ccc")
-            .style("stroke-width", d => (file === "collaboration_network.json" && d.weight) ? Math.sqrt(d.weight) : 1.5);
+            .style("stroke-width", linkD => (file === "collaboration_network.json" && linkD.weight) ? Math.sqrt(linkD.weight) : 0.5);
+
+          // Reset all labels to the default faded opacity and font weight
+          node.selectAll(".label")
+            .style("opacity", 0.7) // Back to the default faded opacity
+            .style("font-weight", labelD => labelD.type === "event" ? "bold" : "normal");
 
           // Reset opacity
           node.style("opacity", 1);
