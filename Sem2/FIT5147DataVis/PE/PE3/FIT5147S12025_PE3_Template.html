@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>PE3 Network Visualisation</title>
@@ -11,7 +12,10 @@
       height: 650px;
       text-align: center;
       position: absolute;
-      top: 0; bottom: 0; left: 0; right: 0;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
       margin: auto;
     }
 
@@ -67,6 +71,7 @@
       stroke-width: 1.5px;
       cursor: grab;
     }
+
     .node:active {
       cursor: grabbing;
     }
@@ -111,15 +116,26 @@
     }
   </style>
 </head>
+
 <body>
   <div id="content">
     <div id="side-bar">
-      <h2><b><a href="https://en.wikipedia.org/wiki/Kelley_Abbey" target="blank">Kelley Abbey's</a></b> Victorian Stage Contribution and Collaboration Network</h2>
-      <p>The visualisation on the right shows a network diagram representing all the events in Victoria that Kelley Abbey has contributed to as well as the event collaborators. </p>
-      <p>The network can be zoomed in/out by scrolling. Clusters show each event's contributors. You can drag and move nodes to investigate the data. The legend shows the symbol for events and whether a contributor is male or female. </p>
-      <p>Hovering the mouse over a node will show the contributors to an event. Some events, such as Jesus Christ Superstar in 2017, had a large stage crew, whilst others had a small crew, such as Triple Bill in 1997. </p>   
-      <p>Removing the events (via the check box) from the network shows the collaboration network, with Kelly Abbey at the centre with 214 stage collaborators. The clusters and mouse-hover now show collaboration groups. The thickness of a link indicates the number of times two contributors have collaborated.</p>
-       <p id="data-source">Data source: AusStage. (n.d.). Kelley Abbey [Contributor profile]. AusStage: The Australian Live Performance Database. Retrieved May 9, 2025, from <a href="https://www.ausstage.edu.au/pages/contributor/234951" target="blank">www.ausstage.edu.au/pages/contributor/234951</a></p>
+      <h2><b><a href="https://en.wikipedia.org/wiki/Kelley_Abbey" target="blank">Kelley Abbey's</a></b> Victorian Stage
+        Contribution and Collaboration Network</h2>
+      <p>The visualisation on the right shows a network diagram representing all the events in Victoria that Kelley
+        Abbey has contributed to as well as the event collaborators. </p>
+      <p>The network can be zoomed in/out by scrolling. Clusters show each event's contributors. You can drag and move
+        nodes to investigate the data. The legend shows the symbol for events and whether a contributor is male or
+        female. </p>
+      <p>Hovering the mouse over a node will show the contributors to an event. Some events, such as Jesus Christ
+        Superstar in 2017, had a large stage crew, whilst others had a small crew, such as Triple Bill in 1997. </p>
+      <p>Removing the events (via the check box) from the network shows the collaboration network, with Kelly Abbey at
+        the centre with 214 stage collaborators. The clusters and mouse-hover now show collaboration groups. The
+        thickness of a link indicates the number of times two contributors have collaborated.</p>
+      <p id="data-source">Data source: AusStage. (n.d.). Kelley Abbey [Contributor profile]. AusStage: The Australian
+        Live Performance Database. Retrieved May 9, 2025, from <a
+          href="https://www.ausstage.edu.au/pages/contributor/234951"
+          target="blank">www.ausstage.edu.au/pages/contributor/234951</a></p>
     </div>
     <div id="canvas"></div>
     <div id="tooltip"></div>
@@ -127,7 +143,7 @@
 
   <!-- Load D3 script -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  
+
   <script type="module">
     // Setup default values. Hint: These may be useful later.
     const canvasWidth = 800;
@@ -178,13 +194,13 @@
           Show events
         </label>
       `);
-    
+
     // Create checkbox for toggling networks
     d3.select("#toggle-checkbox").on("change", function () {
       currentNetwork = this.checked
         ? "event_contribution_network.json"
         : "collaboration_network.json";
-      
+
       // Display the selected network
       loadGraph(currentNetwork);
     });
@@ -195,7 +211,7 @@
       d3.json("https://raw.githubusercontent.com/gavjmooney/FIT5147_S1_2025_PE3_Data/main/collaboration_network.json")
     ]).then(([eventContribution, collaboration]) => {
       eventContributionNetwork = eventContribution;
-      collaborationNetwork     = collaboration;
+      collaborationNetwork = collaboration;
       loadGraph(currentNetwork);
     });
 
@@ -215,7 +231,7 @@
 
       // Setup force-simulation for node layout
       simulation = d3.forceSimulation(nodes)
-        .force("link",   d3.forceLink(edges).id(d => d.id).distance(100))
+        .force("link", d3.forceLink(edges).id(d => d.id).distance(100))
         .force("charge", d3.forceManyBody().strength(-250))
         .force("center", d3.forceCenter(canvasWidth / 2, canvasHeight / 2));
 
@@ -233,7 +249,7 @@
         .data(nodes)
         .join("g")
         .attr("class", "node");
-        
+
       // ADD YOUR CODE HERE FOLLOWING THE INSTRUCTION
       // #TASK 1: 
       // Take the node variable specified in the code (above) and use it to create a symbol representing each contributor and event in the network diagram;
@@ -268,7 +284,7 @@
       // Modify the legend to show the visual variables for nodes you have chosen in Task 1.
       // (Note: Proportional symbol legends are NOT required)
       // #END TASK 5
-      
+
       // #TASK 6: Show the tooltip on mouse hover, when:
       // Show and hide the tooltip when the mouse pointer is on or leaving a node;
       //  The tooltip should show relevant attributes associated with the node being hovered including:
@@ -315,4 +331,5 @@
     }
   </script>
 </body>
+
 </html>
