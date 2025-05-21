@@ -15,11 +15,9 @@ library(tidyverse)
 library(corrplot)
 library(dplyr)
 library(car) # Useful for VIF (Variance Inflation Factor) to check multicollinearity
+library(broom)  # For tidy()
 
 # --- Read Your CSV File ---
-# Replace "students_social_media_addiction.csv" with the actual path and name of your file.
-# Make sure the CSV file is in your R project's working directory.
-
 social_media_addiction_df <- read_csv("data/Students Social Media Addiction.csv")
 
 # --- Basic Data Inspection ---
@@ -57,16 +55,67 @@ social_media_addiction_df_cleaned <- social_media_addiction_df %>%
     # If it's more like categories, convert to factor.
     # Addicted_Score is already numeric, based on summary.
     # Mental_Health_Score is already numeric.
-  )
+  )%>%
+  # Handle missing values: Removing rows with any NAs for simplicity in this quick analysis.
+  na.omit()
 
-# Handle missing values: For a quick analysis, removing rows with any NAs.
-social_media_addiction_df_cleaned <- na.omit(social_media_addiction_df_cleaned)
+# --- NEW ADDITION/MODIFICATION FOR MOST_USED_PLATFORM GROUPING ---
+# Create the new grouped variable based on your specified categories
+social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
+  mutate(
+    Most_Used_Platform_Grouped = case_when(
+      Most_Used_Platform %in% c("LINE", "KakaoTalk", "WeChat", "VKontakte", "WhatsApp") ~ "Messaging Apps",
+      TRUE ~ as.character(Most_Used_Platform) # Keep all other platforms as their original names
+    )
+  ) %>%
+  # Convert the new grouped column to a factor
+  mutate(Most_Used_Platform_Grouped = as.factor(Most_Used_Platform_Grouped))
 
-# Check the structure again to confirm conversions
-cat("\n--- Structure of Cleaned Data ---\n")
+# Drop linkedin - outlier
+# Filter out rows where Most_Used_Platform is LinkedIn, Twitter, or YouTube
+social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
+  filter(!Most_Used_Platform %in% c("LinkedIn", "Twitter", "YouTube")) %>%
+  # After filtering, some factor levels might become unused. It's good practice to drop them.
+  # This makes sure the GLM doesn't try to fit coefficients for levels that no longer exist.
+  mutate(Most_Used_Platform = fct_drop(Most_Used_Platform))
+
+
+# # Building on the previous fct_drop()
+# social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
+#   mutate(
+#     Most_Used_Platform_Grouped = case_when(
+#       Most_Used_Platform_Grouped %in% c("Twitter", "YouTube", "LinkedIn") ~ "Other_Platforms", # Group non-significant ones
+#       TRUE ~ as.character(Most_Used_Platform_Grouped) # Keep others as they are
+#     )
+#   ) %>%
+#   mutate(Most_Used_Platform_Grouped_Final = as.factor(Most_Used_Platform_Grouped))
+
+
+# 
+# 
+# # Check the structure again to confirm conversions
+# cat("\n--- Structure of Cleaned Data ---\n")
+# str(social_media_addiction_df_cleaned)
+# cat("\n--- Summary of Cleaned Data ---\n")
+# summary(social_media_addiction_df_cleaned)
+# Check the new factor levels and distribution
+
+cat("\n--- New Most_Used_Platform_Grouped Factor Levels and Distribution ---\n")
+levels(social_media_addiction_df_cleaned$Most_Used_Platform_Grouped)
+table(social_media_addiction_df_cleaned$Most_Used_Platform_Grouped)
+
+# You might want to reorder levels if you want a specific reference level for 'Most_Used_Platform_Grouped'
+# For example, to make 'Facebook' the reference (if it's not alphabetically first in the new set)
+# social_media_addiction_df_cleaned$Most_Used_Platform_Grouped <-
+#   relevel(social_media_addiction_df_cleaned$Most_Used_Platform_Grouped, ref = "Facebook")
+
+
+# Check the structure again to confirm conversions and the new column
+cat("\n--- Structure of Cleaned Data with Grouped Platforms ---\n")
 str(social_media_addiction_df_cleaned)
-cat("\n--- Summary of Cleaned Data ---\n")
+cat("\n--- Summary of Cleaned Data with Grouped Platforms ---\n")
 summary(social_media_addiction_df_cleaned)
+
 
 ```
 ---
@@ -97,21 +146,11 @@ corrplot(correlation_matrix, method = "circle", type = "upper", order = "hclust"
 # --- 3. Binary Logistic Regression Analysis ---
 
 cat("\n--- Summary of Logistic Regression Model (Predicting Academic Performance) ---\n")
-# logistic_model_academic_performance <- glm(Affects_Academic_Performance ~
-#                                              Avg_Daily_Usage_Hours + #Addicted_Score +
-#                                              Sleep_Hours_Per_Night + #Mental_Health_Score +
-#                                              Conflicts_Over_Social_Media +
-#                                              Age + Gender + Academic_Level + Country +
-#                                              Most_Used_Platform + Relationship_Status,
-#                                            data = social_media_addiction_df_cleaned,
-#                                            family = "binomial")
 logistic_model_academic_performance <- glm(Affects_Academic_Performance ~
-                                             Avg_Daily_Usage_Hours + Sleep_Hours_Per_Night + 
-                                             Academic_Level+Most_Used_Platform+
-                                             Age,
+                                             Avg_Daily_Usage_Hours + Sleep_Hours_Per_Night +
+                                             Academic_Level + Most_Used_Platform_Grouped + Age, # Changed here
                                            data = social_media_addiction_df_cleaned,
                                            family = "binomial")
-
 summary(logistic_model_academic_performance)
 
 cat("\n--- Odds Ratios for Logistic Regression Model ---\n")
@@ -241,7 +280,7 @@ ggplot(social_media_addiction_df_cleaned, aes(x = Academic_Level, fill = Affects
   scale_fill_brewer(palette = "Set2")
 
 # Most_Used_Platform vs. Academic Performance
-ggplot(social_media_addiction_df_cleaned, aes(x = Most_Used_Platform, fill = Affects_Academic_Performance)) +
+ggplot(social_media_addiction_df_cleaned, aes(x = Most_Used_Platform_Grouped, fill = Affects_Academic_Performance)) +
   geom_bar(position = "fill") +
   labs(title = "Academic Performance Impact by Most Used Platform", y = "Proportion") +
   theme_minimal() +
@@ -249,13 +288,7 @@ ggplot(social_media_addiction_df_cleaned, aes(x = Most_Used_Platform, fill = Aff
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate labels if too many
 ```
 ```{r}
-# Check for separation with categorical variables
-cat("\n--- Checking for Separation in Categorical Variables ---\n")
-table(social_media_addiction_df_cleaned$Gender, social_media_addiction_df_cleaned$Affects_Academic_Performance)
-table(social_media_addiction_df_cleaned$Academic_Level, social_media_addiction_df_cleaned$Affects_Academic_Performance)
-table(social_media_addiction_df_cleaned$Country, social_media_addiction_df_cleaned$Affects_Academic_Performance)
-table(social_media_addiction_df_cleaned$Most_Used_Platform, social_media_addiction_df_cleaned$Affects_Academic_Performance)
-table(social_media_addiction_df_cleaned$Relationship_Status, social_media_addiction_df_cleaned$Affects_Academic_Performance)
+
 ```
 ```{r}
 
