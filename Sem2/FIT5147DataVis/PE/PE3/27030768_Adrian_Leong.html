@@ -349,12 +349,6 @@
       //  Ensure each attribute and relevant information is on a new line.
       // #END TASK 6
 
-      // #TASK 7: Highlighting nodes and links
-      //
-      //   When the mouse pointer is on a node, highlight both the node and neighbouring links;
-      //   Choose an appropriate highlighting option, which may include changing the node/link color, size, or the opacity of other network elements;
-      //   Remove the highlighting / return the network diagram to the original state, when the mouse pointer leaves the node.
-      // #END TASK 7
       node.on("mouseover", (event, d) => {
         // Get the bounding rectangle of the canvas div
         const canvasRect = document.getElementById("canvas").getBoundingClientRect();
@@ -388,6 +382,14 @@
           // Position the tooltip
           .style("left", `${relativeX}px`)
           .style("top", `${relativeY}px`);
+
+        // #TASK 7: Highlighting nodes and links
+        //
+        //   When the mouse pointer is on a node, highlight both the node and neighbouring links;
+        //   Choose an appropriate highlighting option, which may include changing the node/link color, size, or the opacity of other network elements;
+        //   Remove the highlighting / return the network diagram to the original state, when the mouse pointer leaves the node.
+        // #END TASK 7
+
         // Highlight the node
         d3.select(event.currentTarget).select("path")
           .attr("stroke", "black")
