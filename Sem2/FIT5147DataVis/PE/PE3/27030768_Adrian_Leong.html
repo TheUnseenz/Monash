@@ -360,24 +360,24 @@
         tooltip.style("display", "block")
           .html(() => {
             // Create tooltip
-            let details = "";
+            let tooltip = "";
             if (d.type === "event") {
-              details += `ID: ${d.id}<br>`;
-              details += `Name: ${d.name}<br>`;
-              details += `First Date: ${d.first_date}<br>`;
-              details += `Last Date: ${d.last_date}<br>`;
-              details += `Venue ID: ${d.venue_id}<br>`;
-              details += `Venue Name: ${d.venue_name}<br>`;
-              details += `Suburb: ${d.suburb}`;
+              tooltip += `ID: ${d.id}<br>`;
+              tooltip += `Name: ${d.name}<br>`;
+              tooltip += `First Date: ${d.first_date}<br>`;
+              tooltip += `Last Date: ${d.last_date}<br>`;
+              tooltip += `Venue ID: ${d.venue_id}<br>`;
+              tooltip += `Venue Name: ${d.venue_name}<br>`;
+              tooltip += `Suburb: ${d.suburb}`;
             } else if (d.type === "contributor") {
-              details += `ID: ${d.id}<br>`;
-              details += `Name: ${d.full_name || d.name}<br>`; // Use full_name if available, otherwise name
-              details += `Nationality: ${d.nationality}<br>`;
-              details += `Sex: ${d.sex}<br>`;
-              details += `Role: ${d.role}<br>`;
-              details += `Collaborations: ${d.number_of_collaborators}`;
+              tooltip += `ID: ${d.id}<br>`;
+              tooltip += `Name: ${d.full_name || d.name}<br>`; // Use full_name if available, otherwise name
+              tooltip += `Nationality: ${d.nationality}<br>`;
+              tooltip += `Sex: ${d.sex}<br>`;
+              tooltip += `Role: ${d.role}<br>`;
+              tooltip += `Collaborations: ${d.number_of_collaborators}`;
             }
-            return details;
+            return tooltip;
           })
           // Position the tooltip
           .style("left", `${relativeX}px`)
