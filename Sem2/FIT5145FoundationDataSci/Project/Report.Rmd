@@ -288,6 +288,108 @@ ggplot(social_media_addiction_df_cleaned, aes(x = Most_Used_Platform_Grouped, fi
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate labels if too many
 ```
 ```{r}
+# Load necessary libraries if not already loaded
+library(dplyr)
+library(car) # For VIF
+
+# Assuming social_media_addiction_df_final is already prepared from previous steps:
+#   - Loaded
+#   - NA omitted
+#   - Factors converted
+#   - LinkedIn, Twitter, YouTube filtered out
+#   - Most_Used_Platform_Final created and releveled
+
+# Check the structure of your final dataframe to confirm variable types
+cat("\n--- Structure of social_media_addiction_df_cleaned for linear models ---\n")
+str(social_media_addiction_df_cleaned)
+
+# --- Linear Regression Model: Predicting Sleep_Hours_Per_Night ---
+cat("\n=======================================================\n")
+cat("          PREDICTING SLEEP_HOURS_PER_NIGHT           \n")
+cat("=======================================================\n")
+
+# Model 1: Predict Sleep_Hours_Per_Night based on relevant social media and demographic factors
+# We'll use all non-outcome variables except the ones we already identified as too close to academic performance
+# (Addicted_Score, Conflicts_Over_Social_Media, Mental_Health_Score).
+# Also, exclude Affects_Academic_Performance as it's an outcome of social media use.
+sleep_model <- lm(Sleep_Hours_Per_Night ~ Avg_Daily_Usage_Hours + Academic_Level +
+                    Most_Used_Platform_Grouped + Age + Gender + Relationship_Status,
+                  data = social_media_addiction_df_cleaned)
+
+cat("\n--- Summary of Linear Regression Model (Predicting Sleep Hours) ---\n")
+summary(sleep_model)
+
+cat("\n--- Variance Inflation Factors (VIF) for Sleep Hours Model Predictors ---\n")
+vif(sleep_model)
+
+# You can also get confidence intervals for coefficients
+cat("\n--- Confidence Intervals for Sleep Hours Model Coefficients ---\n")
+confint(sleep_model)
+
+# Plotting residuals for diagnostic checking (optional for POC, but good practice)
+# plot(sleep_model)
+```
+```{r}
+# Load necessary libraries if not already loaded (already loaded above)
+
+# --- Linear Regression Model: Predicting Mental_Health_Score ---
+cat("\n=======================================================\n")
+cat("          PREDICTING MENTAL_HEALTH_SCORE             \n")
+cat("=======================================================\n")
+
+# Model 2: Predict Mental_Health_Score based on social media usage, academic and demographic factors.
+# We'll include Addicted_Score and Conflicts_Over_Social_Media here, as they are often
+# direct indicators or highly related to mental health. Be aware of their high correlation.
+# Exclude Affects_Academic_Performance and Sleep_Hours_Per_Night as they are also potential outcomes or related.
+mental_health_model <- lm(Mental_Health_Score ~ Avg_Daily_Usage_Hours +# Addicted_Score +
+                            Conflicts_Over_Social_Media + Academic_Level +
+                            Most_Used_Platform_Grouped + Age + Gender + Relationship_Status,
+                          data = social_media_addiction_df_cleaned)
+
+cat("\n--- Summary of Linear Regression Model (Predicting Mental Health Score) ---\n")
+summary(mental_health_model)
+
+cat("\n--- Variance Inflation Factors (VIF) for Mental Health Model Predictors ---\n")
+vif(mental_health_model)
+
+# You can also get confidence intervals for coefficients
+cat("\n--- Confidence Intervals for Mental Health Model Coefficients ---\n")
+confint(mental_health_model)
+
+# Plotting residuals for diagnostic checking (optional for POC, but good practice)
+# plot(mental_health_model)
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
 
 ```
 ```{r}
