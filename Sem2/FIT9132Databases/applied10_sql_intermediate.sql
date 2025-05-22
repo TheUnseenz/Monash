@@ -15,7 +15,6 @@ FROM
     uni.enrolment
 WHERE
         UPPER(unitcode) = 'FIT9136'
-    AND
 
 --2 Find the average mark for FIT2094 in semester 2, 2020. Show the average mark with two decimal places. Name the output column as average_mark.
 
