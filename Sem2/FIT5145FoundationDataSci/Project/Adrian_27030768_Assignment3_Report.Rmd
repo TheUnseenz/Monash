@@ -6,10 +6,11 @@ output:
     toc: true
     toc_depth: 3
     number_sections: true
+
 ---
-
-
-# Feedback from Assignment 1
+\newpage
+\section*{Feedback from Assignment 1}
+\addcontentsline{toc}{section}{Feedback from Assignment 1}
 
 This section details the incorporation of Assignment 1 feedback regarding the project's novelty.
 
@@ -18,232 +19,81 @@ This section details the incorporation of Assignment 1 feedback regarding the pr
 **Incorporation:** This feedback highlighted the need to articulate the unique methodological approach. The project's novelty lies not just in the problem but in its **integrated, multi-data source, and advanced analytical methodology** for comprehensively tackling 'brain rot' beyond simple correlations. The current demonstration serves as a foundational step for this broader, novel approach, strengthening the project's unique value proposition through a clear methodological framework.
 
 \newpage
-# The Unspoken Epidemic - Analysis to Combat the Rise of 'Brain Rot'
-## Introduction
+
+# Introduction
 The world's population is increasingly being online today, especially in the recent post-pandemic years. A concerning trend is arising: short-form, low quality but addictive content, usually on social media, is exploding in popularity (Ortiz-Ospina, 2019). For instance, TikTok has exploded in user base to 1.925 billion users since its launch in 2018 (How Many Users on TikTok? Statistics & Facts (2025), n.d.), Instagram Reels has similarly soared to 2 billion users, 726.8 million of which use Reels, despite Instagram Reels only having launched in August 2020 (Connell, 2025), and Youtube Short's has ballooned to 90 billion viewed videos in 2024 compared to 30 billion in 2021 (Ch, 2025). Moreover, video content has also been shortening in length in general. Social media, where brain rot content is typically found, has grown by an absurd 2.52x in the last 10 years, putting it at 5.24 billion people now - a solid majority of the world (Team, 2025). This phenomenon has come to be dubbed as "brain rot" (Heaton, 2024). While the pandemic lockdowns certainly exacerbated this trend, with increased time spent online globally, it is crucial to recognize that the rise of 'brain rot' content was already underway prior to this period. With how our behaviours shape us, it is vital to understand its impact, as research already shows a multitude of negative effects: shortened attention spans, reinforcement of existing viewpoints, dampened critical thinking, worsened academic anxiety, academic engagement and mindfulness, and causes depression - and this list is non-exhaustive. These are societal-level problems, that left unchecked, will have deep-running implications arising in the future. This project aims to have the joint goals of raising public awareness of the dangers of brain rot addiction, and discovering what works to mitigate this to help people live healthier lives.
 
-## Related Work
+# Related Work
 Naturally, as this is a very recent phenomenon, long-term effects of brain rot content cannot be studied just yet. Research shows that brain rot consumption shorten people's attention spans, reinforce existing viewpoints and dampens critical thinking (Kim, 2024). Another study on students (Li et al., 2024) found that brain rot content significantly affects student academic anxiety, academic engagement, and mindfulness for the worse. Li et al. (2024) also notes that practicing mindfulness mediates the effects on academic anxiety, thus showing an answer as to dampen the negative effects of brain rot addiction. Yet another study (Qu et al., 2023) shows that brain rot content addiction causes depression, which is known to cause many other negative effects. The combined results of these research highlights the significant negative impact of the consumption of brain rot content, and what to do about it. While there are many blogs and articles offering advice on how to deal with "brain rot", for example Curtis (2025) or Boys & Girls Clubs of America (2025), there is a lack of hard research to validate these. This project distinguishes itself by quantifying how bad the effects are and what helps with data.
 
 \newpage
-## Business Model
-The project evaluates how 'brain rot' addiction impacts academic performance, quantifies its negative effects, and identifies effective mitigation strategies. It will have the joint goals of raising public awareness of the dangers of brain rot addiction, and discovering what works to mitigate this to help people live healthier lives. This project will be put best to use in educational and mental health institutions, and is also of great benefit to governments and society as a whole, to help implement mitigation strategies. The primary stakeholders who will benefit from this project are:
-1. Educators  
-    Brain rot affects educational outcomes through reduced focus and increased anxiety in students (Li et al., 2024). By understanding its roots, educators can tailor interventions to improve student performance at its fundamental cause.
-2. Mental health practitioners  
-    Brain rot excarbates depression, alongside other mental health problems (Qu et al., 2023), making it more difficult for clients to engage in healthier living. Through a better understanding of this phenomenon, counsellors and therapists will be able to better guide their clients towards healthier lives with improved well-being.
-3. Government regulators  
-    Brain rot poses a significant detriment to society, contributing to reduced productivity (Kim,2024) and increased mental health costs (Qu et al., 2023) at a societal level, thereby hindering both economic and technological progress. Providing concrete evidence of these impacts is crucial for driving government action. With compelling data, governments globally can be urged to recognize the urgency of combating brain rot and implement effective measures, such as regulations on social media/content creators and public mental health campaigns to promote awareness.
-4. Parents  
-    The developmental impact of brain rot on children and adolescents is a serious concern (Kim,2024). This project will empower parents to take proactive steps to shield their children from the addictive nature of this content, fostering healthier growth. Furthermore, it will provide guidance for parents seeking to mitigate the negative effects of brain rot in situations where children are already exposed (Boys & Girls Clubs of America, 2025).
-5. Society as a whole  
-    The general population will have better resources to better their well-being and productivity.
-6. Research  
-    This contributes to society's knowledge of the impact of our behaviours on our lives.
+# Business Model
+The project evaluates how 'brain rot' addiction impacts academic performance, quantifies its negative effects, and identifies effective mitigation strategies. It will have the joint goals of raising public awareness of the dangers of brain rot addiction, and discovering what works to mitigate this to help people live healthier lives. This project will be put best to use in educational and mental health institutions, and is also of great benefit to governments and society as a whole, to help implement mitigation strategies. The primary stakeholders who will benefit from this project are:  
+
+**1. Educators**  
+    Brain rot affects **educational outcomes** through **reduced focus** and **increased anxiety** in students (Li et al., 2024). By understanding its roots, educators can tailor interventions to improve student performance at its fundamental cause.  
+
+**2. Mental health practitioners**    
+    Brain rot excarbates **depression**, alongside other mental health problems (Qu et al., 2023), making it more difficult for clients to engage in healthier living. Through a better understanding of this phenomenon, counsellors and therapists will be able to better guide their clients towards healthier lives with improved well-being.  
+
+**3. Government regulators**    
+    Brain rot poses a significant detriment to society, contributing to **reduced productivity** (Kim,2024) and **increased mental health costs** (Qu et al., 2023) at a societal level, thereby hindering both economic and technological progress. Providing concrete evidence of these impacts is crucial for driving government action. With compelling data, governments globally can be urged to recognize the urgency of combating brain rot and implement effective measures, such as regulations on social media/content creators and public mental health campaigns to promote awareness.    
+
+**4. Parents**     
+    The developmental impact of brain rot on children and adolescents is a serious concern (Kim,2024). This project will empower parents to take proactive steps to shield their children from the addictive nature of this content, fostering healthier growth. Furthermore, it will provide guidance for parents seeking to mitigate the negative effects of brain rot in situations where children are already exposed (Boys & Girls Clubs of America, 2025).  
+
+**5. Society as a whole**    
+    The general population will have better resources to better their well-being and productivity.  
+
+**6. Research**    
+    This contributes to society's knowledge of the impact of our behaviours on our lives.  
 
 \newpage
-## 4. Characterising and Analysing Data
-
-This section details the data pertinent to "The Unspoken Epidemic," outlining sources, characteristics, analysis methods, and a practical demonstration.
-
-### 4.1 Potential Data Sources and Characteristics
+# Characterising and Analysing Data
+## Potential Data Sources and Characteristics
 
 Addressing 'brain rot' comprehensively requires diverse data, from individual experiences to macro trends.
 
-* **Primary Data (Surveys):**
-    * **Description:** Self-reported data on social media usage, academic performance, sleep, and mental health (as used in this demonstration). Questions adapted from validated scales (e.g., Bergen Social Media Addiction Scale).
+* **Primary Data (Surveys):** Self-reported data on social media usage, academic performance, sleep, and mental health (as used in this demonstration). Questions adapted from validated scales (e.g., Bergen Social Media Addiction Scale).
     * **Pros:** Directly addresses specific research questions; captures subjective experiences.
     * **Cons:** Prone to self-report bias, recall issues, social desirability bias; limited for objective behavior or long-term trends.
 
-* **Secondary Data (for Future Expansion & Broader Trends):**
-    * **Mobile Engagement Trends (Shorts/Reels):** Platform data on content consumption (watch times, engagement). Crucial for identifying 'brain rot' trends and attention span changes.
-    * **Reading Trends (Average Book Length):** Metadata from publishing databases on book lengths. Indirectly measures shifting attention spans and reading habits.
-    * **Wikipedia Dwell Time Data:** User interaction data on time spent per article. Proxy for sustained attention.
-    * **Neuroscience Data:** Cognitive studies (fMRI, EEG) on brain activity during media consumption. Offers objective evidence of attention changes.
-    * **CommonCrawl/Google Books Ngrams Viewer:** Large text corpora for linguistic analysis. Addresses linguistic simplification and complexity changes.
-    * **Academic Score Trends:** Aggregated academic performance data from institutions. Provides direct evidence for educational trends.
+* **Secondary Data (for Future Expansion & Broader Trends):** Mobile engagement trends (Shorts/Reels), reading trends (average book length), Wikipedia dwell time data, neuroscience data, CommonCrawl/Google Books Ngrams Viewer, and academic score trends. These data types offer objective evidence and broader trend analysis.
 
 * **Data Characteristics (The 4 V's):**
-    * **Volume:** Current project is small (hundreds of rows). Future expansion to social media feeds or linguistic corpora involves **petabytes**, requiring scalable storage.
-    * **Variety:** Current data is structured. Future expansion introduces **high variety**: structured (academic scores), semi-structured (APIs), and unstructured (text, video, neuroimages).
-    * **Velocity:** Current data is static. Future social media engagement data would be **high velocity**, necessitating real-time processing for dynamic, intervention-focused monitoring, early warning systems, and adaptive strategies.
-    * **Veracity:** Current self-reported data is subject to biases (e.g., self-report, cross-sectional design prevents causal inference). Future data from APIs or web crawls may contain noise; rigorous validation and cleaning are critical.
+    The characteristics of big data are commonly described by the "4 V's":
+    * **Volume:** Current project is small. Future expansion involves **petabytes**, requiring scalable storage.
+    * **Variety:** Current data is structured. Future expansion introduces **high variety**: structured, semi-structured, and unstructured (text, video, neuroimages).
+    * **Velocity:** Current data is static. Future social media engagement data would be **high velocity**, necessitating real-time processing.
+    * **Veracity:** Current self-reported data is subject to biases. Future data from APIs or web crawls may contain noise; rigorous validation and cleaning are critical (Marr, n.d.).
 
 * **Platforms, Software, and Tools:**
     * **Current Project:** R (analysis, modeling), RStudio, local storage, CSV.
-    * **Future Expansion:**
-        * **Storage:** Cloud object storage (AWS S3, Google Cloud Storage), NoSQL databases (MongoDB), Data Warehouses (Snowflake, BigQuery).
-        * **Processing:** Distributed computing frameworks (Apache Spark, Hadoop); cloud services (AWS Glue, Google Dataflow).
-        * **Tools:** Python (advanced ML, NLP, deep learning), specialized visualization (Tableau), workflow orchestration (Apache Airflow).
-        * **Rationale:** These provide the scalability, flexibility, and robust processing for diverse, large-scale, high-velocity data.
+    * **Future Expansion:** Cloud object storage (AWS S3, Google Cloud Storage), NoSQL databases (MongoDB), Data Warehouses (Snowflake, BigQuery) for storage. Distributed computing frameworks (Apache Spark, Hadoop); cloud services (AWS Glue, Google Dataflow) for processing. Python (advanced ML, NLP, deep learning), specialized visualization (Tableau), workflow orchestration (Apache Airflow) for tools. These provide scalability, flexibility, and robust processing for diverse, large-scale, high-velocity data.
 
-### 4.2 Data Analysis Techniques and Statistical Methods
+\newpage
+## Data Analysis Techniques and Statistical Methods
+* **Descriptive Statistics & Visualization:** Methods include means, medians, distributions, time-series plots. Rationale: Summarize data, identify patterns and trends (e.g., usage, book length changes). Expected Outcomes: Baseline understanding of current patterns.  
 
-This section outlines broader analytical methods applicable to the project, with rationale and expected outcomes.
+* **Inferential Statistics:** Methods such as T-tests, ANOVA (comparing group means), Chi-squared tests (categorical associations), Multiple Regression Analysis, Confidence Interval Tests, and Variance Inflation Factor (VIF) (Selection of Appropriate Statistical Methods for Data Analysis, n.d.). Rationale: Draw statistically sound conclusions, testing hypotheses. Multiple regression assesses simultaneous impact of multiple predictors, VIF diagnoses multicollinearity, and confidence intervals provide plausible ranges for population parameters. Expected Outcomes: Confirm significant differences or associations; understand independent effects of variables; ensure model robustness.  
 
-* **Descriptive Statistics & Visualization:**
-    * **Methods:** Means, medians, distributions, time-series plots.
-    * **Rationale:** Summarize data, identify patterns and trends (e.g., usage, book length changes).
-    * **Expected Outcomes:** Baseline understanding of current patterns, visual evidence of changes.
-* **Inferential Statistics:**
-    * **Methods:** T-tests, ANOVA (comparing group means), Chi-squared tests (categorical associations), **Multiple Regression Analysis**, **Confidence Interval Tests**, **Variance Inflation Factor (VIF)**.
-    * **Rationale:** Draw statistically sound conclusions, testing hypotheses. Multiple regression is essential for assessing the simultaneous impact of multiple predictors on an outcome. VIF is crucial for diagnosing multicollinearity in regression models, while confidence intervals provide a range of plausible values for population parameters, aiding in the interpretation of effect sizes and statistical significance.
-    * **Expected Outcomes:** Confirm significant differences or associations; understand the independent effects of multiple variables; ensure model robustness and interpretability.
-* **Time-Series Analysis:**
-    * **Methods:** ARIMA models, Prophet.
-    * **Rationale:** Analyze trends over time (e.g., usage, book lengths, Wikipedia dwell times, academic scores) for 'brain rot' onset and progression.
-    * **Expected Outcomes:** Detection of temporal patterns, forecasting future trends.
-* **Natural Language Processing (NLP):**
-    * **Methods:** N-gram analysis, readability scores (e.g., Flesch-Kincaid).
-    * **Rationale:** Quantitatively assess linguistic simplification in text corpora.
-    * **Expected Outcomes:** Statistical evidence of trends in linguistic complexity.
-* **Machine Learning for Prediction:**
-    * **Methods:** Logistic Regression, Linear Regression, Decision Trees/Random Forests, Gradient Boosting Machines.
-    * **Rationale:** Build predictive models to identify 'brain rot' drivers and outcomes.
-    * **Expected Outcomes:** Predict academic impact, sleep, mental health; identify influential factors.
-* **Clustering (Unsupervised Learning):**
-    * **Methods:** K-Means, Hierarchical Clustering.
-    * **Rationale:** Identify natural groupings in student populations based on behavior.
-    * **Expected Outcomes:** Discover student profiles or 'brain rot' archetypes.
+* **Time-Series Analysis:** Methods include ARIMA models, Prophet. Rationale: Analyze trends over time (e.g., usage, book lengths) for 'brain rot' onset and progression. Expected Outcomes: Detection of temporal patterns, forecasting.  
 
-### 4.3 Demonstration
+* **Natural Language Processing (NLP):** Methods like N-gram analysis, readability scores (e.g., Flesch-Kincaid) (DataCamp, n.d.). Rationale: Quantitatively assess linguistic simplification in text corpora. Expected Outcomes: Statistical evidence of trends in linguistic complexity.  
 
-This section demonstrates the project's feasibility using a real dataset and R.
+* **Machine Learning for Prediction:** Methods including Logistic Regression, Linear Regression, Decision Trees/Random Forests, Gradient Boosting Machines (Machine Learning for Social Science, n.d.). Rationale: Build predictive models to identify 'brain rot' drivers and outcomes. Expected Outcomes: Predict academic impact, sleep, mental health; identify influential factors.  
 
-* **Dataset Identification:** A "Social Media Addiction and Mental Health" dataset from Kaggle was used. It was collected via surveys (university mailing lists, social media) with validation, de-duplication, and anonymization.
-    * **Download Link:** https://www.kaggle.com/datasets/adilshamim8/social-media-addiction-vs-relationships
-    * **R Markdown File:** The R Markdown file used will be uploaded to Moodle.
-* **Data Description & Features:** 645 observations, 15 variables. Key features include `Age`, `Gender`, `Academic_Level`, `Avg_Daily_Usage_Hours`, `Most_Used_Platform`, `Sleep_Hours_Per_Night`, `Mental_Health_Score`, `Affects_Academic_Performance`, `Conflicts_Over_Social_Media`, `Addicted_Score`, `Relationship_Status`, `Country`.
-* **Analysis Process (Using R):**
-    1.  **Initial Inspection:** Loaded data (`str()`, `summary()`, `head()`).
-    2.  **Cleaning & Preprocessing:** `na.omit()` removed missing data. Variables converted to factors (e.g., `Gender`, `Affects_Academic_Performance`). "LinkedIn" users filtered out. `Most_Used_Platform` grouped into `Most_Used_Platform_Grouped` (e.g., "Messaging_Apps"), with "Facebook" as reference.
-    3.  **Exploratory Data Analysis (EDA):** Visualizations (e.g., "Academic Performance Impact by Most Used Platform") revealed initial patterns. These box plots would be enhanced using hybrid box-violin plots for richer data distribution insights:
-        ```R
-        library(ggplot2)
-
-        # Example: Hybrid Box-Violin plot for Academic Performance Impact by Most Used Platform
-        ggplot(data, aes(x = Most_Used_Platform_Grouped, y = Academic_Performance_Impact, fill = Most_Used_Platform_Grouped)) +
-          geom_violin(trim = FALSE) + # Violin plot
-          geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", color = "black") + # Boxplot inside
-          labs(title = "Academic Performance Impact by Most Used Platform",
-               x = "Most Used Platform",
-               y = "Academic Performance Impact Score") +
-          theme_minimal() +
-          theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-        # Example: Hybrid Box-Violin plot for Mental Health Score by Academic Performance Impact
-        ggplot(data, aes(x = Affects_Academic_Performance, y = Mental_Health_Score, fill = Affects_Academic_Performance)) +
-          geom_violin(trim = FALSE) + # Violin plot
-          geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", color = "black") + # Boxplot inside
-          labs(title = "Mental Health Score by Academic Performance Impact",
-               x = "Academic Performance Affected",
-               y = "Mental Health Score") +
-          theme_minimal()
-        ```
-    4.  **Statistical Modeling:** Three regression models were built: Logistic Regression for `Affects_Academic_Performance`, Linear Regression for `Sleep_Hours_Per_Night` and `Mental_Health_Score`. Predictors included `Avg_Daily_Usage_Hours`, `Academic_Level`, `Most_Used_Platform_Grouped`, `Age`, `Gender`, `Relationship_Status`, plus `Conflicts_Over_Social_Media` for mental health. VIFs confirmed no problematic multicollinearity.
-        The regression analysis included variables like average daily usage hours, academic level, most used platform, age, gender, relationship status, and conflicts over social media to predict academic performance impact, sleep hours, and mental health scores. The coefficients and their statistical significance for these models can be effectively visualized using coefficient plots with a sequential color scale based on p-value:
-        ```R
-        library(ggplot2)
-        library(broom) # For tidy model output
-        library(dplyr) # For data manipulation
-
-        # Assume model1, model2, model3 are already fitted (e.g., after running the models in R)
-        # model1 <- glm(Affects_Academic_Performance ~ Avg_Daily_Usage_Hours + Academic_Level + Most_Used_Platform_Grouped + Age + Gender + Relationship_Status + Sleep_Hours_Per_Night, data = data, family = binomial)
-        # model2 <- lm(Sleep_Hours_Per_Night ~ Avg_Daily_Usage_Hours + Academic_Level + Most_Used_Platform_Grouped + Age + Gender + Relationship_Status, data = data)
-        # model3 <- lm(Mental_Health_Score ~ Avg_Daily_Usage_Hours + Conflicts_Over_Social_Media + Most_Used_Platform_Grouped + Age + Gender + Relationship_Status + Academic_Level, data = data)
-
-        # Function to create a coefficient plot with custom p-value coloring
-        plot_coefficients <- function(model, title) {
-          tidy_model <- tidy(model, conf.int = TRUE, exponentiate = ifelse(family(model)$family == "binomial", TRUE, FALSE)) %>%
-            filter(term != "(Intercept)") # Remove intercept for cleaner plot
-
-          ggplot(tidy_model, aes(x = estimate, y = reorder(term, estimate), color = p.value)) +
-            geom_point() +
-            geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
-            geom_vline(xintercept = ifelse(family(model)$family == "binomial", 1, 0), linetype = "dashed", color = "grey") +
-            labs(title = title,
-                 x = ifelse(family(model)$family == "binomial", "Odds Ratio", "Coefficient Estimate"),
-                 y = "Predictor Term") +
-            scale_color_gradientn(
-              colors = c(
-                "#004d00", # Darkest green (p=0)
-                "#008000", # Green (p ~ 0.01)
-                "#90EE90", # Light green (p=0.05)
-                "#FFD700", # Gold/Yellow (p=0.075)
-                "#FFA500", # Orange (p=0.1)
-                "#FF4500", # OrangeRed (p=0.5)
-                "#8B0000"  # Dark red (p=1)
-              ),
-              values = scales::rescale(c(0, 0.01, 0.05, 0.075, 0.1, 0.5, 1)), # Map p-values to color scale
-              limits = c(0, 1), # p-values range from 0 to 1
-              name = "P-value"
-            ) +
-            theme_minimal()
-        }
-
-        # Generate plots for each model (uncomment and run in R)
-        # plot_coefficients(model1, "Logistic Regression: Academic Performance Impact Coefficients")
-        # plot_coefficients(model2, "Linear Regression: Sleep Hours Per Night Coefficients")
-        # plot_coefficients(model3, "Linear Regression: Mental Health Score Coefficients")
-        ```
-
-* **Analysis Results:** Models showed strong predictive power (p < 2.2e-16) and low VIFs (all $\text{VIF}^{1/(2*\text{Df})} < 2.0$).
-
-* **Feasibility Conclusion:** The demonstration successfully identified significant and nuanced relationships between social media usage, specific platform choices, and student well-being. Findings highlight that while some platforms are strongly associated with negative academic, sleep, and mental health outcomes (Instagram, Snapchat, YouTube for mental health), others like Twitter present an interesting counter-trend for mental health. This confirms project feasibility and underscores the importance of detailed, platform-specific analysis to understand complex social media effects.
-
-## 5. Standard for Data Science Process, Data Governance and Management
-
-This section outlines methodological standards, data governance, and management, including ethical considerations.
-
-### 5.1 Standard for Data Science Process
-
-The **Cross-Industry Standard Process for Data Mining (CRISP-DM)** was adopted for its structured, iterative approach.
-
-* **Business Understanding:** Defined 'brain rot' problem and goals.
-* **Data Understanding:** Acquired and explored dataset, identifying patterns and quality.
-* **Data Preparation:** Cleaned data, handled missing values, converted types, filtered, and engineered features.
-* **Modeling:** Selected and applied regression models, performed diagnostic checks (VIF).
-* **Evaluation:** Assessed model performance and interpreted findings.
-* **Deployment:** Disseminated findings via this report and R Markdown file.
-
-CRISP-DM ensures robustness and reliability.
-
-### 5.2 Data Governance and Management
-
-Data governance ensures integrity, security, and ethical use; data management executes policies.
-
-* **Data Accessibility:**
-    * **Current Project:** Uses a public, anonymized Kaggle dataset, promoting transparency.
-    * **Future Expansion:** New primary/sensitive data would have strictly controlled access, limited to authorized personnel via secure platforms with ethical approvals.
-* **Data Security & Confidentiality:**
-    * **Current Project:** Minimal direct risk due to anonymized public data.
-    * **Future Expansion:** For sensitive data, measures include: anonymization/pseudonymization, encryption (at rest/in transit), role-based access, secure compliant storage, and data minimization.
-* **Ethical Concerns Related to Data Usage:**
-    * **Self-Reported Bias:** Acknowledged limitation of the current dataset (cross-sectional, online recruitment bias).
-    * **Privacy & Confidentiality (Future Data):** Crucial to obtain explicit informed consent for new individual-level data.
-    * **Potential for Misinterpretation/Stigmatization:** Findings must be presented with nuance, emphasizing correlation over causation to avoid unfair generalizations. Statistical associations are not causal claims.
-    * **Responsible Reporting:** Findings communicated responsibly, highlighting limitations and actionable insights.
-
-Adherence ensures robust insights and responsible data handling.
-
-## References
-1. Ortiz-Ospina, E. (2019, September 18). The rise of social media. Our World in Data. https://ourworldindata.org/rise-of-social-media
-2. How many users on TikTok? Statistics & Facts (2025). (n.d.). https://seo.ai/blog/how-many-users-on-tiktok
-3. Connell, A. (2025, January 1). 32 Top Instagram Reels Statistics for 2025. Adam Connell. https://adamconnell.me/instagram-reels-statistics/
-4. Ch, D. (2025, January 8). YouTube shorts statistics. SendShort - Create Viral Shorts Instantly With SendShort. https://sendshort.ai/statistics/shorts/
-5. Team, B. (2025, February 10). Social Media Usage & Growth Statistics. Backlinko. https://backlinko.com/social-media-users
-6. Heaton, B. (2024, December 2). ‘Brain rot’ named Oxford Word of the Year 2024. Oxford University Press. https://corp.oup.com/news/brain-rot-named-oxford-word-of-the-year-2024/
-7. Kim, I. (2024). EXPLORING THE COGNITIVE AND SOCIAL EFFECTS OF TIKTOK ON ADOLESCENT MINDS: a STUDY OF SHORT-FORM VIDEO CONSUMPTION. ierj.in. https://doi.org/10.21276/IERJ24769489007345
-8. Li, G., Geng, Y., & Wu, T. (2024). Effects of short-form video app addiction on academic anxiety and academic engagement: The mediating role of mindfulness. Frontiers in Psychology, 15. https://doi.org/10.3389/fpsyg.2024.1428813
-9. Qu, D., Liu, B., Jia, L., Zhang, X., Chen, D., Zhang, Q., Feng, Y., & Chen, R. (2023). The longitudinal relationships between short video addiction and depressive symptoms: A cross-lagged panel network analysis. Computers in Human Behavior, 152, 108059. https://doi.org/10.1016/j.chb.2023.108059
-10. Curtis, L. (2025, January 6). 12 habits to Prevent "Brain Rot" Health. https://www.health.com/habits-to-prevent-brain-rot-8766150
-11. Boys & Girls Clubs of America. (2025, February 26). Supporting Digital Well-being: 12 Ways to Help Teens Unplug from Technology - Boys & Girls Clubs of America. https://www.bgca.org/news-stories/2025/February/unplugging/
+* **Clustering (Unsupervised Learning):** Methods such as K-Means, Hierarchical Clustering (Machine Learning for Social Science, n.d.). Rationale: Identify natural groupings in student populations based on behavior. Expected Outcomes: Discover student profiles or 'brain rot' archetypes.  
 
 
-
+\newpage
+## Demonstration
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center")
 ```
+
+* **Dataset Identification:** A "Social Media Addiction and Mental Health" dataset from Kaggle was used. It was collected via surveys (university mailing lists, social media) with validation, de-duplication, and anonymization.
+    * **Download Link:** https://www.kaggle.com/datasets/adilshamim8/social-media-addiction-vs-relationships
 
 ```{r}
 # Install packages if you haven't already (only run once)
@@ -266,7 +116,9 @@ library(broom) # For tidy()
 
 # --- Read Your CSV File ---
 social_media_addiction_df <- read_csv("data/Students Social Media Addiction.csv")
+```
 
+```{r}
 # # --- Basic Data Inspection ---
 # cat("--- Head of Data ---\n")
 # head(social_media_addiction_df)
@@ -335,30 +187,11 @@ social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
 # cat("\n--- Summary of Cleaned Data with Grouped Platforms ---\n")
 # summary(social_media_addiction_df_cleaned)
 ```
----
 
-### Correlation Analysis
+* **Data Description & Features:** 645 observations, 15 variables. Key features include `Age`, `Gender`, `Academic_Level`, `Avg_Daily_Usage_Hours`, `Most_Used_Platform`, `Sleep_Hours_Per_Night`, `Mental_Health_Score`, `Affects_Academic_Performance`, `Conflicts_Over_Social_Media`, `Addicted_Score`, `Relationship_Status`, `Country`.
+  
+**Descriptive Statistics and Distribution Visualizations**  
 
-We'll focus on the numeric columns for the correlation matrix.
-
-```{R}
-# Select only numeric columns for correlation matrix
-numeric_cols <- social_media_addiction_df_cleaned %>%
-  dplyr::select(
-    Age, Avg_Daily_Usage_Hours, Sleep_Hours_Per_Night,
-    Mental_Health_Score, Conflicts_Over_Social_Media, Addicted_Score
-  )
-
-# Calculate the correlation matrix
-correlation_matrix <- cor(numeric_cols, use = "pairwise.complete.obs") # Handles NAs if any remain
-
-# Visualize the correlation matrix
-corrplot(correlation_matrix,
-  method = "circle", type = "upper", order = "hclust",
-  tl.col = "black", tl.srt = 45, addCoef.col = "darkgrey"
-)
-```
---- 1. Descriptive Statistics and Distribution Visualizations ---
 ```{r}
 # --- 1. Descriptive Statistics and Distribution Visualizations ---
 # Histogram for Numeric Variables:
@@ -391,8 +224,36 @@ ggplot(social_media_addiction_df_cleaned, aes(x = Conflicts_Over_Social_Media)) 
   geom_histogram(binwidth = 1, fill = "red", color = "black") +
   labs(title = "Distribution of Conflicts Over Social Media", x = "Number of Conflicts") +
   theme_minimal()
+```
+* **Analysis Process (Using R):**
+    **Initial Inspection:** Loaded data (`str()`, `summary()`, `head()`).  
+    **Cleaning & Preprocessing:** `na.omit()` removed missing data. Variables converted to factors. "LinkedIn" users filtered out. `Most_Used_Platform` grouped, with "Facebook" as reference.  
+    **Exploratory Data Analysis (EDA):** Visualizations revealed initial patterns. These box plots are enhanced using hybrid box-violin plots for richer data distribution insights:  
 
-# Box/Violin plots for numeric variables by Affects_Academic_Performance
+**Correlation matrix**  
+
+```{R}
+# Select only numeric columns for correlation matrix
+numeric_cols <- social_media_addiction_df_cleaned %>%
+  dplyr::select(
+    Age, Avg_Daily_Usage_Hours, Sleep_Hours_Per_Night,
+    Mental_Health_Score, Conflicts_Over_Social_Media, Addicted_Score
+  )
+
+# Calculate the correlation matrix
+correlation_matrix <- cor(numeric_cols, use = "pairwise.complete.obs") # Handles NAs if any remain
+
+# Visualize the correlation matrix
+corrplot(correlation_matrix,
+  method = "circle", type = "upper", order = "hclust",
+  tl.col = "black", tl.srt = 45, addCoef.col = "darkgrey"
+)
+```
+\newpage
+**Hybrid box-violin plots for numeric variables by Affects_Academic_Performance**  
+
+```{r}
+# Hybrid box-violin for numeric variables by Affects_Academic_Performance
 ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Avg_Daily_Usage_Hours, fill = Affects_Academic_Performance)) +
   geom_violin(trim = FALSE) + # Violin plot
   geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", alpha = 0.5) + # Boxplot inside
@@ -421,7 +282,9 @@ ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, 
   theme_minimal() +
   scale_fill_brewer(palette = "Set1")
 ```
---- 2. Univariate Analysis for Categorical Variables ---
+\newpage
+**Univariate Analysis for Categorical Variables**  
+
 ```{r}
 # --- 2. Univariate Analysis for Categorical Variables ---
 
@@ -472,7 +335,13 @@ ggplot(social_media_addiction_df_cleaned, aes(x = Most_Used_Platform, fill = Aff
   scale_fill_brewer(palette = "Set2") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate labels if too many
 ```
---- 3. Binary Logistic/Linear Regression Analysis ---
+\newpage
+**Statistical Modeling:** Three regression models were built: Logistic Regression for `Affects_Academic_Performance`, Linear Regression for `Sleep_Hours_Per_Night` and `Mental_Health_Score`. Predictors included `Avg_Daily_Usage_Hours`, `Academic_Level`, `Most_Used_Platform_Grouped`, `Age`, `Gender`, `Relationship_Status`, plus `Conflicts_Over_Social_Media` for mental health. VIFs confirmed no problematic multicollinearity.
+  The regression analysis included various predictors to predict academic performance impact, sleep hours, and mental health scores. The coefficients and their statistical significance for these models can be effectively visualized using coefficient plots with a sequential color scale based on p-value:
+
+
+**Binary Logistic/Linear Regression Analysis**  
+
 ```{r}
 # --- 3. Binary Logistic/Linear Regression Analysis ---
 
@@ -626,40 +495,87 @@ plot_coefficients <- function(model, title) {
 }
 
 # Generate plots for each model
-plot_coefficients(logistic_model_academic_performance, "Logistic Regression: Academic Performance Impact Coefficients")
-plot_coefficients(sleep_model, "Linear Regression: Sleep Hours Per Night Coefficients")
-plot_coefficients(mental_health_model, "Linear Regression: Mental Health Score Coefficients")
+plot_coefficients(logistic_model_academic_performance, "Academic Performance Impact Coefficients: Logistic Regression")
+plot_coefficients(sleep_model, "Sleep Hours Per Night Coefficients: Linear Regression")
+plot_coefficients(mental_health_model, "Mental Health Score Coefficients: Linear Regression")
 ```
-```{r}
+        
+* **Analysis Results:** Models showed strong predictive power (p < 2.2e-16) and low VIFs (all $\text{VIF}^{1/(2*\text{Df})} < 2.0$).
 
-```
-```{r}
+* **Feasibility Conclusion:** The demonstration identified significant relationships between social media usage, platform choices, and student well-being. Findings highlight that while some platforms are strongly associated with negative outcomes, others present counter-trends. This confirms project feasibility and underscores the importance of detailed, platform-specific analysis.
 
-```
-```{r}
+\newpage
+# Standard for Data Science Process, Data Governance and Management
+##  Standard for Data Science Process
 
-```
-```{r}
+The **Cross-Industry Standard Process for Data Mining (CRISP-DM)** was adopted for its structured, iterative approach (Shimaoka et al., 2024).
 
-```
-```{r}
+* **Business Understanding:** Defined 'brain rot' problem and goals.  
+* **Data Understanding:** Acquired and explored dataset, identifying patterns and quality.  
+* **Data Preparation:** Cleaned data, handled missing values, converted types, filtered, and engineered features.  
+* **Modeling:** Selected and applied regression models, performed diagnostic checks (VIF).  
+* **Evaluation:** Assessed model performance and interpreted findings.  
+* **Deployment:** Disseminated findings via this report and R Markdown file.  
 
-```
-```{r}
+CRISP-DM ensures robustness and reliability.
 
-```
-```{r}
+## Data Governance and Management
 
-```
-```{r}
+* **Data Accessibility:**
+    * **Current Project:** Uses a public, anonymized Kaggle dataset, promoting transparency.
+    * **Future Expansion:** New primary/sensitive data would have strictly controlled access, limited to authorized personnel via secure platforms with ethical approvals.  
 
-```
-```{r}
+* **Data Security & Confidentiality:**
+    * **Current Project:** Minimal direct risk due to anonymized public data.
+    * **Future Expansion:** For sensitive data, measures include: anonymization/pseudonymization, encryption (at rest/in transit), role-based access, secure compliant storage, and data minimization.  
+    
+* **Ethical Concerns Related to Data Usage:**
+    * **Self-Reported Bias:** Acknowledged limitation of the current dataset (cross-sectional, online recruitment bias).
+    * **Privacy & Confidentiality (Future Data):** Crucial to obtain explicit informed consent for new individual-level data.
+    * **Potential for Misinterpretation/Stigmatization:** Findings must be presented with nuance, emphasizing correlation over causation to avoid unfair generalizations. Statistical associations are not causal claims.
+    * **Responsible Reporting:** Findings communicated responsibly, highlighting limitations and actionable insights.
 
-```
-```{r}
+Adherence ensures robust insights and responsible data handling.
 
-```
-```{r}
+\newpage
+# References
+Students’ social media addiction. (2025, May 10). Kaggle. https://www.kaggle.com/datasets/adilshamim8/social-media-addiction-vs-relationships  
 
-```
+Boys & Girls Clubs of America. (2025, February 26). *Supporting Digital Well-being: 12 Ways to Help Teens Unplug from Technology*. https://www.bgca.org/news-stories/2025/February/unplugging/  
+
+Ch, D. (2025, January 8). *YouTube shorts statistics*. SendShort - Create Viral Shorts Instantly With SendShort. https://sendshort.ai/statistics/shorts/  
+
+Connell, A. (2025, January 1). *32 Top Instagram Reels Statistics for 2025*. Adam Connell. https://adamconnell.me/instagram-reels-statistics/  
+
+Curtis, L. (2025, January 6). *12 habits to Prevent "Brain Rot" Health*. https://www.health.com/habits-to-prevent-brain-rot-8766150  
+
+DataCamp. (n.d.). *What is Natural Language Processing (NLP)? A Beginner's Guide*. Retrieved May 25, 2025, from https://www.datacamp.com/blog/what-is-natural-language-processing  
+
+Heaton, B. (2024, December 2). *‘Brain rot’ named Oxford Word of the Year 2024*. Oxford University Press. https://corp.oup.com/news/brain-rot-named-oxford-word-of-the-year-2024/  
+
+Kim, I. (2024). EXPLORING THE COGNITIVE AND SOCIAL EFFECTS OF TIKTOK ON ADOLESCENT MINDS: a STUDY OF SHORT-FORM VIDEO CONSUMPTION. *ierj.in*. https://doi.org/10.21276/IERJ24769489007345  
+
+Li, G., Geng, Y., & Wu, T. (2024). Effects of short-form video app addiction on academic anxiety and academic engagement: The mediating role of mindfulness. *Frontiers in Psychology, 15*. https://doi.org/10.3389/fpsyg.2024.1428813  
+
+Machine Learning for Social Science. (n.d.). *Researcher reasoning meets computational capacity: Machine learning for social science*. Retrieved May 25, 2025, from https://pmc.ncbi.nlm.nih.gov/articles/PMC10893965/  
+
+Marr, B. (n.d.). *What are the 4 Vs of Big Data?* Bernard Marr. Retrieved May 25, 2025, from https://bernardmarr.com/what-are-the-4-vs-of-big-data/  
+
+Ortiz-Ospina, E. (2019, September 18). *The rise of social media*. Our World in Data. https://ourworldindata.org/rise-of-social-media  
+
+Qu, D., Liu, B., Jia, L., Zhang, X., Chen, D., Zhang, Q., Feng, Y., & Chen, R. (2023). The longitudinal relationships between short video addiction and depressive symptoms: A cross-lagged panel network analysis. *Computers in Human Behavior, 152*, 108059. https://doi.org/10.1016/j.chb.2023.108059  
+
+Selection of Appropriate Statistical Methods for Data Analysis. (n.d.). *Selection of Appropriate Statistical Methods for Data Analysis*. Retrieved May 25, 2025, from https://pmc.ncbi.nlm.nih.gov/articles/PMC6639881/  
+
+Shimaoka, M., Ferreira, J., & Goldman, A. (2024). The evolution of CRISP-DM for Data Science: Methods, Processes and Frameworks. *Journals-Sol.SBC.Org.Br*. Retrieved May 25, 2025, from https://journals-sol.sbc.org.br/index.php/reviews/article/view/3757  
+
+Team, B. (2025, February 10). *Social Media Usage & Growth Statistics*. Backlinko. https://backlinko.com/social-media-users  
+
+*How many users on TikTok? Statistics & Facts (2025)*. (n.d.). https://seo.ai/blog/how-many-users-on-tiktok  
+
+
+I used AI in the following ways:  
+I used Gemini to brainstorm ideas.  
+I used Gemini to help me elaborate my points into more verbose explanations.  
+I used Gemini to help me write the technical code used in the project.  
+I used Gemini and Quillbot to generate the citations.   
