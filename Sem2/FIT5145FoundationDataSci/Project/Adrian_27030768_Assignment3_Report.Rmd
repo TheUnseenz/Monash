@@ -1,0 +1,665 @@
+---
+title: "Assignment 3: Report - The Unspoken Epidemic - Analysis to Combat the Rise of 'Brain Rot'"
+author: "Adrian Leong (Student ID: 27030768)"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+
+# Feedback from Assignment 1
+
+This section details the incorporation of Assignment 1 feedback regarding the project's novelty.
+
+**Feedback:** "Novelty: where is your methodology?"
+
+**Incorporation:** This feedback highlighted the need to articulate the unique methodological approach. The project's novelty lies not just in the problem but in its **integrated, multi-data source, and advanced analytical methodology** for comprehensively tackling 'brain rot' beyond simple correlations. The current demonstration serves as a foundational step for this broader, novel approach, strengthening the project's unique value proposition through a clear methodological framework.
+
+\newpage
+# The Unspoken Epidemic - Analysis to Combat the Rise of 'Brain Rot'
+## Introduction
+The world's population is increasingly being online today, especially in the recent post-pandemic years. A concerning trend is arising: short-form, low quality but addictive content, usually on social media, is exploding in popularity (Ortiz-Ospina, 2019). For instance, TikTok has exploded in user base to 1.925 billion users since its launch in 2018 (How Many Users on TikTok? Statistics & Facts (2025), n.d.), Instagram Reels has similarly soared to 2 billion users, 726.8 million of which use Reels, despite Instagram Reels only having launched in August 2020 (Connell, 2025), and Youtube Short's has ballooned to 90 billion viewed videos in 2024 compared to 30 billion in 2021 (Ch, 2025). Moreover, video content has also been shortening in length in general. Social media, where brain rot content is typically found, has grown by an absurd 2.52x in the last 10 years, putting it at 5.24 billion people now - a solid majority of the world (Team, 2025). This phenomenon has come to be dubbed as "brain rot" (Heaton, 2024). While the pandemic lockdowns certainly exacerbated this trend, with increased time spent online globally, it is crucial to recognize that the rise of 'brain rot' content was already underway prior to this period. With how our behaviours shape us, it is vital to understand its impact, as research already shows a multitude of negative effects: shortened attention spans, reinforcement of existing viewpoints, dampened critical thinking, worsened academic anxiety, academic engagement and mindfulness, and causes depression - and this list is non-exhaustive. These are societal-level problems, that left unchecked, will have deep-running implications arising in the future. This project aims to have the joint goals of raising public awareness of the dangers of brain rot addiction, and discovering what works to mitigate this to help people live healthier lives.
+
+## Related Work
+Naturally, as this is a very recent phenomenon, long-term effects of brain rot content cannot be studied just yet. Research shows that brain rot consumption shorten people's attention spans, reinforce existing viewpoints and dampens critical thinking (Kim, 2024). Another study on students (Li et al., 2024) found that brain rot content significantly affects student academic anxiety, academic engagement, and mindfulness for the worse. Li et al. (2024) also notes that practicing mindfulness mediates the effects on academic anxiety, thus showing an answer as to dampen the negative effects of brain rot addiction. Yet another study (Qu et al., 2023) shows that brain rot content addiction causes depression, which is known to cause many other negative effects. The combined results of these research highlights the significant negative impact of the consumption of brain rot content, and what to do about it. While there are many blogs and articles offering advice on how to deal with "brain rot", for example Curtis (2025) or Boys & Girls Clubs of America (2025), there is a lack of hard research to validate these. This project distinguishes itself by quantifying how bad the effects are and what helps with data.
+
+\newpage
+## Business Model
+The project evaluates how 'brain rot' addiction impacts academic performance, quantifies its negative effects, and identifies effective mitigation strategies. It will have the joint goals of raising public awareness of the dangers of brain rot addiction, and discovering what works to mitigate this to help people live healthier lives. This project will be put best to use in educational and mental health institutions, and is also of great benefit to governments and society as a whole, to help implement mitigation strategies. The primary stakeholders who will benefit from this project are:
+1. Educators  
+    Brain rot affects educational outcomes through reduced focus and increased anxiety in students (Li et al., 2024). By understanding its roots, educators can tailor interventions to improve student performance at its fundamental cause.
+2. Mental health practitioners  
+    Brain rot excarbates depression, alongside other mental health problems (Qu et al., 2023), making it more difficult for clients to engage in healthier living. Through a better understanding of this phenomenon, counsellors and therapists will be able to better guide their clients towards healthier lives with improved well-being.
+3. Government regulators  
+    Brain rot poses a significant detriment to society, contributing to reduced productivity (Kim,2024) and increased mental health costs (Qu et al., 2023) at a societal level, thereby hindering both economic and technological progress. Providing concrete evidence of these impacts is crucial for driving government action. With compelling data, governments globally can be urged to recognize the urgency of combating brain rot and implement effective measures, such as regulations on social media/content creators and public mental health campaigns to promote awareness.
+4. Parents  
+    The developmental impact of brain rot on children and adolescents is a serious concern (Kim,2024). This project will empower parents to take proactive steps to shield their children from the addictive nature of this content, fostering healthier growth. Furthermore, it will provide guidance for parents seeking to mitigate the negative effects of brain rot in situations where children are already exposed (Boys & Girls Clubs of America, 2025).
+5. Society as a whole  
+    The general population will have better resources to better their well-being and productivity.
+6. Research  
+    This contributes to society's knowledge of the impact of our behaviours on our lives.
+
+\newpage
+## 4. Characterising and Analysing Data
+
+This section details the data pertinent to "The Unspoken Epidemic," outlining sources, characteristics, analysis methods, and a practical demonstration.
+
+### 4.1 Potential Data Sources and Characteristics
+
+Addressing 'brain rot' comprehensively requires diverse data, from individual experiences to macro trends.
+
+* **Primary Data (Surveys):**
+    * **Description:** Self-reported data on social media usage, academic performance, sleep, and mental health (as used in this demonstration). Questions adapted from validated scales (e.g., Bergen Social Media Addiction Scale).
+    * **Pros:** Directly addresses specific research questions; captures subjective experiences.
+    * **Cons:** Prone to self-report bias, recall issues, social desirability bias; limited for objective behavior or long-term trends.
+
+* **Secondary Data (for Future Expansion & Broader Trends):**
+    * **Mobile Engagement Trends (Shorts/Reels):** Platform data on content consumption (watch times, engagement). Crucial for identifying 'brain rot' trends and attention span changes.
+    * **Reading Trends (Average Book Length):** Metadata from publishing databases on book lengths. Indirectly measures shifting attention spans and reading habits.
+    * **Wikipedia Dwell Time Data:** User interaction data on time spent per article. Proxy for sustained attention.
+    * **Neuroscience Data:** Cognitive studies (fMRI, EEG) on brain activity during media consumption. Offers objective evidence of attention changes.
+    * **CommonCrawl/Google Books Ngrams Viewer:** Large text corpora for linguistic analysis. Addresses linguistic simplification and complexity changes.
+    * **Academic Score Trends:** Aggregated academic performance data from institutions. Provides direct evidence for educational trends.
+
+* **Data Characteristics (The 4 V's):**
+    * **Volume:** Current project is small (hundreds of rows). Future expansion to social media feeds or linguistic corpora involves **petabytes**, requiring scalable storage.
+    * **Variety:** Current data is structured. Future expansion introduces **high variety**: structured (academic scores), semi-structured (APIs), and unstructured (text, video, neuroimages).
+    * **Velocity:** Current data is static. Future social media engagement data would be **high velocity**, necessitating real-time processing for dynamic, intervention-focused monitoring, early warning systems, and adaptive strategies.
+    * **Veracity:** Current self-reported data is subject to biases (e.g., self-report, cross-sectional design prevents causal inference). Future data from APIs or web crawls may contain noise; rigorous validation and cleaning are critical.
+
+* **Platforms, Software, and Tools:**
+    * **Current Project:** R (analysis, modeling), RStudio, local storage, CSV.
+    * **Future Expansion:**
+        * **Storage:** Cloud object storage (AWS S3, Google Cloud Storage), NoSQL databases (MongoDB), Data Warehouses (Snowflake, BigQuery).
+        * **Processing:** Distributed computing frameworks (Apache Spark, Hadoop); cloud services (AWS Glue, Google Dataflow).
+        * **Tools:** Python (advanced ML, NLP, deep learning), specialized visualization (Tableau), workflow orchestration (Apache Airflow).
+        * **Rationale:** These provide the scalability, flexibility, and robust processing for diverse, large-scale, high-velocity data.
+
+### 4.2 Data Analysis Techniques and Statistical Methods
+
+This section outlines broader analytical methods applicable to the project, with rationale and expected outcomes.
+
+* **Descriptive Statistics & Visualization:**
+    * **Methods:** Means, medians, distributions, time-series plots.
+    * **Rationale:** Summarize data, identify patterns and trends (e.g., usage, book length changes).
+    * **Expected Outcomes:** Baseline understanding of current patterns, visual evidence of changes.
+* **Inferential Statistics:**
+    * **Methods:** T-tests, ANOVA (comparing group means), Chi-squared tests (categorical associations), **Multiple Regression Analysis**, **Confidence Interval Tests**, **Variance Inflation Factor (VIF)**.
+    * **Rationale:** Draw statistically sound conclusions, testing hypotheses. Multiple regression is essential for assessing the simultaneous impact of multiple predictors on an outcome. VIF is crucial for diagnosing multicollinearity in regression models, while confidence intervals provide a range of plausible values for population parameters, aiding in the interpretation of effect sizes and statistical significance.
+    * **Expected Outcomes:** Confirm significant differences or associations; understand the independent effects of multiple variables; ensure model robustness and interpretability.
+* **Time-Series Analysis:**
+    * **Methods:** ARIMA models, Prophet.
+    * **Rationale:** Analyze trends over time (e.g., usage, book lengths, Wikipedia dwell times, academic scores) for 'brain rot' onset and progression.
+    * **Expected Outcomes:** Detection of temporal patterns, forecasting future trends.
+* **Natural Language Processing (NLP):**
+    * **Methods:** N-gram analysis, readability scores (e.g., Flesch-Kincaid).
+    * **Rationale:** Quantitatively assess linguistic simplification in text corpora.
+    * **Expected Outcomes:** Statistical evidence of trends in linguistic complexity.
+* **Machine Learning for Prediction:**
+    * **Methods:** Logistic Regression, Linear Regression, Decision Trees/Random Forests, Gradient Boosting Machines.
+    * **Rationale:** Build predictive models to identify 'brain rot' drivers and outcomes.
+    * **Expected Outcomes:** Predict academic impact, sleep, mental health; identify influential factors.
+* **Clustering (Unsupervised Learning):**
+    * **Methods:** K-Means, Hierarchical Clustering.
+    * **Rationale:** Identify natural groupings in student populations based on behavior.
+    * **Expected Outcomes:** Discover student profiles or 'brain rot' archetypes.
+
+### 4.3 Demonstration
+
+This section demonstrates the project's feasibility using a real dataset and R.
+
+* **Dataset Identification:** A "Social Media Addiction and Mental Health" dataset from Kaggle was used. It was collected via surveys (university mailing lists, social media) with validation, de-duplication, and anonymization.
+    * **Download Link:** https://www.kaggle.com/datasets/adilshamim8/social-media-addiction-vs-relationships
+    * **R Markdown File:** The R Markdown file used will be uploaded to Moodle.
+* **Data Description & Features:** 645 observations, 15 variables. Key features include `Age`, `Gender`, `Academic_Level`, `Avg_Daily_Usage_Hours`, `Most_Used_Platform`, `Sleep_Hours_Per_Night`, `Mental_Health_Score`, `Affects_Academic_Performance`, `Conflicts_Over_Social_Media`, `Addicted_Score`, `Relationship_Status`, `Country`.
+* **Analysis Process (Using R):**
+    1.  **Initial Inspection:** Loaded data (`str()`, `summary()`, `head()`).
+    2.  **Cleaning & Preprocessing:** `na.omit()` removed missing data. Variables converted to factors (e.g., `Gender`, `Affects_Academic_Performance`). "LinkedIn" users filtered out. `Most_Used_Platform` grouped into `Most_Used_Platform_Grouped` (e.g., "Messaging_Apps"), with "Facebook" as reference.
+    3.  **Exploratory Data Analysis (EDA):** Visualizations (e.g., "Academic Performance Impact by Most Used Platform") revealed initial patterns. These box plots would be enhanced using hybrid box-violin plots for richer data distribution insights:
+        ```R
+        library(ggplot2)
+
+        # Example: Hybrid Box-Violin plot for Academic Performance Impact by Most Used Platform
+        ggplot(data, aes(x = Most_Used_Platform_Grouped, y = Academic_Performance_Impact, fill = Most_Used_Platform_Grouped)) +
+          geom_violin(trim = FALSE) + # Violin plot
+          geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", color = "black") + # Boxplot inside
+          labs(title = "Academic Performance Impact by Most Used Platform",
+               x = "Most Used Platform",
+               y = "Academic Performance Impact Score") +
+          theme_minimal() +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+        # Example: Hybrid Box-Violin plot for Mental Health Score by Academic Performance Impact
+        ggplot(data, aes(x = Affects_Academic_Performance, y = Mental_Health_Score, fill = Affects_Academic_Performance)) +
+          geom_violin(trim = FALSE) + # Violin plot
+          geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", color = "black") + # Boxplot inside
+          labs(title = "Mental Health Score by Academic Performance Impact",
+               x = "Academic Performance Affected",
+               y = "Mental Health Score") +
+          theme_minimal()
+        ```
+    4.  **Statistical Modeling:** Three regression models were built: Logistic Regression for `Affects_Academic_Performance`, Linear Regression for `Sleep_Hours_Per_Night` and `Mental_Health_Score`. Predictors included `Avg_Daily_Usage_Hours`, `Academic_Level`, `Most_Used_Platform_Grouped`, `Age`, `Gender`, `Relationship_Status`, plus `Conflicts_Over_Social_Media` for mental health. VIFs confirmed no problematic multicollinearity.
+        The regression analysis included variables like average daily usage hours, academic level, most used platform, age, gender, relationship status, and conflicts over social media to predict academic performance impact, sleep hours, and mental health scores. The coefficients and their statistical significance for these models can be effectively visualized using coefficient plots with a sequential color scale based on p-value:
+        ```R
+        library(ggplot2)
+        library(broom) # For tidy model output
+        library(dplyr) # For data manipulation
+
+        # Assume model1, model2, model3 are already fitted (e.g., after running the models in R)
+        # model1 <- glm(Affects_Academic_Performance ~ Avg_Daily_Usage_Hours + Academic_Level + Most_Used_Platform_Grouped + Age + Gender + Relationship_Status + Sleep_Hours_Per_Night, data = data, family = binomial)
+        # model2 <- lm(Sleep_Hours_Per_Night ~ Avg_Daily_Usage_Hours + Academic_Level + Most_Used_Platform_Grouped + Age + Gender + Relationship_Status, data = data)
+        # model3 <- lm(Mental_Health_Score ~ Avg_Daily_Usage_Hours + Conflicts_Over_Social_Media + Most_Used_Platform_Grouped + Age + Gender + Relationship_Status + Academic_Level, data = data)
+
+        # Function to create a coefficient plot with custom p-value coloring
+        plot_coefficients <- function(model, title) {
+          tidy_model <- tidy(model, conf.int = TRUE, exponentiate = ifelse(family(model)$family == "binomial", TRUE, FALSE)) %>%
+            filter(term != "(Intercept)") # Remove intercept for cleaner plot
+
+          ggplot(tidy_model, aes(x = estimate, y = reorder(term, estimate), color = p.value)) +
+            geom_point() +
+            geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+            geom_vline(xintercept = ifelse(family(model)$family == "binomial", 1, 0), linetype = "dashed", color = "grey") +
+            labs(title = title,
+                 x = ifelse(family(model)$family == "binomial", "Odds Ratio", "Coefficient Estimate"),
+                 y = "Predictor Term") +
+            scale_color_gradientn(
+              colors = c(
+                "#004d00", # Darkest green (p=0)
+                "#008000", # Green (p ~ 0.01)
+                "#90EE90", # Light green (p=0.05)
+                "#FFD700", # Gold/Yellow (p=0.075)
+                "#FFA500", # Orange (p=0.1)
+                "#FF4500", # OrangeRed (p=0.5)
+                "#8B0000"  # Dark red (p=1)
+              ),
+              values = scales::rescale(c(0, 0.01, 0.05, 0.075, 0.1, 0.5, 1)), # Map p-values to color scale
+              limits = c(0, 1), # p-values range from 0 to 1
+              name = "P-value"
+            ) +
+            theme_minimal()
+        }
+
+        # Generate plots for each model (uncomment and run in R)
+        # plot_coefficients(model1, "Logistic Regression: Academic Performance Impact Coefficients")
+        # plot_coefficients(model2, "Linear Regression: Sleep Hours Per Night Coefficients")
+        # plot_coefficients(model3, "Linear Regression: Mental Health Score Coefficients")
+        ```
+
+* **Analysis Results:** Models showed strong predictive power (p < 2.2e-16) and low VIFs (all $\text{VIF}^{1/(2*\text{Df})} < 2.0$).
+
+* **Feasibility Conclusion:** The demonstration successfully identified significant and nuanced relationships between social media usage, specific platform choices, and student well-being. Findings highlight that while some platforms are strongly associated with negative academic, sleep, and mental health outcomes (Instagram, Snapchat, YouTube for mental health), others like Twitter present an interesting counter-trend for mental health. This confirms project feasibility and underscores the importance of detailed, platform-specific analysis to understand complex social media effects.
+
+## 5. Standard for Data Science Process, Data Governance and Management
+
+This section outlines methodological standards, data governance, and management, including ethical considerations.
+
+### 5.1 Standard for Data Science Process
+
+The **Cross-Industry Standard Process for Data Mining (CRISP-DM)** was adopted for its structured, iterative approach.
+
+* **Business Understanding:** Defined 'brain rot' problem and goals.
+* **Data Understanding:** Acquired and explored dataset, identifying patterns and quality.
+* **Data Preparation:** Cleaned data, handled missing values, converted types, filtered, and engineered features.
+* **Modeling:** Selected and applied regression models, performed diagnostic checks (VIF).
+* **Evaluation:** Assessed model performance and interpreted findings.
+* **Deployment:** Disseminated findings via this report and R Markdown file.
+
+CRISP-DM ensures robustness and reliability.
+
+### 5.2 Data Governance and Management
+
+Data governance ensures integrity, security, and ethical use; data management executes policies.
+
+* **Data Accessibility:**
+    * **Current Project:** Uses a public, anonymized Kaggle dataset, promoting transparency.
+    * **Future Expansion:** New primary/sensitive data would have strictly controlled access, limited to authorized personnel via secure platforms with ethical approvals.
+* **Data Security & Confidentiality:**
+    * **Current Project:** Minimal direct risk due to anonymized public data.
+    * **Future Expansion:** For sensitive data, measures include: anonymization/pseudonymization, encryption (at rest/in transit), role-based access, secure compliant storage, and data minimization.
+* **Ethical Concerns Related to Data Usage:**
+    * **Self-Reported Bias:** Acknowledged limitation of the current dataset (cross-sectional, online recruitment bias).
+    * **Privacy & Confidentiality (Future Data):** Crucial to obtain explicit informed consent for new individual-level data.
+    * **Potential for Misinterpretation/Stigmatization:** Findings must be presented with nuance, emphasizing correlation over causation to avoid unfair generalizations. Statistical associations are not causal claims.
+    * **Responsible Reporting:** Findings communicated responsibly, highlighting limitations and actionable insights.
+
+Adherence ensures robust insights and responsible data handling.
+
+## References
+1. Ortiz-Ospina, E. (2019, September 18). The rise of social media. Our World in Data. https://ourworldindata.org/rise-of-social-media
+2. How many users on TikTok? Statistics & Facts (2025). (n.d.). https://seo.ai/blog/how-many-users-on-tiktok
+3. Connell, A. (2025, January 1). 32 Top Instagram Reels Statistics for 2025. Adam Connell. https://adamconnell.me/instagram-reels-statistics/
+4. Ch, D. (2025, January 8). YouTube shorts statistics. SendShort - Create Viral Shorts Instantly With SendShort. https://sendshort.ai/statistics/shorts/
+5. Team, B. (2025, February 10). Social Media Usage & Growth Statistics. Backlinko. https://backlinko.com/social-media-users
+6. Heaton, B. (2024, December 2). ‘Brain rot’ named Oxford Word of the Year 2024. Oxford University Press. https://corp.oup.com/news/brain-rot-named-oxford-word-of-the-year-2024/
+7. Kim, I. (2024). EXPLORING THE COGNITIVE AND SOCIAL EFFECTS OF TIKTOK ON ADOLESCENT MINDS: a STUDY OF SHORT-FORM VIDEO CONSUMPTION. ierj.in. https://doi.org/10.21276/IERJ24769489007345
+8. Li, G., Geng, Y., & Wu, T. (2024). Effects of short-form video app addiction on academic anxiety and academic engagement: The mediating role of mindfulness. Frontiers in Psychology, 15. https://doi.org/10.3389/fpsyg.2024.1428813
+9. Qu, D., Liu, B., Jia, L., Zhang, X., Chen, D., Zhang, Q., Feng, Y., & Chen, R. (2023). The longitudinal relationships between short video addiction and depressive symptoms: A cross-lagged panel network analysis. Computers in Human Behavior, 152, 108059. https://doi.org/10.1016/j.chb.2023.108059
+10. Curtis, L. (2025, January 6). 12 habits to Prevent "Brain Rot" Health. https://www.health.com/habits-to-prevent-brain-rot-8766150
+11. Boys & Girls Clubs of America. (2025, February 26). Supporting Digital Well-being: 12 Ways to Help Teens Unplug from Technology - Boys & Girls Clubs of America. https://www.bgca.org/news-stories/2025/February/unplugging/
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+```{r}
+# Install packages if you haven't already (only run once)
+# install.packages("tidyverse")
+# install.packages("corrplot")
+# install.packages("dplyr")
+# install.packages("car") # For vif() to check multicollinearity
+# install.packages("broom") # For tidy()
+```
+```{r}
+library(this.path)
+setwd(this.path::here())
+
+# Load necessary libraries
+library(tidyverse)
+library(corrplot)
+library(dplyr)
+library(car) # Useful for VIF (Variance Inflation Factor) to check multicollinearity
+library(broom) # For tidy()
+
+# --- Read Your CSV File ---
+social_media_addiction_df <- read_csv("data/Students Social Media Addiction.csv")
+
+# # --- Basic Data Inspection ---
+# cat("--- Head of Data ---\n")
+# head(social_media_addiction_df)
+# cat("\n--- Summary of Data ---\n")
+# summary(social_media_addiction_df)
+# cat("\n--- Structure of Data ---\n")
+# str(social_media_addiction_df)
+# cat("\n--- Dimensions of Data ---\n")
+# dim(social_media_addiction_df)
+# cat("\n--- Column Names ---\n")
+# names(social_media_addiction_df)
+# cat("\n--- Missing Values Count Per Column ---\n")
+# colSums(is.na(social_media_addiction_df))
+
+# --- Data Cleaning and Type Conversion ---
+
+# This dataset seems to have clean headers, so no complex renaming needed.
+# Convert relevant columns to factors.
+social_media_addiction_df_cleaned <- social_media_addiction_df %>%
+  mutate(
+    Gender = as.factor(Gender),
+    Academic_Level = as.factor(Academic_Level),
+    Country = as.factor(Country),
+    Most_Used_Platform = as.factor(Most_Used_Platform),
+    Relationship_Status = as.factor(Relationship_Status),
+    # Affects_Academic_Performance needs to be a factor, and for logistic regression,
+    # it's best if the "positive" outcome (Yes) is the higher factor level (usually 1).
+    # We'll reorder levels to ensure 'Yes' is the reference for logistic regression.
+    Affects_Academic_Performance = factor(Affects_Academic_Performance,
+      levels = c("No", "Yes")
+    ),
+    # Conflicts_Over_Social_Media is already numeric as it's a count
+    # Addicted_Score is already numeric.
+    # Mental_Health_Score is already numeric.
+  ) %>%
+  # Handle missing values: Removing rows with any NAs for simplicity in this quick analysis.
+  na.omit()
+
+# --- NEW ADDITION/MODIFICATION FOR MOST_USED_PLATFORM GROUPING ---
+# Create the new grouped variable based on your specified categories
+social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
+  mutate(
+    Most_Used_Platform = case_when(
+      Most_Used_Platform %in% c("LINE", "KakaoTalk", "WeChat", "VKontakte", "WhatsApp") ~ "Messaging Apps",
+      TRUE ~ as.character(Most_Used_Platform) # Keep all other platforms as their original names
+    )
+  ) %>%
+  # Convert the new grouped column to a factor
+  mutate(Most_Used_Platform = as.factor(Most_Used_Platform))
+
+# Drop linkedin - is not a platform for brain rot
+social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
+  filter(!Most_Used_Platform %in% c("LinkedIn")) %>%
+  # After filtering, some factor levels might become unused. It's good practice to drop them.
+  # This makes sure the GLM doesn't try to fit coefficients for levels that no longer exist.
+  mutate(Most_Used_Platform = fct_drop(Most_Used_Platform))
+
+
+# cat("\n--- New Most_Used_Platform Factor Levels and Distribution ---\n")
+# levels(social_media_addiction_df_cleaned$Most_Used_Platform)
+# table(social_media_addiction_df_cleaned$Most_Used_Platform)
+#
+# # Check the structure again to confirm conversions and the new column
+# cat("\n--- Structure of Cleaned Data with Grouped Platforms ---\n")
+# str(social_media_addiction_df_cleaned)
+# cat("\n--- Summary of Cleaned Data with Grouped Platforms ---\n")
+# summary(social_media_addiction_df_cleaned)
+```
+---
+
+### Correlation Analysis
+
+We'll focus on the numeric columns for the correlation matrix.
+
+```{R}
+# Select only numeric columns for correlation matrix
+numeric_cols <- social_media_addiction_df_cleaned %>%
+  dplyr::select(
+    Age, Avg_Daily_Usage_Hours, Sleep_Hours_Per_Night,
+    Mental_Health_Score, Conflicts_Over_Social_Media, Addicted_Score
+  )
+
+# Calculate the correlation matrix
+correlation_matrix <- cor(numeric_cols, use = "pairwise.complete.obs") # Handles NAs if any remain
+
+# Visualize the correlation matrix
+corrplot(correlation_matrix,
+  method = "circle", type = "upper", order = "hclust",
+  tl.col = "black", tl.srt = 45, addCoef.col = "darkgrey"
+)
+```
+--- 1. Descriptive Statistics and Distribution Visualizations ---
+```{r}
+# --- 1. Descriptive Statistics and Distribution Visualizations ---
+# Histogram for Numeric Variables:
+# Avg_Daily_Usage_Hours
+ggplot(social_media_addiction_df_cleaned, aes(x = Avg_Daily_Usage_Hours)) +
+  geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Average Daily Social Media Usage Hours", x = "Hours per Day") +
+  theme_minimal()
+
+# Sleep_Hours_Per_Night
+ggplot(social_media_addiction_df_cleaned, aes(x = Sleep_Hours_Per_Night)) +
+  geom_histogram(binwidth = 0.5, fill = "darkgreen", color = "black") +
+  labs(title = "Distribution of Sleep Hours Per Night", x = "Hours") +
+  theme_minimal()
+
+# Mental_Health_Score
+ggplot(social_media_addiction_df_cleaned, aes(x = Mental_Health_Score)) +
+  geom_histogram(binwidth = 1, fill = "purple", color = "black") +
+  labs(title = "Distribution of Mental Health Score", x = "Score") +
+  theme_minimal()
+
+# Addicted_Score
+ggplot(social_media_addiction_df_cleaned, aes(x = Addicted_Score)) +
+  geom_histogram(binwidth = 1, fill = "orange", color = "black") +
+  labs(title = "Distribution of Addicted Score", x = "Score") +
+  theme_minimal()
+
+# Conflicts_Over_Social_Media
+ggplot(social_media_addiction_df_cleaned, aes(x = Conflicts_Over_Social_Media)) +
+  geom_histogram(binwidth = 1, fill = "red", color = "black") +
+  labs(title = "Distribution of Conflicts Over Social Media", x = "Number of Conflicts") +
+  theme_minimal()
+
+# Box/Violin plots for numeric variables by Affects_Academic_Performance
+ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Avg_Daily_Usage_Hours, fill = Affects_Academic_Performance)) +
+  geom_violin(trim = FALSE) + # Violin plot
+  geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", alpha = 0.5) + # Boxplot inside
+  labs(title = "Daily Usage Hours by Academic Performance Impact", x = "Academic Performance Affected", y = "Avg Daily Usage Hours") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+
+ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Addicted_Score, fill = Affects_Academic_Performance)) +
+  geom_violin(trim = FALSE) + # Violin plot
+  geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", alpha = 0.5) + # Boxplot inside
+  labs(title = "Addiction Score by Academic Performance Impact", x = "Academic Performance Affected", y = "Addiction Score") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+
+ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Mental_Health_Score, fill = Affects_Academic_Performance)) +
+  geom_violin(trim = FALSE) + # Violin plot
+  geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", alpha = 0.5) + # Boxplot inside
+  labs(title = "Mental Health Score by Academic Performance Impact", x = "Academic Performance Affected", y = "Mental Health Score") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+
+ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Sleep_Hours_Per_Night, fill = Affects_Academic_Performance)) +
+  geom_violin(trim = FALSE) + # Violin plot
+  geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", alpha = 0.5) + # Boxplot inside
+  labs(title = "Sleep Hours by Academic Performance Impact", x = "Academic Performance Affected", y = "Sleep Hours Per Night") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+```
+--- 2. Univariate Analysis for Categorical Variables ---
+```{r}
+# --- 2. Univariate Analysis for Categorical Variables ---
+
+# # Gender distribution
+# social_media_addiction_df_cleaned %>%
+#   count(Gender) %>%
+#   mutate(proportion = n / sum(n)) %>%
+#   print()
+#
+# # Academic_Level distribution
+# social_media_addiction_df_cleaned %>%
+#   count(Academic_Level) %>%
+#   mutate(proportion = n / sum(n)) %>%
+#   print()
+#
+# # Most_Used_Platform distribution
+# social_media_addiction_df_cleaned %>%
+#   count(Most_Used_Platform) %>%
+#   mutate(proportion = n / sum(n)) %>%
+#   print()
+#
+# # Affects_Academic_Performance distribution
+# social_media_addiction_df_cleaned %>%
+#   count(Affects_Academic_Performance) %>%
+#   mutate(proportion = n / sum(n)) %>%
+#   print()
+
+# Bar plots for categorical variables by Affects_Academic_Performance
+# Gender vs. Academic Performance
+ggplot(social_media_addiction_df_cleaned, aes(x = Gender, fill = Affects_Academic_Performance)) +
+  geom_bar(position = "fill") + # position="fill" shows proportions
+  labs(title = "Academic Performance Impact by Gender", y = "Proportion") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+
+# Academic_Level vs. Academic Performance
+ggplot(social_media_addiction_df_cleaned, aes(x = Academic_Level, fill = Affects_Academic_Performance)) +
+  geom_bar(position = "fill") +
+  labs(title = "Academic Performance Impact by Academic Level", y = "Proportion") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+
+# Most_Used_Platform vs. Academic Performance
+ggplot(social_media_addiction_df_cleaned, aes(x = Most_Used_Platform, fill = Affects_Academic_Performance)) +
+  geom_bar(position = "fill") +
+  labs(title = "Academic Performance Impact by Most Used Platform", y = "Proportion") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate labels if too many
+```
+--- 3. Binary Logistic/Linear Regression Analysis ---
+```{r}
+# --- 3. Binary Logistic/Linear Regression Analysis ---
+
+logistic_model_academic_performance <- glm(
+  Affects_Academic_Performance ~
+    Avg_Daily_Usage_Hours + Sleep_Hours_Per_Night +
+    Academic_Level + Most_Used_Platform + Age, # Changed here
+  data = social_media_addiction_df_cleaned,
+  family = "binomial"
+)
+
+# cat("\n--- Summary of Logistic Regression Model (Predicting Academic Performance) ---\n")
+# summary(logistic_model_academic_performance)
+# cat("\n--- Odds Ratios for Logistic Regression Model ---\n")
+# odds_ratios <- exp(coef(logistic_model_academic_performance))
+
+# --- Check for multicollinearity (important given your strong correlations) ---
+# VIF is calculated on a linear model, but it's a good proxy for multicollinearity in GLMs.
+# Be cautious if VIF values are above 5 or 10, as it indicates high multicollinearity,
+# which can make individual coefficient estimates unstable.
+# If VIFs are high, consider removing one of the highly correlated variables.
+vif_values <- vif(logistic_model_academic_performance)
+# cat("\n--- Variance Inflation Factors (VIF) for Predictors ---\n")
+# print(vif_values)
+```
+```{r}
+# --- Linear Regression Model: Predicting Sleep_Hours_Per_Night ---
+# cat("\n=======================================================\n")
+# cat("          PREDICTING SLEEP_HOURS_PER_NIGHT           \n")
+# cat("=======================================================\n")
+
+# Model 2: Predict Sleep_Hours_Per_Night based on relevant social media and demographic factors
+# We'll use all non-outcome variables except the ones we already identified as too close to academic performance
+# (Addicted_Score, Conflicts_Over_Social_Media, Mental_Health_Score).
+# Also, exclude Affects_Academic_Performance as it's an outcome of social media use.
+sleep_model <- lm(
+  Sleep_Hours_Per_Night ~ Avg_Daily_Usage_Hours + Academic_Level +
+    Most_Used_Platform + Age + Gender + Relationship_Status,
+  data = social_media_addiction_df_cleaned
+)
+
+# cat("\n--- Summary of Linear Regression Model (Predicting Sleep Hours) ---\n")
+# summary(sleep_model)
+#
+# cat("\n--- Variance Inflation Factors (VIF) for Sleep Hours Model Predictors ---\n")
+# vif(sleep_model)
+#
+# # You can also get confidence intervals for coefficients
+# cat("\n--- Confidence Intervals for Sleep Hours Model Coefficients ---\n")
+# confint(sleep_model)
+```
+```{r}
+# --- Linear Regression Model: Predicting Mental_Health_Score ---
+# cat("\n=======================================================\n")
+# cat("          PREDICTING MENTAL_HEALTH_SCORE             \n")
+# cat("=======================================================\n")
+
+# Model 3: Predict Mental_Health_Score based on social media usage, academic and demographic factors.
+# We'll include Addicted_Score and Conflicts_Over_Social_Media here, as they are often
+# direct indicators or highly related to mental health. Be aware of their high correlation.
+# Exclude Affects_Academic_Performance and Sleep_Hours_Per_Night as they are also potential outcomes or related.
+mental_health_model <- lm(
+  Mental_Health_Score ~ Avg_Daily_Usage_Hours + # Addicted_Score +
+    Conflicts_Over_Social_Media + Academic_Level +
+    Most_Used_Platform + Age + Gender + Relationship_Status,
+  data = social_media_addiction_df_cleaned
+)
+
+# cat("\n--- Summary of Linear Regression Model (Predicting Mental Health Score) ---\n")
+# summary(mental_health_model)
+#
+# cat("\n--- Variance Inflation Factors (VIF) for Mental Health Model Predictors ---\n")
+# vif(mental_health_model)
+#
+# # You can also get confidence intervals for coefficients
+# cat("\n--- Confidence Intervals for Mental Health Model Coefficients ---\n")
+# confint(mental_health_model)
+```
+```{r}
+plot_coefficients <- function(model, title) {
+  tidy_model <- tidy(model, conf.int = TRUE, exponentiate = ifelse(family(model)$family == "binomial", TRUE, FALSE)) %>%
+    filter(term != "(Intercept)") # Remove intercept for cleaner plot
+
+  # 1. Define the breaks and labels for your desired p-value bins (intervals)
+  p_value_breaks <- c(0, 0.001, 0.025, 0.05, 0.075, 0.1, 0.2, 1)
+
+  # Define the labels for each interval
+  p_value_labels_for_intervals <- c(
+    "P < 0.001",
+    "0.001 \u2264 P < 0.025",
+    "0.025 \u2264 P < 0.05",
+    "0.05 \u2264 P < 0.075",
+    "0.075 \u2264 P < 0.1",
+    "0.1 \u2264 P < 0.2",
+    "P \u2265 0.2"
+  )
+
+  # Define the colors for each interval
+  custom_colors <- c(
+    "#004d00", # Corresponds to P < 0.001
+    "#008000", # Corresponds to 0.001 <= P < 0.025
+    "#90EE90", # Corresponds to 0.025 <= P < 0.05
+    "#FFD700", # Corresponds to 0.05 <= P < 0.075
+    "#FFA500", # Corresponds to 0.075 <= P < 0.1
+    "#FF4500", # Corresponds to 0.1 <= P < 0.2
+    "#8B0000" # Corresponds to P >= 0.2
+  )
+
+  # Safety check: Number of labels and colors must match the number of intervals
+  if (length(p_value_labels_for_intervals) != length(p_value_breaks) - 1 ||
+    length(custom_colors) != length(p_value_breaks) - 1) {
+    stop("Error: Number of interval labels and custom colors must be one less than the number of p_value_breaks.")
+  }
+
+  # 2. Create a new binned factor variable for p.value
+  #    Crucially, define the levels explicitly using `factor()` with all possible labels.
+  tidy_model <- tidy_model %>%
+    mutate(
+      p_value_binned = cut(p.value,
+        breaks = p_value_breaks,
+        labels = p_value_labels_for_intervals,
+        right = FALSE, # (lower, upper]
+        include.lowest = TRUE # Include 0 in the first bin
+      ),
+      # Ensure all possible factor levels are explicitly set, even if not present in the data
+      p_value_binned = factor(p_value_binned, levels = p_value_labels_for_intervals)
+    )
+
+  # 3. Create the ggplot using the new binned variable for color
+  ggplot(tidy_model, aes(x = estimate, y = reorder(term, estimate), color = p_value_binned)) +
+    geom_point() +
+    geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+    geom_vline(xintercept = ifelse(family(model)$family == "binomial", 1, 0), linetype = "dashed", color = "grey") +
+    labs(
+      title = title,
+      x = ifelse(family(model)$family == "binomial", "Odds Ratio", "Coefficient Estimate"),
+      y = "Predictor Term"
+    ) +
+    scale_color_manual(
+      values = custom_colors,
+      name = "P-value Significance", # Title for the legend
+      # Specify `drop = FALSE` to show all levels in the legend, even if not present in data
+      drop = FALSE
+    ) +
+    theme_minimal() +
+    theme(
+      legend.text.align = 0, # Align legend text to the left
+      legend.key.height = unit(0.8, "cm"), # Adjust height of legend key (color block)
+      legend.key.width = unit(0.5, "cm") # Adjust width of legend key
+    )
+}
+
+# Generate plots for each model
+plot_coefficients(logistic_model_academic_performance, "Logistic Regression: Academic Performance Impact Coefficients")
+plot_coefficients(sleep_model, "Linear Regression: Sleep Hours Per Night Coefficients")
+plot_coefficients(mental_health_model, "Linear Regression: Mental Health Score Coefficients")
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
+```{r}
+
+```
