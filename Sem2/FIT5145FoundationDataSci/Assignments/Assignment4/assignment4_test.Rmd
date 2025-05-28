@@ -1,0 +1,12 @@
+```{r}
+library(this.path)
+library(dplyr)
+library(tidyverse)
+setwd(this.path::here())
+consumer_complaints <- read_csv("git_ignore/consumer_complaints.csv")
+```
+
+```{r}
+
+filtered_complaints <- read_csv("git_ignore/filtered_complaints.csv")
+```
