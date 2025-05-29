@@ -1,12 +1,34 @@
 ```{r}
 library(this.path)
-library(dplyr)
-library(tidyverse)
 setwd(this.path::here())
-consumer_complaints <- read_csv("git_ignore/consumer_complaints.csv")
+
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(stringr)
+library(tidytext)
+library(tm)
+library(tidyr)
+
+# --- Load the dataset ---
+# Assuming 'property_transaction_victoria.csv' is in the same directory as your R script
+df <- read.csv("git_ignore/property_transaction_victoria.csv", stringsAsFactors = FALSE)
+
+# Convert relevant columns to appropriate types
+df$sold_date <- as.Date(df$sold_date)
+df$auction_date <- as.Date(df$auction_date)
+df$available_date <- as.Date(df$available_date)
+
+# Convert price, building_size, land_size to numeric.
+# Coerce non-numeric values to NA and warn.
+df$price <- as.numeric(gsub("[^0-9.]", "", df$price))
+df$building_size <- as.numeric(gsub("[^0-9.]", "", df$building_size))
+df$land_size <- as.numeric(gsub("[^0-9.]", "", df$land_size))
+
+
 ```
 
 ```{r}
 
-filtered_complaints <- read_csv("git_ignore/filtered_complaints.csv")
+
 ```
