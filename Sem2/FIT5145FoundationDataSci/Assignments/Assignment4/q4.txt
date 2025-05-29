@@ -1,0 +1,408 @@
+Prompt used:
+i've inspected the products vs sub-products. they are formatted as "Product" in double quotes, followed by a list of sub-products, and then a line break. can you make up the aliasing categories for these?
+the products vs sub-products are:
+"Credit reporting  credit repair services  or other personal consumer reports"
+Conventional home mortgage
+Credit repair services
+Credit reporting
+Other personal consumer report
+
+"Credit card or prepaid card"
+General-purpose credit card or charge card
+General-purpose prepaid card
+Gift card
+Government benefit card
+Payroll card
+Store credit card
+Student prepaid card
+
+"Credit card"
+NA
+
+"Prepaid card"
+Electronic Benefit Transfer / EBT card
+General purpose card
+Gift or merchant card
+Government benefit payment card
+ID prepaid card
+Mobile wallet
+Other special purpose card
+Payroll card
+Transit card
+
+"Credit reporting"
+NA
+
+"Credit reporting Credit reporting Credit reporting"
+NA
+
+"Money transfer  virtual currency  or money service"
+Check cashing service
+Debt settlement
+Domestic (US) money transfer
+Foreign currency exchange
+International money transfer
+Mobile or digital wallet
+Money order
+Refund anticipation check
+Traveler's check or cashier's check
+Virtual currency
+
+"Money transfers"
+Domestic (US) money transfer
+International money transfer
+
+"Virtual currency"
+Domestic (US) money transfer
+International money transfer
+
+"Other financial service"
+Check cashing
+Credit repair
+Debt settlement
+Foreign currency exchange
+Money order
+Refund anticipation check
+Traveler’s/Cashier’s checks
+
+"Payday loan  title loan  or personal loan"
+Installment loan
+Pawn loan
+Payday loan
+Personal line of credit
+Title loan
+
+"Payday loan"
+NA
+
+"Student loan"
+Federal student loan servicing
+Non-federal student loan
+Private student loan
+
+"Consumer Loan"
+Installment loan
+Pawn loan
+Personal line of credit
+Title loan
+Vehicle lease
+Vehicle loan
+
+"Vehicle loan or lease"
+Lease
+Loan
+Title loan
+
+"Bank account or service"
+(CD) Certificate of deposit
+Cashing a check without an account
+Checking account
+Other bank product/service
+Savings account
+
+
+"Checking or savings account"
+CD (Certificate of Deposit)
+Checking account
+Other banking product or service
+Personal line of credit
+Savings account
+
+"NA"
+Checking account
+
+"Mortgage"
+Conventional adjustable mortgage (ARM)
+Conventional fixed mortgage
+Conventional home mortgage
+FHA mortgage
+Home equity loan or line of credit
+Home equity loan or line of credit (HELOC)
+Other mortgage
+Other type of mortgage
+Reverse mortgage
+Second mortgage
+VA mortgage
+
+"Debt collection"
+Auto
+Auto debt
+Credit card
+Credit card debt
+Federal student loan
+Federal student loan debt
+I do not know
+Medical
+Medical debt
+Mortgage
+Mortgage debt
+Non-federal student loan
+Other (i.e. phone  health club  etc.)
+Other debt
+Payday loan
+Payday loan debt
+Private student loan debt
+
+"debt collection"
+Credit card
+
+
+Commands:
+# Begin wrangling
+# 1. Product: "Credit reporting and credit repair"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (trim spaces, single spaces)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s) # Trim leading/trailing spaces
+    gsub(/[[:space:]]+/, " ", s)            # Replace multiple spaces with single space
+    return s
+}
+
+NR == 1 { # Print header as is
+    print $0
+    next
+}
+{
+    # Store original values before potential modification
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Credit reporting and credit repair"
+    # Using normalized versions for comparison
+    if (original_product == "Credit reporting  credit repair services  or other personal consumer reports" || \
+        original_product == "Credit reporting" || \
+        original_product == "Credit reporting Credit reporting Credit reporting" || \
+        original_sub_product == "Credit repair" || \
+        original_sub_product == "Credit repair services" || \
+        original_sub_product == "Credit reporting" || \
+        original_sub_product == "Other personal consumer report") {
+
+        $3 = "Credit reporting and credit repair" # Set new Product
+
+        # Apply the Sub-Product rule
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product # Use the original (normalized) Product as new Sub-Product
+        }
+        # Else: Sub-product remains as is
+    }
+
+    print $0 # Print the (potentially modified) line
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 2. Product: "Credit card or prepaid card"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (same as above)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Credit card or prepaid card"
+    if (original_product == "Credit card" || \
+        original_product == "Prepaid card") {
+
+        $3 = "Credit card or prepaid card" # Set new Product
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 3. Product: "Money transfer  virtual currency  or money service"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (same as above)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Money transfer virtual currency or money service"
+    if (original_product == "Money transfer virtual currency or money service" || \
+        original_product == "Money transfers" || \
+        original_product == "Virtual currency" || \
+        original_sub_product == "Check cashing" || \
+        original_sub_product == "Debt settlement" || \
+        original_sub_product == "Foreign currency exchange" || \
+        original_sub_product == "Money order" || \
+        original_sub_product == "Refund anticipation check" || \
+        original_sub_product == "Traveler’s/Cashier’s checks") {
+
+        $3 = "Money transfer virtual currency or money service" # Set new Product
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 4. Product: "Consumer Loan"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (same as above)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Consumer Loan"
+    if (original_product == "Payday loan title loan or personal loan" || \
+        original_product == "Payday loan" || \
+        original_product == "Vehicle loan or lease" || \
+        original_sub_product == "Personal line of credit") {
+
+        $3 = "Consumer Loan" # Set new Product
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 5. Product: "Bank account or service"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (same as above)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Bank account or service"
+    if (original_sub_product == "CD (Certificate of Deposit)" || \
+        original_sub_product == "Checking account" || \
+        original_sub_product == "Other banking product or service" || \
+        original_sub_product == "Savings account" || \
+        original_product == "NA" || original_product == "N/A") { # Handles "NA" as a product
+
+        $3 = "Bank account or service" # Set new Product
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 6. Product: "Debt collection"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (same as above)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Debt collection"
+    if (original_product == "debt collection") { # Matched using lowercase
+        $3 = "Debt collection" # Set new Product (with proper capitalization)
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 7. Mortgage
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (trim spaces, single spaces)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Mortgage"
+    if (original_sub_product == "Conventional home mortgage") {
+        $3 = "Mortgage" # Set new Product
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# End wrangling
+
+# 4a. How many unique values are there in the product column?
+# Assuming Product is column 3
+awk -F',' 'NR > 1 {print $3}' filtered_complaints.csv | sort -u | wc -l
+
+# 4b. Write commands to list the top 5 most frequent product values in the dataset.
+# Assuming Product is column 3
+awk -F',' 'NR > 1 {print $3}' filtered_complaints.csv | sort | uniq -c | sort -rn | head -n 5

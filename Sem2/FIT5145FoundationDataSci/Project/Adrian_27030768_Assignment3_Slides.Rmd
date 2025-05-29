@@ -1,10 +1,10 @@
 ---
-title: "Assignment 3: Report - The Unspoken Epidemic - Analysis to Combat the Rise of 'Brain Rot'"
-author: "Adrian Leong (Student ID: 27030768)"
+title: "The Unspoken Epidemic - Analysis to Combat the Rise of 'Brain Rot'"
+author: "Adrian Leong, 27030768"
 output:
   beamer_presentation:
     # Optional: You can add themes here
-    theme: "Antibes"
+    theme: "Warsaw"
     colortheme: "dolphin"
     fonttheme: "structurebold"
     df_print: kable # Optional: for nicer looking data frames
@@ -403,16 +403,14 @@ plot_coefficients <- function(model, title) {
 ## Data & Methodology
 
 * **Data Sources:**
-    * **Current:** Student survey data (645 obs.) on usage, well-being, demographics.
-    * **Future:** Mobile engagement trends, academic records, linguistic corpora, neuroscience data.
+    * Student survey data (~700x13) on usage, well-being, demographics.
 * **Data Characteristics (The 4 V's):**
-    * **Volume:** Scaling from small to petabytes.
-    * **Variety:** Structured to unstructured (text, video).
-    * **Velocity:** Static to high-velocity (real-time trends).
-    * **Veracity:** Self-report bias to complex data quality.
+    * **Volume:** Small
+    * **Variety:** Structured.
+    * **Velocity:** Static.
+    * **Veracity:** Self-reported bias.
 * **Methodology:**
-    * **CRISP-DM:** Structured process for data science projects.
-    * **Key Techniques:** Regression (Logistic, Linear), Time-Series, NLP, ML.
+    * **Key Techniques:** Regression (Logistic, Linear).
 
 ---
 
@@ -478,9 +476,9 @@ plot_coefficients(mental_health_model, "Mental Health Score Coefficients: Linear
     * **Social Media Conflicts:** Strongest negative predictor (-0.79 score).
     * **Platforms:** Instagram (-0.15 score), Snapchat (-0.36 score) users have **lower** scores (vs. Facebook).
     * **Gender:** Males have **lower** scores (-0.13 score) than Females.
-* **Nuanced Platform Effects:**
+* **Marginal Platform Effects:**
     * **YouTube:** Marginally negative trend (-0.32 score, p=0.054).
-    * **Twitter:** Marginally **positive** trend (+0.16 score, p=0.099), suggesting unique dynamics.
+    * **Twitter:** Marginally positive trend (+0.16 score, p=0.099) (better than Facebook).
 * **Not Significant:** Academic Level, TikTok, Messaging Apps, Age, Relationship Status.
 
 ---
@@ -491,10 +489,11 @@ plot_coefficients(mental_health_model, "Mental Health Score Coefficients: Linear
     * Project successfully identifies significant, nuanced links between social media and student well-being.
     * Highlights platform-specific impacts (e.g., TikTok vs. Twitter).
 * **Future Directions:**
-    * Integrate objective behavioral data (e.g., app usage logs).
-    * Expand to time-series and geographical analyses.
+    * Integrate objective behavioral data (e.g., app usage logs, academic marks).
     * Develop predictive models for early intervention strategies.
-* **Ethical Commitment:** Responsible data handling, emphasizing correlation, not causation, to inform solutions.
+* **Ethical Commitment:** 
+    * Aligns with CRISP-DM
+    * Anonymous online survey, emphasizing correlation, not causation, to inform solutions.
 
 
 
