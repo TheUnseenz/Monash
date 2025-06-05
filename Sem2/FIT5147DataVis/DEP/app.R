@@ -13,7 +13,7 @@ library(ggiraph)
 library(forcats)  # For fct_rev
 library(classInt)  # For Jenks breaks
 library(shinyWidgets)  # For multi-select filters
-library(ggforce) # Added for geom_parallel_sets
+library(ggforce) # For geom_parallel_sets (though no longer used, keeping for library load consistency if it's useful elsewhere)
 
 # Load preprocessed data
 preprocessed_data <- readRDS("preprocessed_pollution_data.rds")
@@ -37,8 +37,8 @@ all_countries <- sort(unique(preprocessed_data$country))
 
 # Define map bounds to restrict dragging
 world_map_bounds <- list(
-  south_west = c(-60, -180), # Slightly adjusted to avoid too much white space
-  north_east = c(85, 180)   # Slightly adjusted to avoid too much white space
+  south_west = c(-60, -180),
+  north_east = c(85, 180)
 )
 
 # UI
@@ -89,25 +89,24 @@ ui <- fluidPage(
     column(9,
            tabsetPanel(
              id = "main_tabs",
-             tabPanel("1. Income & Pollution",
-                      h3("Income Disparity in Pollution Burden"),
-                      p("Relationship between income groups, plastic waste contribution, and air pollution deaths"),
-                      plotlyOutput("parallel_sets_plot", height = 500)
-             ),
-             tabPanel("2. Geographic Analysis",
-                      h3("Geographic Distribution of Pollution Metrics"),
-                      p("Spatial patterns of pollution impacts and residuals"),
-                      selectInput("map_variable_selection", "Select Variable:",
+             tabPanel("1. Income and Pollution", # Renamed tab
+                      h3("Geographic Distribution and Economic Drivers of Pollution"),
+                      p("Spatial patterns of pollution impacts, residuals, and their relationship with GDP."),
+                      selectInput("map_variable_selection", "Select Map Variable and Corresponding Scatter Plot:",
                                   choices = c(
-                                    "Air Pollution Residuals (vs GDP)" = "mortality_residual_gdp",
-                                    "Air Pollution Residuals (vs GDP & Trade)" = "mortality_residual_gdp_trade",
                                     "Air Pollution Death Rate" = "death_rate_air_pollution",
-                                    "Mismanaged Plastic Waste Share" = "mismanaged_plastic_waste_share"
+                                    "Air Pollution Residuals (vs GDP)" = "mortality_residual_gdp",
+                                    "Mismanaged Plastic Waste Share" = "mismanaged_plastic_waste_share",
+                                    "Mismanaged Plastic Waste Residuals (vs GDP)" = "plastic_residual_gdp" # Added new residual
                                   ),
-                                  selected = "mortality_residual_gdp"),
-                      leafletOutput("dynamic_choropleth_map", height = 500)
+                                  selected = "death_rate_air_pollution"),
+                      leafletOutput("dynamic_choropleth_map", height = 500),
+                      tags$hr(), # Separator between map and scatter plot
+                      h4(htmlOutput("scatter_plot_title")), # Dynamic title for scatter plot
+                      plotlyOutput("combined_scatter_plot", height = 400) # New scatter plot output
              ),
-             tabPanel("3. Economic Impact",
+             # Original Tab 3 is now Tab 2
+             tabPanel("2. Economic Impact",
                       h3("Plastic Waste vs Economic Share"),
                       p("Treemap visualization of countries grouped by income level"),
                       radioButtons("treemap_grouping", "Grouping:",
@@ -115,12 +114,14 @@ ui <- fluidPage(
                                    selected = "income", inline = TRUE),
                       girafeOutput("treemap_plot", height = "600px")
              ),
-             tabPanel("4. Growth & Waste",
+             # Original Tab 4 is now Tab 3
+             tabPanel("3. Growth & Waste",
                       h3("Economic Growth vs Plastic Waste"),
                       p("Comparison of GDP share evolution and plastic waste contribution"),
                       plotlyOutput("growth_waste_plot", height = 600)
              ),
-             tabPanel("5. Pollution Burden",
+             # Original Tab 5 is now Tab 4
+             tabPanel("4. Pollution Burden",
                       h3("Polluters vs Victims"),
                       p("Quadrant analysis of plastic waste contribution vs air pollution deaths"),
                       plotlyOutput("quadrant_plot", height = 500)
@@ -187,121 +188,33 @@ server <- function(input, output, session) {
     data_filtered
   })
   
-  # Parallel sets plot - REVISED for order and error handling
-  output$parallel_sets_plot <- renderPlotly({
-    plot_data <- filtered_data() %>%
-      as_tibble() %>%
-      # Ensure data is clean for classification
-      filter(!is.na(income_group), !is.na(mismanaged_plastic_waste_share), !is.na(death_rate_air_pollution))
-    
-    # Check if required columns exist and enough data for classification
-    if (!all(c("income_group", "mismanaged_plastic_waste_share", "death_rate_air_pollution") %in% names(plot_data)) || nrow(plot_data) < 2) {
-      return(NULL) # Not enough data for classIntervals or plotting
-    }
-    
-    # Create categories using Jenks natural breaks. Handle cases where not enough unique values.
-    # For plastic waste
-    if (length(unique(plot_data$mismanaged_plastic_waste_share)) > 1) {
-      jenks_breaks_plastic <- classIntervals(plot_data$mismanaged_plastic_waste_share, n = 4, style = "jenks")$brks
-    } else {
-      # Handle case with single unique value or not enough for 4 breaks
-      jenks_breaks_plastic <- c(min(plot_data$mismanaged_plastic_waste_share), max(plot_data$mismanaged_plastic_waste_share) + .Machine$double.eps)
-      if(length(unique(plot_data$mismanaged_plastic_waste_share)) == 1) jenks_breaks_plastic <- c(jenks_breaks_plastic[1]-0.01, jenks_breaks_plastic[1]+0.01)
-    }
-    
-    # For air pollution
-    if (length(unique(plot_data$death_rate_air_pollution)) > 1) {
-      jenks_breaks_pollution <- classIntervals(plot_data$death_rate_air_pollution, n = 4, style = "jenks")$brks
-    } else {
-      # Handle case with single unique value or not enough for 4 breaks
-      jenks_breaks_pollution <- c(min(plot_data$death_rate_air_pollution), max(plot_data$death_rate_air_pollution) + .Machine$double.eps)
-      if(length(unique(plot_data$death_rate_air_pollution)) == 1) jenks_breaks_pollution <- c(jenks_breaks_pollution[1]-0.01, jenks_breaks_pollution[1]+0.01)
-    }
-    
-    plot_data <- plot_data %>%
-      mutate(
-        plastic_waste_cat = cut(mismanaged_plastic_waste_share,
-                                breaks = jenks_breaks_plastic,
-                                labels = c("Very Low", "Low", "Medium", "High")[1:(length(jenks_breaks_plastic)-1)], # Adjust labels based on number of breaks
-                                include.lowest = TRUE, right = TRUE,
-                                ordered_result = TRUE), # Ensure ordered factor
-        air_pollution_cat = cut(death_rate_air_pollution,
-                                breaks = jenks_breaks_pollution,
-                                labels = c("Very Low", "Low", "Medium", "High")[1:(length(jenks_breaks_pollution)-1)], # Adjust labels
-                                include.lowest = TRUE, right = TRUE,
-                                ordered_result = TRUE) # Ensure ordered factor
-      ) %>%
-      filter(!is.na(plastic_waste_cat), !is.na(air_pollution_cat), !is.na(income_group))
-    
-    if (nrow(plot_data) == 0) return(NULL)
-    
-    # REVISED: Convert to character before pivoting to avoid type compatibility issues
-    # Store income_group separately for fill aesthetic after pivot
-    plot_data_full_long <- plot_data %>%
-      mutate(id = row_number(), # Unique ID for each row
-             income_group_char = as.character(income_group), # Convert income group to character
-             air_pollution_cat_char = as.character(air_pollution_cat), # Convert to character
-             plastic_waste_cat_char = as.character(plastic_waste_cat)) %>% # Convert to character
-      pivot_longer(cols = c(income_group_char, air_pollution_cat_char, plastic_waste_cat_char), # All 3 variables as character
-                   names_to = "dimension_raw", values_to = "category") %>%
-      mutate(
-        dimension = factor(dimension_raw,
-                           levels = c("income_group_char", "air_pollution_cat_char", "plastic_waste_cat_char"),
-                           labels = c("Income Group", "Air Pollution Category", "Plastic Waste Category"))
-      ) %>%
-      select(id, dimension, category, income_group_fill = income_group) # Keep original income_group for fill
-    
-    # Create plot
-    p <- ggplot(plot_data_full_long, 
-                aes(x = dimension, id = id, split = category, 
-                    # Correct tooltip for parallel sets
-                    tooltip = paste("Income Group:", income_group_fill, "<br>",
-                                    "Dimension:", dimension, "<br>",
-                                    "Category:", category))) + 
-      geom_parallel_sets(aes(fill = income_group_fill), alpha = 0.7, na.rm = TRUE) +
-      geom_parallel_sets_axes(axis.width = 0.1, fill = "gray90", color = "gray30") +
-      geom_parallel_sets_labels(colour = 'black', angle = 0, size = 3) + # Add labels to the axes
-      scale_fill_manual(values = income_colors_ordinal) +
-      labs(title = "Income Group, Air Pollution & Plastic Waste Relationships",
-           fill = "Income Group") +
-      theme_minimal() +
-      theme(
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank(),
-        panel.grid = element_blank(),
-        axis.text.x = element_text(size = 11),
-        plot.title = element_text(hjust = 0.5, size = 13)
-      )
-    
-    # Convert to plotly, ensuring tooltip is correct
-    ggplotly(p, tooltip = "tooltip") %>%
-      layout(showlegend = TRUE)
-  })
-  
-  # Choropleth map - FIXED with restricted bounds and correct variable selection
+  # Choropleth map - UPDATED for new variable and legend title
   output$dynamic_choropleth_map <- renderLeaflet({
     selected_var <- input$map_variable_selection
     map_title <- switch(selected_var,
                         "mortality_residual_gdp" = "Air Pollution Residuals (vs GDP)",
-                        "mortality_residual_gdp_trade" = "Air Pollution Residuals (vs GDP & Trade)",
+                        "plastic_residual_gdp" = "Mismanaged Plastic Waste Residuals (vs GDP)", # Added new residual
                         "death_rate_air_pollution" = "Air Pollution Death Rate",
                         "mismanaged_plastic_waste_share" = "Mismanaged Plastic Waste Share"
     )
     legend_title <- switch(selected_var,
                            "mortality_residual_gdp" = "Residual Value",
-                           "mortality_residual_gdp_trade" = "Residual Value",
+                           "plastic_residual_gdp" = "Residual Value", # Added new residual
                            "death_rate_air_pollution" = "Deaths per 100k",
                            "mismanaged_plastic_waste_share" = "% Global Waste"
     )
     
-    limits <- if (selected_var %in% c("mortality_residual_gdp", "mortality_residual_gdp_trade")) {
-      scale_limits_mortality_resid
+    limits <- if (selected_var %in% c("mortality_residual_gdp", "plastic_residual_gdp")) { # Include new residual
+      # For residuals, use a common scale (if applicable) or range of filtered data
+      # Let's assume plastic_residual_gdp might have its own range, or we make one common for all residuals
+      # For simplicity, let's use range of filtered data for plastic_residual_gdp if distinct limits are not pre-calculated
+      if (selected_var == "mortality_residual_gdp") scale_limits_mortality_resid
+      else range(preprocessed_data[[selected_var]], na.rm = TRUE) # Using preprocessed for consistent scale
     } else {
-      # Use range of the specific variable for other plots
-      range(preprocessed_data[[selected_var]], na.rm = TRUE)
+      range(preprocessed_data[[selected_var]], na.rm = TRUE) # Use range of the specific variable for other plots
     }
     
-    pal <- if (selected_var %in% c("mortality_residual_gdp", "mortality_residual_gdp_trade")) {
+    pal <- if (selected_var %in% c("mortality_residual_gdp", "plastic_residual_gdp")) { # Include new residual
       colorNumeric("RdBu", domain = limits, reverse = TRUE, na.color = "#808080")
     } else if (selected_var == "death_rate_air_pollution") {
       colorNumeric("YlOrRd", domain = limits, na.color = "#808080")
@@ -314,7 +227,7 @@ server <- function(input, output, session) {
     leaflet(map_data, 
             options = leafletOptions(maxBounds = list(world_map_bounds$south_west, world_map_bounds$north_east),
                                      minZoom = 2, maxZoom = 8, 
-                                     zoomControl = TRUE # Keep zoom control
+                                     zoomControl = TRUE
             )) %>%
       addProviderTiles(providers$CartoDB.Positron) %>%
       addPolygons(
@@ -329,7 +242,7 @@ server <- function(input, output, session) {
           fillOpacity = 0.9,
           bringToFront = TRUE),
         label = ~paste0(country, ": ", 
-                        ifelse(selected_var %in% c("mortality_residual_gdp", "mortality_residual_gdp_trade"),
+                        ifelse(selected_var %in% c("mortality_residual_gdp", "plastic_residual_gdp"), # Updated
                                round(get(selected_var), 2),
                                ifelse(selected_var == "mismanaged_plastic_waste_share",
                                       paste0(round(get(selected_var), 2), "%"),
@@ -344,10 +257,70 @@ server <- function(input, output, session) {
   # Update radar chart on map click
   observeEvent(input$dynamic_choropleth_map_shape_click, {
     click <- input$dynamic_choropleth_map_shape_click
-    rv$selected_country_for_radar <- click$id # 'id' contains the country name from layerId
+    rv$selected_country_for_radar <- click$id
   })
   
-  # Treemap plot for Tab 3 - FIXED with click events and ordering
+  # Scatter plot logic based on map selection
+  output$scatter_plot_title <- renderText({
+    selected_var <- input$map_variable_selection
+    if (selected_var %in% c("death_rate_air_pollution", "mortality_residual_gdp")) {
+      "Air Pollution Death Rate vs. GDP per Capita"
+    } else if (selected_var %in% c("mismanaged_plastic_waste_share", "plastic_residual_gdp")) {
+      "Mismanaged Plastic Waste Share vs. GDP per Capita"
+    } else {
+      "" # Should not happen with defined choices
+    }
+  })
+  
+  output$combined_scatter_plot <- renderPlotly({
+    plot_data <- filtered_data() %>%
+      as_tibble() %>%
+      filter(!is.na(log_gdp_per_capita), !is.na(income_group)) # Filter NA for essential columns
+    
+    selected_var <- input$map_variable_selection
+    
+    if (nrow(plot_data) == 0) {
+      return(NULL)
+    }
+    
+    y_var_name <- ""
+    y_axis_label <- ""
+    
+    if (selected_var %in% c("death_rate_air_pollution", "mortality_residual_gdp")) {
+      plot_data <- plot_data %>% filter(!is.na(death_rate_air_pollution))
+      y_var_name <- "death_rate_air_pollution"
+      y_axis_label <- "Air Pollution Death Rate (per 100k)"
+    } else if (selected_var %in% c("mismanaged_plastic_waste_share", "plastic_residual_gdp")) {
+      plot_data <- plot_data %>% filter(!is.na(mismanaged_plastic_waste_share))
+      y_var_name <- "mismanaged_plastic_waste_share"
+      y_axis_label <- "Mismanaged Plastic Waste Share (%)"
+    } else {
+      return(NULL) # Should not happen
+    }
+    
+    if (nrow(plot_data) == 0) return(NULL) # Check again after variable-specific filter
+    
+    p <- ggplot(plot_data, 
+                aes(x = log_gdp_per_capita, y = .data[[y_var_name]],
+                    color = income_group,
+                    text = paste0("Country: ", country,
+                                  "<br>GDP per Capita (log): ", round(log_gdp_per_capita, 2),
+                                  "<br>", y_axis_label, ": ", round(.data[[y_var_name]], 2),
+                                  "<br>Income Group: ", income_group))) +
+      geom_point(alpha = 0.7, size = 3) +
+      geom_smooth(method = "lm", se = FALSE, color = "darkblue", linetype = "dashed") + # Linear regression line
+      scale_color_manual(values = income_colors_ordinal) +
+      labs(x = "Log GDP per Capita",
+           y = y_axis_label,
+           color = "Income Group") +
+      theme_minimal() +
+      theme(plot.title = element_text(hjust = 0.5))
+    
+    ggplotly(p, tooltip = "text") %>%
+      layout(hoverlabel = list(bgcolor = "white"))
+  })
+  
+  # Treemap plot for Tab 2 (formerly Tab 3) - FIXED subgroup label warning
   output$treemap_plot <- renderGirafe({
     plot_data <- filtered_data() %>%
       as_tibble() %>%
@@ -361,9 +334,9 @@ server <- function(input, output, session) {
       # Group by income group
       p <- ggplot(plot_data, 
                   aes(area = world_gdp_share, fill = income_group,
-                      subgroup = income_group, subgroup2 = country, # subgroup2 for country within income
+                      subgroup = income_group, subgroup2 = country,
                       tooltip = paste(country, "<br>GDP Share:", round(world_gdp_share, 2), "%<br>Plastic Waste:", round(mismanaged_plastic_waste_share, 2), "%"),
-                      data_id = country)) + # data_id on country for click
+                      data_id = country)) +
         geom_treemap(color = "white", start = "topleft") +
         geom_treemap_subgroup_border(color = "black", size = 1.5) +
         geom_treemap_subgroup_text(place = "centre", grow = FALSE, alpha = 1, colour = "black",
@@ -378,7 +351,7 @@ server <- function(input, output, session) {
       p <- ggplot(plot_data, 
                   aes(area = world_gdp_share, fill = income_group,
                       tooltip = paste(country, "<br>GDP Share:", round(world_gdp_share, 2), "%<br>Plastic Waste:", round(mismanaged_plastic_waste_share, 2), "%"),
-                      data_id = country)) + # data_id on country for click
+                      data_id = country)) +
         geom_treemap(color = "white", start = "topleft") +
         geom_treemap_text(aes(label = paste(country, "\n", round(world_gdp_share, 2), "%")),
                           colour = "white", place = "centre", reflow = TRUE, size = 10,
@@ -396,7 +369,7 @@ server <- function(input, output, session) {
     girafe(ggobj = p, 
            options = list(
              opts_tooltip(use_fill = TRUE, opacity = 0.9, css = "font-size:12px;"),
-             opts_selection(type = "single", only_shiny = FALSE, css = "stroke:gold;stroke-width:3px;") # Ensure selection is active
+             opts_selection(type = "single", only_shiny = FALSE, css = "stroke:gold;stroke-width:3px;")
            ),
            width_svg = 10, height_svg = 8)
   })
@@ -406,7 +379,7 @@ server <- function(input, output, session) {
     rv$selected_country_for_radar <- input$treemap_plot_selected
   })
   
-  # Growth & Waste plot for Tab 4 - Fixed with proper ordering, tooltip, and hidden labels
+  # Growth & Waste plot for Tab 3
   output$growth_waste_plot <- renderPlotly({
     plot_data <- filtered_data() %>%
       as_tibble() %>%
@@ -467,13 +440,13 @@ server <- function(input, output, session) {
       )
     
     # Convert to plotly with click events, using 'text' for tooltip
-    ggplotly(p, tooltip = "text", source = "growth_waste_plot") %>% # Added source ID
+    ggplotly(p, tooltip = "text", source = "growth_waste_plot") %>%
       layout(hoverlabel = list(bgcolor = "white")) %>%
       event_register("plotly_click") # Register the event
   })
   
-  # Update radar chart on growth & waste plot click - PRESERVED YOUR FIX
-  observeEvent(event_data("plotly_click", source = "growth_waste_plot"), { # Added source ID
+  # Update radar chart on growth & waste plot click
+  observeEvent(event_data("plotly_click", source = "growth_waste_plot"), {
     click_data <- event_data("plotly_click", source = "growth_waste_plot")
     if (!is.null(click_data)) {
       # Get the list of countries in the current plot order
@@ -501,7 +474,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # Quadrant plot with click event - FIXED source for event_data
+  # Quadrant plot for Tab 4
   output$quadrant_plot <- renderPlotly({
     plot_data <- filtered_data() %>%
       as_tibble() %>%
@@ -521,20 +494,10 @@ server <- function(input, output, session) {
                 aes(x = mismanaged_plastic_waste_share, 
                     y = death_rate_air_pollution,
                     text = tooltip_text,
-                    key = country)) +  # Add key for plotly click to identify country
+                    key = country)) +
       geom_point(aes(color = income_group), size = 4, alpha = 0.7) +
       geom_vline(xintercept = median_waste, linetype = "dashed", color = "gray50") +
       geom_hline(yintercept = median_death, linetype = "dashed", color = "gray50") +
-      annotate("text", x = max(plot_data$mismanaged_plastic_waste_share, na.rm = TRUE)*0.9, # Added na.rm
-               y = median_death*1.1, label = "High Suffering", size = 4, color = "gray30") +
-      annotate("text", x = max(plot_data$mismanaged_plastic_waste_share, na.rm = TRUE)*0.9, # Added na.rm
-               y = median_death*0.9, label = "Low Suffering", size = 4, color = "gray30") +
-      annotate("text", x = median_waste*1.1, 
-               y = max(plot_data$death_rate_air_pollution, na.rm = TRUE)*0.9, # Added na.rm
-               label = "High Polluting", angle = 90, size = 4, color = "gray30") +
-      annotate("text", x = median_waste*0.9, 
-               y = max(plot_data$death_rate_air_pollution, na.rm = TRUE)*0.9, # Added na.rm
-               label = "Low Polluting", angle = 90, size = 4, color = "gray30") +
       scale_color_manual(values = income_colors_ordinal) +
       scale_x_log10() +
       labs(title = "Pollution Burden: Who Pollutes vs Who Suffers?",
@@ -544,19 +507,56 @@ server <- function(input, output, session) {
       theme_minimal() +
       theme(plot.title = element_text(hjust = 0.5))
     
-    ggplotly(p, tooltip = "text", source = "quadrant_plot") %>% # Specify source ID
-      event_register("plotly_click") # Register the event
+    # Convert to plotly and add annotations
+    plotly_plot <- ggplotly(p, tooltip = "text", source = "quadrant_plot") %>%
+      layout(
+        annotations = list(
+          list(
+            x = max(plot_data$mismanaged_plastic_waste_share, na.rm = TRUE)*0.9,
+            y = median_death*1.1,
+            text = "High Suffering",
+            showarrow = FALSE,
+            font = list(size = 12, color = "gray30")
+          ),
+          list(
+            x = max(plot_data$mismanaged_plastic_waste_share, na.rm = TRUE)*0.9,
+            y = median_death*0.9,
+            text = "Low Suffering",
+            showarrow = FALSE,
+            font = list(size = 12, color = "gray30")
+          ),
+          list(
+            x = median_waste*1.1,
+            y = max(plot_data$death_rate_air_pollution, na.rm = TRUE)*0.9,
+            text = "High Polluting",
+            showarrow = FALSE,
+            font = list(size = 12, color = "gray30"),
+            textangle = -90
+          ),
+          list(
+            x = median_waste*0.9,
+            y = max(plot_data$death_rate_air_pollution, na.rm = TRUE)*0.9,
+            text = "Low Polluting",
+            showarrow = FALSE,
+            font = list(size = 12, color = "gray30"),
+            textangle = -90
+          )
+        )
+      ) %>%
+      event_register("plotly_click")
+    
+    plotly_plot
   })
   
-  # Update radar chart on quadrant plot click - FIXED source ID
-  observeEvent(event_data("plotly_click", source = "quadrant_plot"), { # Use the specific source ID
+  # Update radar chart on quadrant plot click
+  observeEvent(event_data("plotly_click", source = "quadrant_plot"), {
     click_data <- event_data("plotly_click", source = "quadrant_plot")
     if (!is.null(click_data)) {
       rv$selected_country_for_radar <- click_data$key # 'key' contains the country name
     }
   })
   
-  # Radar chart - FIXED (mostly for data handling and label consistency)
+  # Radar chart
   output$radar_chart_title <- renderText({
     if (!is.null(rv$selected_country_for_radar)) {
       paste("Country Profile:", rv$selected_country_for_radar)
@@ -593,7 +593,7 @@ server <- function(input, output, session) {
       # Replace NA with 0 or a reasonable mid-point if 0 is misleading
       # For now, let's use 0 as a placeholder, but consider implications.
       # A better approach might be to impute or exclude axis if all are NA
-      radar_data[is.na(radar_data)] <- 0 
+      radar_data[is.na(radar_data)] <- 0
       warning(paste("NA values present for", rv$selected_country_for_radar, "in radar data. Replaced with 0 for radar chart."))
     }
     
