@@ -30,5 +30,21 @@ df$land_size <- as.numeric(gsub("[^0-9.]", "", df$land_size))
 
 ```{r}
 
+library(this.path)
+setwd(this.path::here())
 
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(stringr)
+library(tidytext)
+library(tm)
+library(tidyr)
+
+# Assuming 'property_transaction_victoria.csv' is in the same directory as your R script
+df <- read.csv("git_ignore/consumer_complaints.csv", stringsAsFactors = FALSE)
+
+```
+```{r}
+str(df$Date_received)
 ```

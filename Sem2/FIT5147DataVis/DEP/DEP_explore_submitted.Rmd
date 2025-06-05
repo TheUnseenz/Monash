@@ -206,6 +206,98 @@ summary(model_death_income_trade)
 
 Visualization
 ```{r}
+# library(sf)
+# library(rnaturalearth)
+# library(ggplot2)
+# library(dplyr)
+# 
+# world <- ne_countries(scale = "medium", returnclass = "sf")
+# 
+# # Explicitly merge using iso_a3 from 'world' and 'country_code' from 'combined_data'
+# world_data_2019_income <- world %>%
+#   left_join(combined_data, by = c("iso_a3_eh" = "country_code"))
+# 
+# # Check the merge: How many rows in combined_data were matched?
+# print(paste("Number of rows in combined_data:", nrow(combined_data)))
+# print(paste("Number of rows in merged data:", nrow(world_data_2019_income)))
+# 
+# # Identify rows where death_rate_air_pollution is NA after the merge
+# na_pollution <- world_data_2019_income %>%
+#   filter(is.na(death_rate_air_pollution))
+# print(paste("Number of rows with NA pollution data after merge:", nrow(na_pollution)))
+# if(nrow(na_pollution) > 0) {
+#   print("Countries with NA pollution data:")
+#   print(unique(na_pollution$name_long)) # Check the 'world' name for these
+#   print(unique(na_pollution$country_code)) # Check your 'combined_data' code for these
+# }
+# 
+# income_levels <- unique(na.omit(world_data_2019_income$income_group))
+# 
+# map_list <- lapply(income_levels, function(level) {
+#   ggplot(world_data_2019_income %>% filter(income_group == level)) +
+#     geom_sf(aes(fill = death_rate_air_pollution), color = "grey50", linewidth = 0.1) +
+#     scale_fill_viridis_c(option = "magma", na.value = "lightgrey") +
+#     labs(title = paste("Pollution Mortality -", level), fill = "Deaths per 100k") +
+#     theme_minimal()
+# })
+# 
+# print(map_list)
+
+
+library(sf)
+library(rnaturalearth)
+library(ggplot2)
+library(dplyr)
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+world_data_2019_income <- world %>%
+  left_join(combined_data, by = c("iso_a3_eh" = "country_code"))
+
+income_levels <- unique(na.omit(world_data_2019_income$income_group))
+
+map_list <- lapply(income_levels, function(level) {
+  ggplot(world_data_2019_income %>% filter(income_group == level)) +
+    geom_sf(aes(fill = death_rate_air_pollution), color = "grey50", linewidth = 0.1) +
+    scale_fill_viridis_c(option = "magma", na.value = "lightgrey") +
+    labs(title = paste("Pollution Mortality -", level), fill = "Deaths per 100k") +
+    theme_minimal()
+})
+
+print(map_list)
+
+```
+
+```{r}
+library(sf)
+library(rnaturalearth)
+library(ggplot2)
+library(dplyr)
+
+world_points <- ne_countries(scale = "medium", returnclass = "sf") %>%
+  st_centroid()
+
+# Rename the country code column in world_points to match your combined_data (using iso_a3)
+world_points <- world_points %>%
+  rename(country_code = iso_a3_eh)
+
+scatter_data <- combined_data %>%
+  left_join(world_points, by = "country_code") %>%
+  filter(!is.na(st_coordinates(geometry)[, 1]))
+
+# Check how many rows were lost due to missing geometry
+print(paste("Number of rows in combined_data:", nrow(combined_data)))
+print(paste("Number of rows in scatter_data:", nrow(scatter_data)))
+
+ggplot(scatter_data, aes(x = gdp_per_capita, y = death_rate_air_pollution, color = income_group)) +
+  geom_sf(aes(geometry = geometry), stat = "sf_coordinates") +
+  labs(title = "Pollution Mortality vs. GDP per Capita (2019)",
+       x = "GDP per Capita (PPP)",
+       y = "Pollution Mortality Rate",
+       color = "Income Group") +
+  theme_minimal()
+```
+```{r}
 ggplot(combined_data, aes(x = gdp_per_capita, y = death_rate_air_pollution, color = income_group)) +
   geom_point() +
   labs(title = "Pollution Mortality vs. GDP per Capita (2019)",
@@ -215,7 +307,21 @@ ggplot(combined_data, aes(x = gdp_per_capita, y = death_rate_air_pollution, colo
   theme_minimal()
 ```
 
+```{r}
+# anti_join_check <- combined_data %>%
+#   anti_join(world, by = c("country_code" = "iso_a3")) # Or the column you used for merging
+# print(anti_join_check$country_name) # List the countries that didn't match
 
+
+anti_join_check <- combined_data_2019 %>%
+  anti_join(world, by = c("country_code" = "iso_a3_eh")) # Or the column you used for merging
+print(anti_join_check$country_name) # List the countries that didn't match
+
+
+# unique(combined_data$country_code)
+# unique(world$iso_a3)
+
+```
 ```{r}
 
 ```
@@ -286,6 +392,40 @@ plot_map <- function(sf_data, fill_var, title, legend_title, low_color = "blue",
 }
 
 
+# --- Question 1: How much is pollution killing us, and how does it vary across income levels? ---
+
+# 1a. Scatter plot: Mortality vs GDP per capita, colored by income
+p1a <- ggplot(data_2019, aes(x = gdp_per_capita, y = death_rate_air_pollution, color = income_group)) +
+  geom_point(alpha = 0.7) +
+  scale_x_log10(labels = scales::dollar) + # Log scale for GDP often helps
+  scale_color_viridis_d(option="plasma", name = "Income Group") +
+  labs(
+    title = "Air Pollution Mortality vs. GDP per Capita (2019)",
+    x = "GDP per Capita (PPP, log scale)",
+    y = "Age-Std. Mortality Rate (Air Pollution)"
+  ) +
+  theme_minimal()
+print(p1a)
+
+# 1b. Calculate Residuals: Mortality unexplained by GDP per capita
+# Simple linear model (consider log GDP if relationship looked non-linear in 1a)
+model_mortality_gdp <- lm(death_rate_air_pollution ~ log(gdp_per_capita), data = data_2019)
+summary(model_mortality_gdp) # Check model fit
+
+map_data_2019$mortality_residual_gdp <- residuals(model_mortality_gdp)[match(map_data_2019$iso_a3, names(residuals(model_mortality_gdp)))]
+
+# 1c. Map the Residuals
+p1c <- plot_map(
+  map_data_2019,
+  fill_var = mortality_residual_gdp,
+  title = "Air Pollution Mortality Rate Residuals (vs. log GDP per Capita, 2019)",
+  legend_title = "Residual\n(Higher means more death than expected for income)",
+  scale_type = "diverging" # Residuals center around 0
+)
+print(p1c)
+
+# Interpretation: Red areas have higher mortality than expected given their GDP/capita, Blue areas have lower.
+
 # --- Question 2: How does a country's income level influence its disposition to pollute? ---
 # Using Mismanaged Plastic Waste as the indicator for "disposition to pollute"
 
@@ -328,6 +468,34 @@ print(p2c)
 
 # Interpretation: Red areas mismanage more plastic than expected given their GDP/capita, Blue areas mismanage less.
 
+
+# --- Question 3: How do trade dynamics conflate with waste management and pollution-related mortality? ---
+
+# 3a. Calculate Residuals for Mortality: Unexplained by GDP *and* Trade
+model_mortality_gdp_trade <- lm(death_rate_air_pollution ~ log(gdp_per_capita) + imports_gdp_ratio + exports_gdp_ratio, data = data_2019)
+summary(model_mortality_gdp_trade)
+
+# Add residuals to map data
+data_2019_with_resid_trade_mort <- data_2019 %>%
+  filter(!is.na(gdp_per_capita) & !is.na(death_rate_air_pollution) & !is.na(imports_gdp_ratio) & !is.na(exports_gdp_ratio)) %>%
+  mutate(mortality_residual_gdp_trade = residuals(model_mortality_gdp_trade))
+
+map_data_2019 <- map_data_2019 %>%
+  left_join(select(data_2019_with_resid_trade_mort, iso_a3 = country_code, mortality_residual_gdp_trade), by = "iso_a3")
+
+
+# 3b. Map Mortality Residuals (controlled for GDP & Trade)
+p3b <- plot_map(
+  map_data_2019,
+  fill_var = mortality_residual_gdp_trade,
+  title = "Air Pollution Mortality Residuals (vs. log GDP & Trade Ratios, 2019)",
+  legend_title = "Residuals\n(Unexplained by Income & Trade Volume)",
+  scale_type = "diverging"
+)
+print(p3b)
+# Interpretation: Shows geographic patterns in mortality *after* accounting for both income level and trade volume (as % of GDP).
+
+
 # 3c. Calculate Residuals for Plastic Waste: Unexplained by GDP *and* Trade
 model_plastic_gdp_trade <- lm(mismanaged_plastic_waste_share ~ log(gdp_per_capita) + imports_gdp_ratio + exports_gdp_ratio, data = data_2019)
 summary(model_plastic_gdp_trade)
@@ -340,7 +508,6 @@ data_2019_with_resid_trade_plast <- data_2019 %>%
 map_data_2019 <- map_data_2019 %>%
   left_join(select(data_2019_with_resid_trade_plast, iso_a3 = country_code, plastic_residual_gdp_trade), by = "iso_a3")
 
-# --- Question 3: How do trade dynamics conflate with waste management and pollution-related mortality? ---
 
 # 3d. Map Plastic Waste Residuals (controlled for GDP & Trade)
 p3d <- plot_map(
@@ -351,6 +518,9 @@ p3d <- plot_map(
   scale_type = "diverging"
 )
 print(p3d)
+# Interpretation: Shows geographic patterns in waste mismanagement *after* accounting for both income level and trade volume.
+
+
 ```
 
 ```{r}
@@ -506,6 +676,54 @@ plot_3b_common_scale <- plot_map_with_legend(
 print(plot_3b_common_scale)
 
 
+# --- Map of Change in World GDP Share (2019-2023) ---
+
+# Prepare data for GDP share change
+gdp_share_change_data <- combined_data %>%
+  filter(year %in% c(2019, 2023)) %>%
+  select(country_code, year, world_gdp_share) %>%
+  group_by(country_code, year) %>%
+  summarise(world_gdp_share = first(world_gdp_share), .groups = 'drop') %>% # Handle potential duplicates
+  pivot_wider(names_from = year, values_from = world_gdp_share, names_prefix = "gdp_share_") %>%
+  mutate(gdp_share_change_pct = ifelse(!is.na(gdp_share_2019) & !is.na(gdp_share_2023),
+                                     gdp_share_2023 - gdp_share_2019,
+                                     NA_real_)) %>%
+  filter(!is.na(gdp_share_change_pct))
+
+# Merge with map geometry
+map_data_gdp_change <- world_map %>%
+  left_join(gdp_share_change_data, by = c("iso_a3" = "country_code"))
+
+# Determine symmetric scale limits for GDP change map
+max_abs_gdp_change <- max(abs(map_data_gdp_change$gdp_share_change_pct), na.rm = TRUE)
+gdp_scale_limits <- c(-max_abs_gdp_change, max_abs_gdp_change)
+
+# Map the change using the helper function
+map_gdp_change <- plot_map_with_legend(
+    sf_data = map_data_gdp_change,
+    fill_var = gdp_share_change_pct,
+    title = "Change in Share of World GDP (2023 vs 2019)",
+    legend_title = "Change in % Points",
+    scale_type = "diverging", # Blue-White-Red default
+    limits = gdp_scale_limits # Use symmetric limits
+    # Note: Formatting labels as % might be misleading if values are small fractions
+    # Default number format might be better unless values are large percentages.
+    # To format as % add: , labels = scales::percent_format(accuracy = 0.1) in scale_fill_gradient2 if desired
+)
+
+# Add percent formatting specifically for this plot's scale
+map_gdp_change <- map_gdp_change +
+    scale_fill_gradient2(
+        name = "Change in Percentage Points",
+        low = "#377EB8", mid = "white", high = "#E41A1C",
+        midpoint = 0,
+        limits = gdp_scale_limits,
+        labels = scales::percent_format(accuracy = 0.1), # Format legend labels as %
+        na.value = "grey85",
+        guide = guide_colorbar(title.position = "top", title.hjust = 0.5)
+    )
+
+print(map_gdp_change)
 ```
 
 
