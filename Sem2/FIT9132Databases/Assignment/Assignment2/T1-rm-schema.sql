@@ -45,24 +45,29 @@ ALTER TABLE competitor ADD CONSTRAINT comp_nk UNIQUE ( comp_email,
 
 --ENTRY
 CREATE TABLE entry (
+    event_id          NUMBER(6) NOT NULL,
     entry_no          NUMBER(5) NOT NULL,
-    entry_starttime   DATE NOT NULL,
-    entry_finishtime  DATE NOT NULL,
-    entry_elapsedtime DATE NOT NULL
+    entry_starttime   TIMESTAMP,
+    entry_finishtime  TIMESTAMP,         
+    entry_elapsedtime INTERVAL DAY TO SECOND,
+    comp_no           NUMBER(5) NOT NULL,
+    team_id           NUMBER(3),         
+    char_id           NUMBER(3)          
 );
-
-ALTER TABLE entry ADD CONSTRAINT entry_pk PRIMARY KEY ( entry_no );
-
+ALTER TABLE entry ADD CONSTRAINT entry_pk PRIMARY KEY ( event_id, entry_no );
 
 --TEAM
 CREATE TABLE team (
     team_id   NUMBER(3) NOT NULL,
-    team_name VARCHAR2(30) NOT NULL
+    team_name VARCHAR2(30) NOT NULL,
+    carn_date DATE NOT NULL,              
+    event_id  NUMBER(6) NOT NULL,         
+    entry_no  NUMBER(5) NOT NULL          
 );
 
-ALTER TABLE team ADD CONSTRAINT entry_pk PRIMARY KEY ( entry_no );
+ALTER TABLE team ADD CONSTRAINT team_pk PRIMARY KEY ( team_id );
 
-ALTER TABLE team ADD CONSTRAINT entry_uk UNIQUE ( team_name );
+ALTER TABLE team ADD CONSTRAINT team_uk UNIQUE ( team_name, carn_date );
 
 
 -- Add all missing FK Constraints below here
@@ -90,5 +95,5 @@ ALTER TABLE team
         REFERENCES event ( event_id );
 
 ALTER TABLE team
-    ADD CONSTRAINT team_entry_fk FOREIGN KEY ( entry_no )
-        REFERENCES entry ( entry_no );
+    ADD CONSTRAINT team_entry_fk FOREIGN KEY ( event_id, entry_no )
+        REFERENCES entry ( event_id, entry_no );
