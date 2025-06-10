@@ -101,6 +101,7 @@ EXCEPTION
 END;
 /
 
+
 -- (c) Update Jackson Bull's Entry (2 marks)
 SET TRANSACTION NAME 'Update Jackson Bull''s entry';
 
@@ -169,16 +170,17 @@ BEGIN
     UPDATE ENTRY
     SET team_id = NULL
     WHERE comp_no = v_jackson_comp_no
-      AND team_id = v_super_runners_team_id; -- Target specific team if exists
+      AND team_id = v_super_runners_team_id;
 
-    -- Delete Keith's entry for the RM Winter Series Caulfield 2025 carnival
-    DELETE FROM ENTRY
-    WHERE comp_no = v_keith_comp_no
-      AND event_id IN (SELECT event_id FROM EVENT WHERE carn_date = v_carn_date);
-
+    -- *** CRUCIAL FIX: Delete the TEAM record FIRST ***
     -- Delete the Super Runners team for the RM Winter Series Caulfield 2025 carnival
     DELETE FROM TEAM
     WHERE team_id = v_super_runners_team_id;
+
+    -- Now delete Keith's entry (it's no longer referenced by the team)
+    DELETE FROM ENTRY
+    WHERE comp_no = v_keith_comp_no
+      AND event_id IN (SELECT event_id FROM EVENT WHERE carn_date = v_carn_date);
 
     COMMIT;
 EXCEPTION
