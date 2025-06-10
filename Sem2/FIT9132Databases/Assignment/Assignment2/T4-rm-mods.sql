@@ -12,8 +12,124 @@
 */
 
 --(a)
+SET TRANSACTION NAME 'Add and populate completed events column';
 
+-- Add new column to COMPETITOR table
+ALTER TABLE COMPETITOR
+ADD (comp_completed_events_no NUMBER(3) DEFAULT 0);
+
+COMMENT ON COLUMN COMPETITOR.comp_completed_events_no IS
+    'Number of completed events for the competitor';
+
+-- Populate the new column
+UPDATE COMPETITOR c
+SET comp_completed_events_no = (
+    SELECT COUNT(e.entry_no)
+    FROM ENTRY e
+    WHERE e.comp_no = c.comp_no
+      AND e.entry_finishtime IS NOT NULL
+);
+
+-- Show table structure change
+DESC COMPETITOR;
+
+-- Show data changes (example, adjust column names as needed)
+SELECT comp_no, comp_fname, comp_lname, comp_completed_events_no FROM COMPETITOR;
+
+COMMIT;
 
 --(b)
+SET TRANSACTION NAME 'Allow multiple charities per entry';
 
+-- Create the new linking table
+CREATE TABLE ENTRY_CHARITY_SUPPORT (
+    event_id   NUMBER(6) NOT NULL,
+    entry_no   NUMBER(5) NOT NULL,
+    char_id    NUMBER(3) NOT NULL,
+    percentage NUMBER(3) NOT NULL, -- 0 to 100
+    CONSTRAINT entry_charity_pk PRIMARY KEY (event_id, entry_no, char_id),
+    CONSTRAINT entry_charity_chk CHECK (percentage BETWEEN 0 AND 100)
+);
+
+COMMENT ON COLUMN ENTRY_CHARITY_SUPPORT.event_id IS
+    'Foreign key to ENTRY (part of composite key)';
+
+COMMENT ON COLUMN ENTRY_CHARITY_SUPPORT.entry_no IS
+    'Foreign key to ENTRY (part of composite key)';
+
+COMMENT ON COLUMN ENTRY_CHARITY_SUPPORT.char_id IS
+    'Foreign key to CHARITY';
+
+COMMENT ON COLUMN ENTRY_CHARITY_SUPPORT.percentage IS
+    'Percentage of funds to be donated to this charity (0-100)';
+
+-- Add foreign key constraints to the new table
+ALTER TABLE ENTRY_CHARITY_SUPPORT
+ADD CONSTRAINT ecs_entry_fk FOREIGN KEY (event_id, entry_no)
+    REFERENCES ENTRY (event_id, entry_no);
+
+ALTER TABLE ENTRY_CHARITY_SUPPORT
+ADD CONSTRAINT ecs_charity_fk FOREIGN KEY (char_id)
+    REFERENCES CHARITY (char_id);
+
+-- Migrate existing data from ENTRY.char_id to ENTRY_CHARITY_SUPPORT
+INSERT INTO ENTRY_CHARITY_SUPPORT (event_id, entry_no, char_id, percentage)
+SELECT event_id, entry_no, char_id, 100
+FROM ENTRY
+WHERE char_id IS NOT NULL;
+
+-- Drop the old char_id column from ENTRY
+ALTER TABLE ENTRY
+DROP COLUMN char_id;
+
+-- Populate example data for Jackson Bull (from 3c, his 5K entry)
+-- First, find Jackson's entry details for the 5 Km Run in RM WINTER SERIES CAULFIELD 2025
+-- assuming his entry_no for 5K was determined in 3(c).
+-- You will need to make sure the entry_id and entry_no are correct for Jackson's 5K entry.
+INSERT INTO ENTRY_CHARITY_SUPPORT (event_id, entry_no, char_id, percentage)
+VALUES (
+    (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
+     WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
+       AND et.eventtype_desc = '5 Km Run'),
+    (SELECT en.entry_no FROM ENTRY en JOIN COMPETITOR c ON en.comp_no = c.comp_no
+     WHERE c.comp_phone = '0422412524'
+       AND en.event_id = (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
+                          WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
+                            AND et.eventtype_desc = '5 Km Run')),
+    (SELECT char_id FROM CHARITY WHERE char_name = 'RSPCA'),
+    70
+);
+
+INSERT INTO ENTRY_CHARITY_SUPPORT (event_id, entry_no, char_id, percentage)
+VALUES (
+    (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
+     WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
+       AND et.eventtype_desc = '5 Km Run'),
+    (SELECT en.entry_no FROM ENTRY en JOIN COMPETITOR c ON en.comp_no = c.comp_no
+     WHERE c.comp_phone = '0422412524'
+       AND en.event_id = (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
+                          WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
+                            AND et.eventtype_desc = '5 Km Run')),
+    (SELECT char_id FROM CHARITY WHERE char_name = 'Beyond Blue'),
+    30
+);
+
+-- Show table structure change for ENTRY
+DESC ENTRY;
+
+-- Show table structure change for new table
+DESC ENTRY_CHARITY_SUPPORT;
+
+-- Show data changes in ENTRY_CHARITY_SUPPORT for Jackson Bull's entry
+SELECT ecs.event_id, ecs.entry_no, c.char_name, ecs.percentage
+FROM ENTRY_CHARITY_SUPPORT ecs
+JOIN CHARITY c ON ecs.char_id = c.char_id
+JOIN ENTRY en ON ecs.event_id = en.event_id AND ecs.entry_no = en.entry_no
+JOIN COMPETITOR comp ON en.comp_no = comp.comp_no
+WHERE comp.comp_phone = '0422412524'
+  AND en.event_id IN (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
+                      WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
+                        AND et.eventtype_desc = '5 Km Run');
+
+COMMIT;
 
