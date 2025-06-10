@@ -1,8 +1,8 @@
 /*****PLEASE ENTER YOUR DETAILS BELOW*****/
 --T1-rm-schema.sql
 
---Student ID: 27030768
---Student Name: Adrian Leong Tat Wei
+--Student ID: 
+--Student Name: 
 
 /* Comments for your marker:
 
