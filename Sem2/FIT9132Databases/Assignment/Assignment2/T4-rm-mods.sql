@@ -47,23 +47,13 @@ CREATE TABLE ENTRY_CHARITY_SUPPORT (
     entry_no   NUMBER(5) NOT NULL,
     char_id    NUMBER(3) NOT NULL,
     percentage NUMBER(3) NOT NULL, -- 0 to 100
-    CONSTRAINT entry_charity_pk PRIMARY KEY (event_id, entry_no, char_id),
-    CONSTRAINT entry_charity_chk CHECK (percentage BETWEEN 0 AND 100)
+    
 );
 
-COMMENT ON COLUMN ENTRY_CHARITY_SUPPORT.event_id IS
-    'Foreign key to ENTRY (part of composite key)';
-
-COMMENT ON COLUMN ENTRY_CHARITY_SUPPORT.entry_no IS
-    'Foreign key to ENTRY (part of composite key)';
-
-COMMENT ON COLUMN ENTRY_CHARITY_SUPPORT.char_id IS
-    'Foreign key to CHARITY';
-
-COMMENT ON COLUMN ENTRY_CHARITY_SUPPORT.percentage IS
-    'Percentage of funds to be donated to this charity (0-100)';
 
 -- Add foreign key constraints to the new table
+CONSTRAINT entry_charity_pk PRIMARY KEY (event_id, entry_no, char_id),
+CONSTRAINT entry_charity_chk CHECK (percentage BETWEEN 0 AND 100)
 ALTER TABLE ENTRY_CHARITY_SUPPORT
 ADD CONSTRAINT ecs_entry_fk FOREIGN KEY (event_id, entry_no)
     REFERENCES ENTRY (event_id, entry_no);
@@ -82,10 +72,21 @@ WHERE char_id IS NOT NULL;
 ALTER TABLE ENTRY
 DROP COLUMN char_id;
 
--- Populate example data for Jackson Bull (from 3c, his 5K entry)
--- First, find Jackson's entry details for the 5 Km Run in RM WINTER SERIES CAULFIELD 2025
--- assuming his entry_no for 5K was determined in 3(c).
+-- Populate example data for Jackson Bull (for his 5K entry)
+-- First, ensure previous Jackson's 5K entry charity is removed from ENTRY_CHARITY_SUPPORT
+-- before inserting the new split percentages. This is important if his initial 5K entry
+-- was already migrated with 100% to Beyond Blue.
+DELETE FROM ENTRY_CHARITY_SUPPORT
+WHERE event_id = (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
+                 WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
+                   AND et.eventtype_desc = '5 Km Run')
+  AND entry_no = (SELECT en.entry_no FROM ENTRY en JOIN COMPETITOR c ON en.comp_no = c.comp_no
+                 WHERE c.comp_phone = '0422412524'
+                   AND en.event_id = (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
+                                     WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
+                                       AND et.eventtype_desc = '5 Km Run'));
 -- You will need to make sure the entry_id and entry_no are correct for Jackson's 5K entry.
+-- Insert Jackson Bull's 70% to RSPCA
 INSERT INTO ENTRY_CHARITY_SUPPORT (event_id, entry_no, char_id, percentage)
 VALUES (
     (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
@@ -94,12 +95,13 @@ VALUES (
     (SELECT en.entry_no FROM ENTRY en JOIN COMPETITOR c ON en.comp_no = c.comp_no
      WHERE c.comp_phone = '0422412524'
        AND en.event_id = (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
-                          WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
-                            AND et.eventtype_desc = '5 Km Run')),
+                           WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
+                             AND et.eventtype_desc = '5 Km Run')),
     (SELECT char_id FROM CHARITY WHERE char_name = 'RSPCA'),
     70
 );
 
+-- Insert Jackson Bull's 30% to Beyond Blue
 INSERT INTO ENTRY_CHARITY_SUPPORT (event_id, entry_no, char_id, percentage)
 VALUES (
     (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
@@ -108,8 +110,8 @@ VALUES (
     (SELECT en.entry_no FROM ENTRY en JOIN COMPETITOR c ON en.comp_no = c.comp_no
      WHERE c.comp_phone = '0422412524'
        AND en.event_id = (SELECT e.event_id FROM EVENT e JOIN EVENTTYPE et ON e.eventtype_code = et.eventtype_code
-                          WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
-                            AND et.eventtype_desc = '5 Km Run')),
+                           WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025')
+                             AND et.eventtype_desc = '5 Km Run')),
     (SELECT char_id FROM CHARITY WHERE char_name = 'Beyond Blue'),
     30
 );
