@@ -1,10 +1,11 @@
 --****PLEASE ENTER YOUR DETAILS BELOW****
 --T3-rm-dm.sql
 
---Student ID:
---Student Name:
+--Student ID: 27030768
+--Student Name: Adrian Leong Tat Wei
 
 /* Comments for your marker:
+
 
 
 
@@ -12,26 +13,13 @@
 */
 
 --(a) Create Sequences
--- Drop sequence for COMPETITOR if it exists
 DROP SEQUENCE competitor_seq;
-
--- Create sequence for COMPETITOR
-CREATE SEQUENCE competitor_seq
-START WITH 100
-INCREMENT BY 5;
-
--- Drop sequence for TEAM if it exists
 DROP SEQUENCE team_seq;
 
--- Create sequence for TEAM
-CREATE SEQUENCE team_seq
-START WITH 100
-INCREMENT BY 5;
-
+CREATE SEQUENCE competitor_seq START WITH 100 INCREMENT BY 5;
+CREATE SEQUENCE team_seq START WITH 100 INCREMENT BY 5;
 
 -- (b) Record New Competitors, Team, and Entries
--- Re-ordered to ensure parent keys exist before children are inserted
-
 -- Insert Keith Rose
 INSERT INTO COMPETITOR (comp_no, comp_fname, comp_lname, comp_gender, comp_dob, comp_email, comp_unistatus, comp_phone)
 VALUES (competitor_seq.NEXTVAL, 'Keith', 'Rose', 'M', TO_DATE('15-JAN-1990', 'DD-MON-YYYY'), 'keith.rose@monash.edu', 'Y', '0422141112');
@@ -41,11 +29,11 @@ INSERT INTO COMPETITOR (comp_no, comp_fname, comp_lname, comp_gender, comp_dob, 
 VALUES (competitor_seq.NEXTVAL, 'Jackson', 'Bull', 'M', TO_DATE('20-MAR-1992', 'DD-MON-YYYY'), 'jackson.bull@monash.edu', 'Y', '0422412524');
 
 -- Insert Keith's entry (as team leader) FIRST, so its entry_no is available for the TEAM table.
--- Using MAX(entry_no) + 1 for Keith's entry_no for the 10 Km Run event.
+-- Calculate next entry_no as MAX(entry_no) + 1.
 INSERT INTO ENTRY (event_id, entry_no, entry_starttime, entry_finishtime, entry_elapsedtime, comp_no, team_id, char_id)
 SELECT
     e.event_id,
-    NVL(MAX(ent.entry_no), 0) + 1, -- Calculate next entry_no for this event_id
+    NVL(MAX(ent.entry_no), 0) + 1,
     TO_TIMESTAMP('08:30:00', 'HH24:MI:SS'), NULL, NULL,
     (SELECT comp_no FROM COMPETITOR WHERE comp_phone = '0422141112'),
     NULL, -- Team_id will be updated after team creation
@@ -57,7 +45,7 @@ WHERE e.carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter
   AND et.eventtype_desc = '10 Km Run'
 GROUP BY e.event_id; -- Group by event_id to get MAX for that specific event_id
 
--- Now insert the 'Super Runners' team, referencing Keith's newly created entry.
+-- Insert the 'Super Runners' team, referencing Keith's newly created entry.
 -- This requires knowing Keith's comp_no and the entry_no assigned to him.
 -- We will re-select the entry_no for Keith's specific entry.
 INSERT INTO TEAM (team_id, team_name, carn_date, event_id, entry_no)
@@ -128,18 +116,18 @@ COMMIT;
 
 
 -- (d) Keith Withdraws, Team Disbands
--- Update Jackson's entry to remove him from the team
+-- Remove team_id entries from entries (Jackson's and Keith's)
 UPDATE ENTRY
 SET team_id = NULL
-WHERE comp_no = (SELECT comp_no FROM COMPETITOR WHERE comp_phone = '0422412524')
-  AND team_id = (SELECT team_id FROM TEAM WHERE team_name = 'Super Runners' AND carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025'));
+WHERE team_id = (SELECT team_id FROM TEAM WHERE team_name = 'Super Runners' AND carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025'));
+
+-- Delete the Super Runners team for the RM Winter Series Caulfield 2025 carnival
+DELETE FROM TEAM
+WHERE team_id = (SELECT team_id FROM TEAM WHERE team_name = 'Super Runners' AND carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025'));
 
 -- Delete Keith's entry for the RM Winter Series Caulfield 2025 carnival
 DELETE FROM ENTRY
 WHERE comp_no = (SELECT comp_no FROM COMPETITOR WHERE comp_phone = '0422141112')
   AND event_id IN (SELECT event_id FROM EVENT WHERE carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025'));
 
--- Delete the Super Runners team for the RM Winter Series Caulfield 2025 carnival
-DELETE FROM TEAM
-WHERE team_id = (SELECT team_id FROM TEAM WHERE team_name = 'Super Runners' AND carn_date = (SELECT carn_date FROM CARNIVAL WHERE carn_name = 'RM Winter Series Caulfield 2025'));
 COMMIT;

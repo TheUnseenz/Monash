@@ -1,8 +1,8 @@
 /*****PLEASE ENTER YOUR DETAILS BELOW*****/
 --T6-rm-json.sql
 
---Student ID:
---Student Name:
+--Student ID: 27030768
+--Student Name: Adrian Leong Tat Wei
 
 
 /* Comments for your marker:
@@ -17,8 +17,10 @@
 -- ENSURE that your query is formatted and has a semicolon
 -- (;) at the end of this answer
 
+SET PAGESIZE 0 -- Prevent headers being printed 
 
 SELECT
+JSON_SERIALIZE(
     JSON_OBJECT(
         '_id' VALUE t.team_id,
         'carn_name' VALUE c.carn_name,
@@ -62,6 +64,8 @@ SELECT
             AND e_member.event_id IN (SELECT event_id FROM EVENT WHERE carn_date = t.carn_date)
         )
     )
+    PRETTY -- Format json output for readability
+) AS TEAM_JSON_DOCUMENT
 FROM
     TEAM t
 JOIN
@@ -72,5 +76,6 @@ JOIN
     COMPETITOR comp_leader ON e_leader.comp_no = comp_leader.comp_no
 ORDER BY
     t.team_id;
+
 
 
