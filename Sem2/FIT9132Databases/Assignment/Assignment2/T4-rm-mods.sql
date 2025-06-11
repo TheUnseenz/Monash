@@ -46,14 +46,16 @@ CREATE TABLE ENTRY_CHARITY_SUPPORT (
     event_id   NUMBER(6) NOT NULL,
     entry_no   NUMBER(5) NOT NULL,
     char_id    NUMBER(3) NOT NULL,
-    percentage NUMBER(3) NOT NULL, -- 0 to 100
+    percentage NUMBER(3) NOT NULL -- 0 to 100
     
 );
 
 
 -- Add foreign key constraints to the new table
-CONSTRAINT entry_charity_pk PRIMARY KEY (event_id, entry_no, char_id),
-CONSTRAINT entry_charity_chk CHECK (percentage BETWEEN 0 AND 100)
+ALTER TABLE entry_charity_support ADD CONSTRAINT entry_charity_pk PRIMARY KEY (event_id, entry_no, char_id);
+
+ALTER TABLE entry_charity_support ADD CONSTRAINT entry_charity_chk CHECK (percentage BETWEEN 0 AND 100);
+
 ALTER TABLE ENTRY_CHARITY_SUPPORT
 ADD CONSTRAINT ecs_entry_fk FOREIGN KEY (event_id, entry_no)
     REFERENCES ENTRY (event_id, entry_no);
