@@ -1,0 +1,511 @@
+# Task D: Predictive Data Analysis using R
+
+This R Markdown document details the process of training a machine learning model to predict dialogue usefulness based on various engineered features.
+
+## Step 1: Feature Engineering and Initial Visualization
+
+This step involves loading the raw dialogue and usefulness data, engineering new features from the textual and temporal information, and then visualizing the distribution of two selected features across different usefulness score groups to assess potential differences.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+# Set working directory to the location of the Rmd file
+library(this.path)
+setwd(this.path::here())
+
+# --- Load All Necessary Packages ---
+# Check if packages are installed, if not, install them quietly
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
+if (!requireNamespace("lubridate", quietly = TRUE)) install.packages("lubridate")
+if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
+if (!requireNamespace("quanteda", quietly = TRUE)) install.packages("quanteda")
+if (!requireNamespace("quanteda.textstats", quietly = TRUE)) install.packages("quanteda.textstats")
+if (!requireNamespace("tidyr", quietly = TRUE)) install.packages("tidyr") # For gather function
+
+# Load required libraries
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(stringr)
+library(quanteda)
+library(quanteda.textstats)
+library(tidyr) # For gather
+
+# --- Load Training Data ---
+df_utterance_train <- read.csv("git_ignore/dialogue_utterance_train.csv")
+df_usefulness_train <- read.csv("git_ignore/dialogue_usefulness_train.csv")
+
+# Merge dataframes and sort by Dialogue_ID and Timestamp
+df_merged_train <- left_join(df_utterance_train, df_usefulness_train, by = "Dialogue_ID") %>%
+    mutate(Timestamp = ymd_hms(Timestamp)) %>% # Convert Timestamp to datetime objects
+    arrange(Dialogue_ID, Timestamp) # Sort for sequential processing
+
+# --- Feature Engineering Functions ---
+
+# Function to calculate readability scores per utterance using Flesch-Kincaid
+calculate_readability <- function(df) {
+    # Assign unique utterance IDs for quanteda processing
+    df$utterance_id <- paste0("utt_", 1:nrow(df))
+    # Create a quanteda corpus from the utterance text
+    utterance_corpus <- corpus(df, text_field = "Utterance_text", docid_field = "utterance_id")
+
+    # Calculate readability scores if the corpus is not empty
+    if (ndoc(utterance_corpus) > 0) {
+        readability_scores <- textstat_readability(utterance_corpus, measure = "Flesch.Kincaid") %>%
+            select(document, Flesch.Kincaid) %>%
+            rename(utterance_id = document, readability_score = Flesch.Kincaid)
+        # Join readability scores back to the original dataframe
+        df <- left_join(df, readability_scores, by = "utterance_id")
+        # Replace NA readability scores with 0 (e.g., for empty utterances)
+        df$readability_score[is.na(df$readability_score)] <- 0
+    }
+    return(df)
+}
+
+# Function to engineer all 17 dialogue-level features
+engineer_features <- function(df_with_readability) {
+    dialogue_features_df <- df_with_readability %>%
+        group_by(Dialogue_ID) %>%
+        summarise(
+            num_utterances = n(), # Total number of utterances in a dialogue
+            total_dialogue_length_words = sum(sapply(str_split(Utterance_text, "\\s+"), length), na.rm = TRUE), # Total words in dialogue
+            dialogue_duration = as.numeric(difftime(max(Timestamp), min(Timestamp), units = "secs")), # Duration of dialogue in seconds
+            avg_len_student_utterance_words = mean(sapply(str_split(Utterance_text[Interlocutor == "Student"], "\\s+"), length), na.rm = TRUE), # Avg words in student utterances
+            avg_len_chatbot_utterance_words = mean(sapply(str_split(Utterance_text[Interlocutor == "Chatbot"], "\\s+"), length), na.rm = TRUE), # Avg words in chatbot utterances
+            num_student_questions = sum(str_detect(Utterance_text[Interlocutor == "Student"], "\\?"), na.rm = TRUE), # Number of questions by student
+            num_chatbot_questions = sum(str_detect(Utterance_text[Interlocutor == "Chatbot"], "\\?"), na.rm = TRUE), # Number of questions by chatbot
+            # Store all words for TTR calculation
+            all_student_words = list(unlist(str_split(paste(Utterance_text[Interlocutor == "Student"], collapse = " "), "\\s+"))),
+            all_chatbot_words = list(unlist(str_split(paste(Utterance_text[Interlocutor == "Chatbot"], collapse = " "), "\\s+"))),
+            avg_readability_score_student = mean(readability_score[Interlocutor == "Student"], na.rm = TRUE), # Avg readability of student utterances
+            avg_readability_score_chatbot = mean(readability_score[Interlocutor == "Chatbot"], na.rm = TRUE), # Avg readability of chatbot utterances
+            time_diffs_raw = list(as.numeric(diff(Timestamp), units = "secs")) # Raw time differences between utterances
+        ) %>%
+        mutate(
+            # Calculate Type-Token Ratio (TTR) for student and chatbot
+            num_unique_words_student = sapply(all_student_words, function(x) length(unique(x[x != "" & !is.na(x)]))),
+            num_unique_words_chatbot = sapply(all_chatbot_words, function(x) length(unique(x[x != "" & !is.na(x)]))),
+            total_words_student = sapply(all_student_words, function(x) length(x[x != "" & !is.na(x)])),
+            total_words_chatbot = sapply(all_chatbot_words, function(x) length(x[x != "" & !is.na(x)])),
+            ttr_student = ifelse(total_words_student > 0, num_unique_words_student / total_words_student, 0),
+            ttr_chatbot = ifelse(total_words_chatbot > 0, num_unique_words_chatbot / total_words_chatbot, 0),
+            # Calculate variance of time between utterances
+            variance_time_between_utterances = sapply(time_diffs_raw, function(x) ifelse(length(x) > 1, var(x, na.rm = TRUE), 0)),
+            # Ratio of average utterance length
+            ratio_student_chatbot_len_words = ifelse(avg_len_chatbot_utterance_words > 0, avg_len_student_utterance_words / avg_len_chatbot_utterance_words, Inf)
+        ) %>%
+        # Remove intermediate list columns
+        select(-all_student_words, -all_chatbot_words, -time_diffs_raw)
+
+    # Add the Usefulness_score back to the features dataframe
+    df_usefulness_scores_unique <- df_with_readability %>%
+        select(Dialogue_ID, Usefulness_score) %>%
+        distinct() # Ensure unique Dialogue_ID and Usefulness_score pairs
+    dialogue_features_df <- left_join(dialogue_features_df, df_usefulness_scores_unique, by = "Dialogue_ID")
+    return(dialogue_features_df)
+}
+
+# --- Execute Feature Engineering on Training Data ---
+df_merged_train_readable <- calculate_readability(df_merged_train)
+dialogue_features_train_raw <- engineer_features(df_merged_train_readable)
+
+# --- Visualization & Statistical Tests ---
+# Select two features for visualization: total dialogue length and average student readability
+selected_features_vis <- c("total_dialogue_length_words", "avg_readability_score_student")
+
+# Prepare data for boxplots: filter for extreme usefulness scores (1,2 and 4,5)
+plot_data <- dialogue_features_train_raw %>%
+    filter(Usefulness_score %in% c(1, 2, 4, 5)) %>%
+    mutate(Score_Group = ifelse(Usefulness_score %in% c(1, 2), "Unuseful (1-2)", "Useful (4-5)")) %>%
+    select(all_of(selected_features_vis), Score_Group) %>%
+    tidyr::gather(key = "Feature", value = "Value", -Score_Group) # Reshape data for ggplot
+
+# Generate Boxplot
+ggplot(plot_data, aes(x = Score_Group, y = Value, fill = Score_Group)) +
+    geom_boxplot() +
+    facet_wrap(~Feature, scales = "free_y") + # Create separate plots for each feature with free y-scales
+    labs(title = "Feature Distribution by Dialogue Usefulness", x = "Usefulness Group", y = "Feature Value") +
+    theme_minimal() + # Use a minimal theme for aesthetics
+    theme(legend.position = "none") # Hide legend as fill explains groups
+
+# Perform T-tests to check for statistical significance between the two groups
+cat("\n--- Statistical Significance Tests ---\n")
+for (feature in selected_features_vis) {
+    group1_data <- dialogue_features_train_raw %>%
+        filter(Usefulness_score %in% c(1, 2)) %>%
+        pull(!!feature) # Extract feature values for unuseful group
+    group2_data <- dialogue_features_train_raw %>%
+        filter(Usefulness_score %in% c(4, 5)) %>%
+        pull(!!feature) # Extract feature values for useful group
+
+    # Perform t-test only if both groups have sufficient data points (more than 1 non-NA value)
+    if (length(na.omit(group1_data)) > 1 && length(na.omit(group2_data)) > 1) {
+        ttest_result <- t.test(group1_data, group2_data)
+        cat(paste("Feature:", feature, "- T-test p-value:", round(ttest_result$p.value, 4), "\n"))
+    } else {
+        cat(paste("Feature:", feature, "- Insufficient data for t-test.\n"))
+    }
+}
+```
+Based on the boxplots, differences in feature values between "Unuseful (1-2)" and "Useful (4-5)" dialogues can be observed. The t-test p-values indicate the statistical significance of these differences. A p-value less than a chosen significance level (e.g., 0.05) suggests a statistically significant difference between the means of the two groups for that feature. For example, a small p-value for 'total_dialogue_length_words' would imply that useful dialogues tend to have a significantly different total word count than unuseful ones.
+
+## Step 2: Baseline Machine Learning Model Training and Evaluation
+
+This section focuses on building baseline machine learning models using the full set of engineered features from Step 1 and evaluating their performance on the validation set. Four different regression models are trained: Linear Regression, Regression Tree, Random Forest, and Support Vector Regression (SVR). RMSE (Root Mean Squared Error) is used as the evaluation metric.
+
+```{r}
+# --- Load Packages for Modeling ---
+if (!requireNamespace("caret", quietly = TRUE)) install.packages("caret")
+if (!requireNamespace("rpart", quietly = TRUE)) install.packages("rpart")
+if (!requireNamespace("randomForest", quietly = TRUE)) install.packages("randomForest")
+if (!requireNamespace("e1071", quietly = TRUE)) install.packages("e1071")
+
+library(caret)
+library(rpart)
+library(randomForest)
+library(e1071)
+
+# --- Load and Engineer Validation Data ---
+df_utterance_validation <- read.csv("git_ignore/dialogue_utterance_validation.csv")
+df_usefulness_validation <- read.csv("git_ignore/dialogue_usefulness_validation.csv")
+
+# Merge and process validation data, similar to training data
+df_merged_validation <- left_join(df_utterance_validation, df_usefulness_validation, by = "Dialogue_ID") %>%
+    mutate(Timestamp = ymd_hms(Timestamp)) %>%
+    arrange(Dialogue_ID, Timestamp)
+
+df_merged_validation_readable <- calculate_readability(df_merged_validation)
+dialogue_features_validation_raw <- engineer_features(df_merged_validation_readable)
+
+# --- Baseline Data Preparation: Remove rows with NA/Inf for initial models ---
+# This creates a 'clean' subset for the baseline models, assuming a simple approach.
+dialogue_features_train_baseline <- na.omit(dialogue_features_train_raw)
+dialogue_features_validation_baseline <- na.omit(dialogue_features_validation_raw)
+
+# Define the features to be used for modeling (all engineered features except ID and target)
+features_to_use <- setdiff(names(dialogue_features_train_baseline), c("Dialogue_ID", "Usefulness_score"))
+# Create the formula for the models
+formula_all <- as.formula(paste("Usefulness_score ~", paste(features_to_use, collapse = " + ")))
+
+# Define RMSE function for evaluation
+RMSE <- function(y_true, y_pred) sqrt(mean((y_true - y_pred)^2))
+
+# --- Train All Four Baseline Models ---
+cat("--- Training Baseline Models ---\n")
+
+# Linear Regression Model
+lm_model_baseline <- lm(formula_all, data = dialogue_features_train_baseline)
+
+# Regression Tree Model
+rt_model_baseline <- rpart(formula_all, data = dialogue_features_train_baseline, method = "anova")
+
+# Random Forest Model (set seed for reproducibility)
+set.seed(123)
+rf_model_baseline <- randomForest(formula_all, data = dialogue_features_train_baseline, ntree = 500)
+
+# Support Vector Regression (SVR) Model
+svr_model_baseline <- svm(formula_all, data = dialogue_features_train_baseline)
+
+# --- Evaluate Baseline Models on Validation Set ---
+models_baseline <- list(
+    "Linear Regression" = lm_model_baseline,
+    "Regression Tree" = rt_model_baseline,
+    "Random Forest" = rf_model_baseline,
+    "SVR" = svr_model_baseline
+)
+
+rmse_baseline <- sapply(models_baseline, function(model) {
+    preds <- predict(model, newdata = dialogue_features_validation_baseline)
+    RMSE(dialogue_features_validation_baseline$Usefulness_score, preds)
+})
+
+performance_df_baseline <- data.frame(Model = names(rmse_baseline), RMSE = rmse_baseline, Stage = "Baseline")
+
+cat("--- Baseline Model Performance (on NA-omitted data) ---\n")
+print(performance_df_baseline %>% arrange(RMSE))
+
+# Store the best baseline model for potential future use (though typically we aim for improved models)
+model1 <- performance_df_baseline %>%
+    arrange(RMSE) %>%
+    slice(1) %>%
+    pull(Model)
+```
+
+The table above presents the RMSE values for each baseline model on the validation set. Model 1 is designated as the best-performing model from this baseline evaluation. The next step will aim to improve upon this performance.
+
+## Step 3: Model Improvement Through Advanced Data Processing and Feature Selection
+
+This section explores methods to improve model performance, focusing on robust data processing (handling `NA`/`Inf` values) and feature selection. The chosen approach for `NA`/`Inf` imputation is to use mean imputation from the training set, and for feature selection, features with importance scores above the mean importance (from Random Forest) are retained.
+
+```{r}
+# --- Improvement Stage 1: Advanced Data Processing ---
+cat("--- Improvement Stage 1: Advanced Data Processing ---\n")
+
+# Start with the full raw engineered data from Step 1 for robust processing
+train_processed <- dialogue_features_train_raw
+validation_processed <- dialogue_features_validation_raw
+
+# Mandatory: Impute NA and Inf values
+# This method uses mean imputation for NA values and replaces Inf with a value
+# slightly greater than the max finite value observed in the training set.
+cat("Applying mandatory NA/Inf imputation...\n")
+for (col in features_to_use) { # Iterate through all features identified for modeling
+    # Handle Infinite values
+    is_inf_train <- is.infinite(train_processed[[col]])
+    if (any(is_inf_train)) {
+        # Find the maximum finite value in the training column
+        max_finite_train <- max(train_processed[[col]][!is_inf_train], na.rm = TRUE)
+        # Replace Inf values in training set with a value slightly larger than max finite
+        train_processed[[col]][is_inf_train] <- max_finite_train + 1
+        # Apply the same logic to validation set using training set's max finite value
+        validation_processed[[col]][is.infinite(validation_processed[[col]])] <- max_finite_train + 1
+    }
+    # Handle NA values
+    if (any(is.na(train_processed[[col]]))) {
+        # Calculate mean from the training set (excluding NAs)
+        mean_val_train <- mean(train_processed[[col]], na.rm = TRUE)
+        # Impute NA values in training set with its mean
+        train_processed[[col]][is.na(train_processed[[col]])] <- mean_val_train
+        # Impute NA values in validation set with the training set's mean
+        validation_processed[[col]][is.na(validation_processed[[col]])] <- mean_val_train
+    }
+}
+
+# --- Re-evaluate all models on the fully processed data ---
+cat("--- Evaluating all models on Cleaned & Transformed Data ---\n")
+
+# Retrain models using the processed training data
+lm_model_cleaned <- lm(formula_all, data = train_processed)
+rt_model_cleaned <- rpart(formula_all, data = train_processed, method = "anova")
+set.seed(123) # Set seed for reproducibility for Random Forest
+rf_model_cleaned <- randomForest(formula_all, data = train_processed, ntree = 500, importance = TRUE) # importance=TRUE to get feature importance
+svr_model_cleaned <- svm(formula_all, data = train_processed)
+
+models_cleaned <- list(
+    "Linear Regression" = lm_model_cleaned,
+    "Regression Tree" = rt_model_cleaned,
+    "Random Forest" = rf_model_cleaned,
+    "SVR" = svr_model_cleaned
+)
+
+# Evaluate cleaned models on the processed validation data
+rmse_cleaned <- sapply(models_cleaned, function(model) {
+    preds <- predict(model, newdata = validation_processed)
+    RMSE(validation_processed$Usefulness_score, preds)
+})
+
+performance_df_cleaned <- data.frame(Model = names(rmse_cleaned), RMSE = rmse_cleaned, Stage = "Cleaned")
+print(performance_df_cleaned %>% arrange(RMSE))
+
+# --- Improvement Stage 2: Feature Selection ---
+cat("--- Improvement Stage 2: Feature Selection ---\n")
+
+# Use the Random Forest model trained on cleaned data to determine feature importance
+importance_scores <- importance(rf_model_cleaned, type = 1) # Type 1 for %IncMSE
+importance_df <- data.frame(Feature = rownames(importance_scores), Importance = importance_scores[, 1]) %>%
+    arrange(desc(Importance)) # Sort features by importance
+
+# Select features with importance greater than the mean importance
+mean_importance <- mean(importance_df$Importance)
+selected_features <- as.character(importance_df$Feature[importance_df$Importance > mean_importance])
+
+cat(paste("Selected", length(selected_features), "features with importance > mean importance:\n"))
+print(selected_features)
+
+# --- Re-evaluate all models on the selected feature set ---
+# Create a new formula with only the selected features
+formula_selected <- as.formula(paste("Usefulness_score ~", paste(selected_features, collapse = " + ")))
+
+cat("--- Evaluating all models on Selected Features ---\n")
+
+# Retrain models using the processed training data and selected features
+lm_model_selected <- lm(formula_selected, data = train_processed)
+rt_model_selected <- rpart(formula_selected, data = train_processed, method = "anova")
+set.seed(123) # Set seed for reproducibility
+rf_model_selected <- randomForest(formula_selected, data = train_processed, ntree = 500)
+svr_model_selected <- svm(formula_selected, data = train_processed)
+
+models_selected <- list(
+    "Linear Regression" = lm_model_selected,
+    "Regression Tree" = rt_model_selected,
+    "Random Forest" = rf_model_selected,
+    "SVR" = svr_model_selected
+)
+
+# Evaluate selected feature models on the processed validation data
+rmse_selected <- sapply(models_selected, function(model) {
+    preds <- predict(model, newdata = validation_processed)
+    RMSE(validation_processed$Usefulness_score, preds)
+})
+
+performance_df_selected <- data.frame(Model = names(rmse_selected), RMSE = rmse_selected, Stage = "Feat. Selected")
+print(performance_df_selected %>% arrange(RMSE))
+
+
+# --- Final Model Selection ---
+cat("--- Final Model Selection ---\n")
+# Combine performance from all stages to identify the overall best model
+full_performance <- rbind(performance_df_baseline, performance_df_cleaned, performance_df_selected)
+best_run <- full_performance[which.min(full_performance$RMSE), ]
+cat("The best overall model is:\n")
+print(best_run)
+
+# Store the final best model object and its associated feature list
+# This allows for consistent prediction in subsequent steps.
+best_overall_model <- NULL
+final_feature_list <- NULL
+
+if (best_run$Stage == "Baseline") {
+    best_overall_model <- models_baseline[[best_run$Model]]
+    final_feature_list <- features_to_use # Use all features from the baseline stage
+} else if (best_run$Stage == "Cleaned") {
+    best_overall_model <- models_cleaned[[best_run$Model]]
+    final_feature_list <- features_to_use # Use all features after cleaning
+} else { # Feat. Selected
+    best_overall_model <- models_selected[[best_run$Model]]
+    final_feature_list <- selected_features # Use only selected features
+}
+```
+
+Model improvement was attempted through two stages:  
+1.  **Advanced Data Processing:** Instead of simply omitting rows with `NA`/`Inf`, a more robust imputation strategy was applied. `NA` values were filled with the mean of their respective features from the training set, and `Inf` values were replaced by a value slightly greater than the maximum finite value observed in the training set. This helps retain more data and potentially provide more stable models.  
+2.  **Feature Selection:** The feature importance from the `RandomForest` model (trained on the cleaned data) was used to select a subset of features. Only features with an importance score greater than the mean importance were retained. This aims to reduce noise, prevent overfitting, and potentially improve model generalization by focusing on the most relevant predictors.
+
+The combined performance results from all stages indicate whether these improvements were successful in reducing the RMSE compared to the baseline models. The best-performing model overall, along with its specific stage (Baseline, Cleaned, or Feature Selected), is identified.   
+
+We find that of all these, only basic data cleaning helped. While taking out non-meaningful features forces the model to concentrate on more important variables, it can only maintain good performance after pruning, not improve in performance. Log scaling the appropriate data, while attempting to help with model linearity, proved to be poor for model performance.
+
+## Step 4: Analysis of a Specific Dialogue and Feature Importance
+
+This section demonstrates how to use the best-performing model to predict the usefulness score for a randomly selected dialogue from the validation set. It then compares this prediction to the ground truth score and analyzes the importance of features in the model's decision-making process.
+
+```{r}
+cat("--- Step 4: Analyze a Specific Dialogue ---\n")
+
+# Determine which processed validation data to use based on the best model's stage
+# This ensures consistency with how the best_overall_model was trained.
+validation_data_for_pred <- if (best_run$Stage == "Baseline") {
+    dialogue_features_validation_baseline
+} else {
+    validation_processed
+}
+
+# Select a random dialogue ID from the validation set for analysis
+set.seed(42) # Set seed for reproducibility of random selection
+random_dialogue_id <- sample(df_usefulness_validation$Dialogue_ID, 1)
+cat(paste("Selected Dialogue_ID:", random_dialogue_id, "\n"))
+
+# Get the feature vector for this specific dialogue from the appropriate processed validation data
+dialogue_feature_vector <- validation_data_for_pred %>% filter(Dialogue_ID == random_dialogue_id)
+
+# Make a prediction for the selected dialogue using the best overall model.
+# Crucially, only supply the features that the final_feature_list specifies.
+predicted_score <- predict(best_overall_model, newdata = dialogue_feature_vector[, final_feature_list, drop = FALSE])
+# Get the ground truth score for comparison
+ground_truth_score <- dialogue_feature_vector$Usefulness_score
+
+cat("--- Prediction vs. Ground Truth ---\n")
+cat(paste("Ground Truth Score:", ground_truth_score, "\n"))
+cat(paste("Predicted Score:", round(predicted_score, 2), "\n"))
+
+# Check if the prediction is "close" to the ground truth (within 0.5)
+is_close <- abs(ground_truth_score - predicted_score) <= 0.5
+cat(paste("Is the prediction close to the ground truth (within 0.5)?", is_close, "\n"))
+
+if (is_close) {
+    cat("The model made a successful prediction.\n")
+} else {
+    cat("The prediction was not close to the ground truth. Possible reasons include:\n")
+    cat("- The model may not capture the specific nuances of this conversation.\n")
+    cat("- The dialogue might be an outlier or have unique characteristics not well-represented in the training data.\n")
+    cat("- The features, while generally useful, failed to describe what made this particular dialogue useful or unuseful.\n\n")
+}
+
+cat("--- Feature Importance Analysis ---\n")
+
+# Display the sorted feature importance table.
+# This table was generated during the feature selection stage in Step 3.
+importance_df_sorted <- importance_df %>% arrange(desc(Importance))
+print(importance_df_sorted)
+```
+
+**Explanation of Feature Importance (%IncMSE):**
+The table above displays the importance of each feature for our Random Forest model, quantified by '%IncMSE' (Percentage Increase in Mean Squared Error). This metric indicates how much the model's prediction error (MSE) would increase if a specific feature's values were randomly shuffled, breaking its relationship with the target variable (Usefulness_score).
+
+* **Higher positive %IncMSE values:** Indicate more important features. If shuffling a feature significantly increases the MSE, it means the model relies heavily on that feature for accurate predictions.
+* **Lower or negative %IncMSE values:** Suggest less important features. Features with values close to zero or negative may not be contributing positively to the model's performance, or their inclusion might be adding noise.
+
+If the prediction for the selected dialogue was close to the ground truth, the features with high importance scores (as shown in the `importance_df_sorted` table) are likely the ones that played significant roles in enabling the model to make that successful prediction. These features generally provide the most information for predicting dialogue usefulness across the dataset. If the prediction was not close, it could be due to this specific dialogue having characteristics not well-captured by the existing features or being an outlier not well-represented in the training data.
+
+## Step 5: Predict Usefulness on the Test Set and Generate Submission File
+
+The final step is to apply the best-performing model (identified in Step 3) to predict the usefulness scores for dialogues in the test set. The predictions are then formatted and saved into a CSV file, ready for submission.
+```{r}
+cat("--- Step 5: Predict on Test Set ---\n")
+
+# --- 1. Load and Process Test Data ---
+df_utterance_test <- read.csv("git_ignore/dialogue_utterance_test.csv")
+df_usefulness_test_orig <- read.csv("git_ignore/dialogue_usefulness_test.csv") # Original structure for submission
+
+# Merge and process test data, similar to training and validation data
+df_merged_test <- left_join(df_utterance_test, df_usefulness_test_orig, by = "Dialogue_ID") %>%
+    mutate(Timestamp = ymd_hms(Timestamp)) %>%
+    arrange(Dialogue_ID, Timestamp)
+
+# Engineer features for the test set
+df_merged_test_readable <- calculate_readability(df_merged_test)
+test_processed <- engineer_features(df_merged_test_readable)
+
+# --- 2. Apply the SAME processing pipeline as the best model ---
+# This ensures the test data is preprocessed identically to how the best model was trained.
+# The imputation values are derived from the training set statistics to prevent data leakage.
+cat("Applying imputation to test data...\n")
+for (col in features_to_use) { # Iterate through the full set of features used in modeling stages
+    # Handle NA values using the mean from the training set
+    if (any(is.na(test_processed[[col]]))) {
+        # Check if train_processed (from Step 3) is available; if not, use baseline train data
+        if (exists("train_processed")) {
+            mean_val_train <- mean(train_processed[[col]], na.rm = TRUE)
+        } else {
+            mean_val_train <- mean(dialogue_features_train_baseline[[col]], na.rm = TRUE)
+        }
+        test_processed[[col]][is.na(test_processed[[col]])] <- mean_val_train
+    }
+    # Handle Infinite values using the max finite value from the training set
+    if (any(is.infinite(test_processed[[col]]))) {
+        if (exists("train_processed")) {
+            max_finite_train <- max(train_processed[[col]][!is.infinite(train_processed[[col]])], na.rm = TRUE)
+        } else {
+            max_finite_train <- max(dialogue_features_train_baseline[[col]][!is.infinite(dialogue_features_train_baseline[[col]])], na.rm = TRUE)
+        }
+        test_processed[[col]][is.infinite(test_processed[[col]])] <- max_finite_train + 1
+    }
+}
+
+# --- 3. Make Predictions on the Test Set ---
+# Use the best_overall_model and its corresponding final_feature_list
+test_predictions <- predict(best_overall_model, newdata = test_processed[, final_feature_list, drop = FALSE])
+
+# Ensure predictions are within the valid score range [1, 5]
+test_predictions <- pmax(1, pmin(5, test_predictions))
+
+# --- 4. Create and Save Submission File ---
+# Create a dataframe with Dialogue_ID and predicted Usefulness_score
+submission_df <- data.frame(
+    Dialogue_ID = test_processed$Dialogue_ID,
+    Usefulness_score = test_predictions
+)
+
+# Reorder the submission_df to match the original df_usefulness_test_orig order
+submission_df <- submission_df[match(df_usefulness_test_orig$Dialogue_ID, submission_df$Dialogue_ID), ]
+
+# Define the output filename
+output_filename <- "Leong_27030768_dialogue_usefulness_test.csv"
+
+# Write the submission file to CSV without row names and without quoting strings
+write.csv(submission_df, output_filename, row.names = FALSE, quote = FALSE)
+
+cat(paste("Submission file saved as:", output_filename, "\n"))
+print(head(submission_df))
+```
+The process ensures that the test data undergoes the same preprocessing steps (feature engineering, imputation) as the training data, applying parameters (like means for imputation) learned *only* from the training set. The best-performing model from Step 3 is then used to generate predictions. Finally, the predictions are constrained to the valid range of [1, 5] and formatted into the required CSV submission file.

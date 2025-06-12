@@ -42,7 +42,7 @@ library(tm)
 library(tidyr)
 
 # Assuming 'property_transaction_victoria.csv' is in the same directory as your R script
-df <- read.csv("git_ignore/consumer_complaints.csv", stringsAsFactors = FALSE)
+df <- read.csv("git_ignore/filtered_complaints.csv", stringsAsFactors = FALSE)
 
 ```
 ```{r}
