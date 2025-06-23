@@ -1,0 +1,450 @@
+# Classification. Same model of SVR RF XGB, SVMRadial meta model, no lasso feature selection.
+```{r}
+# Load necessary libraries
+library(e1071)
+library(caret)
+library(dplyr)
+library(forcats)
+library(Matrix)
+library(randomForest)
+library(xgboost)
+library(doParallel)
+registerDoParallel(cores = detectCores() - 1)
+
+# --- Data Pre-processing Configuration ---
+ordinal_vars <- c(
+  "whatIsYourHeightExpressItAsANumberInMetresM",
+  "howOftenDoYouFeelSociallyConnectedWithYourPeersAndFriends",
+  "howOftenDoYouParticipateInSocialActivitiesIncludingClubsSportsV",
+  "doYouFeelComfortableEngagingInConversationsWithPeopleFromDiffer"
+)
+
+multi_level_categorical_vars <- c(
+  "doYouHaveASupportSystemOfFriendsAndFamilyToTurnToWhenNeeded",
+  "income"
+)
+
+custom_ordinal_orders <- list(
+  "income" =
+    c("0 - 10k", "10k - 15k", "15k - 20k", "20k - 50k", "50k - 80k", "80k - 120k", "120k - 150k", "150k - 200k", "200k above"),
+  "howOftenDoYouParticipateInSocialActivitiesIncludingClubsSportsV" =
+    c("No", "Rarely", "At least once a month", "At least once a week", "More than three times a week"),
+  "howOftenDoYouFeelSociallyConnectedWithYourPeersAndFriends" =
+    c("Never", "Rarely", "Sometimes", "Always"),
+  "doYouFeelComfortableEngagingInConversationsWithPeopleFromDiffer" =
+    c("Never", "Rarely", "Sometimes", "Always")
+)
+
+# --- Global Objects for Data Preparation ---
+dummy_spec <- NULL
+selected_features_all <- NULL # Renamed from selected_features_lasso for clarity in classification context
+
+# --- Data Preparation Function ---
+factor_convert_data <- function(data) {
+  for (var in ordinal_vars) {
+    if (var %in% names(custom_ordinal_orders)) {
+      data[[var]] <- factor(data[[var]],
+        levels = custom_ordinal_orders[[var]],
+        ordered = TRUE
+      )
+    } else {
+      data[[var]] <- factor(data[[var]], ordered = TRUE)
+    }
+  }
+  for (var in multi_level_categorical_vars) {
+    if (var %in% names(custom_ordinal_orders)) {
+      data[[var]] <- factor(data[[var]],
+        levels = custom_ordinal_orders[[var]],
+        ordered = FALSE
+      )
+    } else {
+      data[[var]] <- as.factor(data[[var]])
+    }
+  }
+  return(data)
+}
+
+prepare_data_for_model <- function(data, is_training = TRUE, target_variable_name = "perfectMentalHealth") {
+  data_fe <- factor_convert_data(data)
+
+  if (is_training) {
+    if (any(is.na(data_fe))) {
+      na_count <- sum(is.na(data_fe))
+      cols_with_na <- names(data_fe)[colSums(is.na(data_fe)) > 0]
+      stop(paste0(
+        "Error: Found ", na_count, " NA values in training data. ",
+        "Columns with NAs: ", paste(cols_with_na, collapse = ", ")
+      ))
+    }
+  }
+
+  predictors_for_ohe_current <- data_fe
+  if (target_variable_name %in% colnames(predictors_for_ohe_current)) {
+    predictors_for_ohe_current <- predictors_for_ohe_current %>% select(-all_of(target_variable_name))
+  }
+  if ("RowIndex" %in% colnames(predictors_for_ohe_current)) {
+    predictors_for_ohe_current <- predictors_for_ohe_current %>% select(-RowIndex)
+  }
+
+  message("\nPerforming One-Hot Encoding...")
+  local_data_processed_x <- NULL
+  if (is_training) {
+    assign("dummy_spec", dummyVars(~., data = predictors_for_ohe_current, contrasts = FALSE), envir = .GlobalEnv)
+    local_data_processed_x <- as.data.frame(predict(dummy_spec, newdata = predictors_for_ohe_current))
+  } else {
+    if (is.null(dummy_spec)) stop("Run training data preparation first")
+    local_data_processed_x <- as.data.frame(predict(dummy_spec, newdata = predictors_for_ohe_current))
+  }
+
+  local_data_processed <- NULL
+  if (is_training) {
+    local_data_processed <- cbind(local_data_processed_x, data_fe[[target_variable_name]])
+    colnames(local_data_processed)[ncol(local_data_processed)] <- target_variable_name
+
+    assign("selected_features_all", colnames(local_data_processed_x), envir = .GlobalEnv)
+    message(paste0("\nUsing all ", length(selected_features_all), " features (no feature selection)"))
+  } else {
+    local_data_processed <- local_data_processed_x
+    if (is.null(selected_features_all)) { # Add check for selected_features_all in test
+      stop("Error: 'selected_features_all' not found. Run training data preparation first to determine features.")
+    }
+    # Ensure test data has the same columns as training data OHE features
+    missing_features_in_test <- selected_features_all[!selected_features_all %in% colnames(local_data_processed)]
+    if (length(missing_features_in_test) > 0) {
+      # Add missing columns as 0 to match training data
+      for (feature in missing_features_in_test) {
+        local_data_processed[[feature]] <- 0
+      }
+      warning(paste0("Warning: The following features were missing in the test data and added as zeroes: ",
+                           paste(missing_features_in_test, collapse = ", ")))
+    }
+    # Remove extra columns if any
+    extra_features_in_test <- colnames(local_data_processed)[!colnames(local_data_processed) %in% selected_features_all]
+    if (length(extra_features_in_test) > 0) {
+      local_data_processed <- local_data_processed %>% select(-all_of(extra_features_in_test))
+      warning(paste0("Warning: The following extra features were found in the test data and removed: ",
+                           paste(extra_features_in_test, collapse = ", ")))
+    }
+  }
+
+  message("\nSubsetting data to include all features...")
+  if (is_training) {
+    final_data <- local_data_processed %>%
+      select(all_of(selected_features_all), all_of(target_variable_name))
+  } else {
+    final_data <- local_data_processed %>%
+      select(all_of(selected_features_all))
+  }
+  return(final_data)
+}
+
+# --- Custom Macro-F1 Metric Function ---
+macroF1 <- function(data, lev = NULL, model = NULL) {
+  # Multiclass F1 with macro averaging
+  # Ensure the levels are in the correct order for confusionMatrix if 'lev' is provided
+  if (!is.null(lev)) {
+    data$pred <- factor(data$pred, levels = lev)
+    data$obs <- factor(data$obs, levels = lev)
+  }
+
+  cm <- confusionMatrix(data$pred, data$obs)
+  f1_scores <- cm$byClass[, "F1"]
+  macro_f1 <- mean(f1_scores, na.rm = TRUE)
+
+  # Return standard caret names
+  c(
+    F1 = macro_f1,
+    Accuracy = cm$overall["Accuracy"]
+  )
+}
+
+# --- MAIN SCRIPT EXECUTION ---
+
+# Load training data
+classification_train <- read.csv("classification_train.csv")
+
+# Prepare TRAINING Data
+message("\n--- Preparing Training Data ---")
+classification_train_fe <- prepare_data_for_model(
+  classification_train,
+  is_training = TRUE,
+  target_variable_name = "perfectMentalHealth"
+)
+
+# Convert target to factor with valid R variable names
+original_levels <- c("-2", "-1", "0", "1", "2")
+valid_levels <- make.names(original_levels) # Converts to valid R names
+
+classification_train_fe$perfectMentalHealth <- factor(
+  classification_train_fe$perfectMentalHealth,
+  levels = -2:2, # Use original numeric order for levels
+  labels = valid_levels # Use valid R names for labels
+)
+
+# Store mapping for later conversion
+level_mapping <- data.frame(
+  valid = valid_levels,
+  original = original_levels
+)
+
+# Define common formula for base models
+quoted_features <- paste0("`", selected_features_all, "`")
+model_formula <- as.formula(paste("perfectMentalHealth ~", paste(quoted_features, collapse = " + ")))
+
+# --- Base Model Training Controls ---
+# INCREASED number and repeats for more robust CV
+train_control_base <- trainControl(
+  method = "repeatedcv",
+  number = 10, # Increased from 5
+  repeats = 5, # Increased from 3
+  classProbs = TRUE, # Crucial for getting probabilities
+  summaryFunction = macroF1,
+  verboseIter = FALSE,
+  search = "random",
+  savePredictions = "final",
+  allowParallel = TRUE
+)
+
+# Calculate class weights for imbalance (optional, but often helpful)
+class_weights <- table(classification_train_fe$perfectMentalHealth)
+# Inverse of class frequency. Add a small value to avoid division by zero if a class has 0 observations
+class_weights_normalized <- (1 / class_weights) / sum(1 / class_weights)
+names(class_weights_normalized) <- levels(classification_train_fe$perfectMentalHealth)
+
+# --- Train SVC Model (Base Learner 1) ---
+set.seed(42)
+message("\n--- Training Support Vector Classifier (SVC) Model ---")
+invisible(capture.output( # Reverted to invisible(capture.output()) for cleaner logs
+  svc_model <- train(
+    model_formula,
+    data = classification_train_fe,
+    method = "svmRadial",
+    trControl = train_control_base,
+    tuneLength = 50, # Using your desired tuneLength
+    metric = "F1",
+    maximize = TRUE,
+    weights = class_weights_normalized[classification_train_fe$perfectMentalHealth] # Apply weights as discussed
+  )
+))
+message("SVC Model Training Complete.\n")
+message("SVC Best Tune:")
+message(paste("  sigma =", svc_model$bestTune$sigma, "C =", svc_model$bestTune$C)) # Explicitly message the values
+message("SVC CV Macro-F1: ", max(svc_model$results$F1))
+
+
+# --- Train Random Forest Model (Base Learner 2) ---
+set.seed(42)
+message("\n--- Training Random Forest Model ---")
+invisible(capture.output( # Reverted to invisible(capture.output()) for cleaner logs
+  rf_model <- train(
+    model_formula,
+    data = classification_train_fe,
+    method = "rf",
+    trControl = train_control_base,
+    tuneLength = 50, # Using your desired tuneLength
+    ntree = 500,
+    metric = "F1",
+    maximize = TRUE,
+    weights = class_weights_normalized[classification_train_fe$perfectMentalHealth] # Apply weights as discussed
+  )
+))
+message("Random Forest Model Training Complete.\n")
+message("RF Best Tune:")
+message(paste("  mtry =", rf_model$bestTune$mtry)) # Explicitly message the value
+message("RF CV Macro-F1: ", max(rf_model$results$F1))
+
+
+# --- Train XGBoost Model (Base Learner 3) ---
+set.seed(42)
+message("\n--- Training XGBoost Model ---")
+invisible(capture.output( # Reverted to invisible(capture.output()) for cleaner logs
+  xgb_model <- train(
+    model_formula,
+    data = classification_train_fe,
+    method = "xgbTree",
+    trControl = train_control_base,
+    tuneLength = 50, # Using your desired tuneLength
+    metric = "F1",
+    maximize = TRUE,
+    weights = class_weights_normalized[classification_train_fe$perfectMentalHealth] # Apply weights as discussed
+  )
+))
+message("XGBoost Model Training Complete.\n")
+message("XGB Best Tune:")
+message(paste(
+  "  nrounds =", xgb_model$bestTune$nrounds,
+  "max_depth =", xgb_model$bestTune$max_depth,
+  "eta =", xgb_model$bestTune$eta,
+  "gamma =", xgb_model$bestTune$gamma,
+  "colsample_bytree =", xgb_model$bestTune$colsample_bytree,
+  "min_child_weight =", xgb_model$bestTune$min_child_weight,
+  "subsample =", xgb_model$bestTune$subsample
+)) # Explicitly message the values
+message("XGB CV Macro-F1: ", max(xgb_model$results$F1))
+
+
+# --- Stacking Ensemble Setup ---
+message("\n--- Setting up Stacking Ensemble ---")
+
+# Get the levels of the target variable from the training data
+target_levels <- levels(classification_train_fe$perfectMentalHealth)
+
+# Function to extract OOF probabilities for a given model
+# Simplified: relying on model$pred from savePredictions="final" for best tune's predictions
+get_oof_probabilities <- function(model, target_levels, model_name) {
+  # model$pred already contains predictions for the best tune if savePredictions = "final"
+  # Group by rowIndex and average probabilities across repeated folds
+  oof_probs <- model$pred %>%
+    group_by(rowIndex) %>%
+    summarise(across(all_of(target_levels), mean, .names = paste0(model_name, "_Prob_{.col}")), .groups = 'drop') %>%
+    ungroup() %>%
+    arrange(rowIndex)
+
+  return(oof_probs)
+}
+
+# Extract OOF probabilities for each base model
+# No longer passing best_tune_params, relying on model$pred for best tune's predictions
+svc_oof_probs <- get_oof_probabilities(svc_model, target_levels, "SVC")
+rf_oof_probs <- get_oof_probabilities(rf_model, target_levels, "RF")
+xgb_oof_probs <- get_oof_probabilities(xgb_model, target_levels, "XGB")
+
+# Combine the out-of-fold predictions with the true target values for the meta-model training.
+# Ensure 'rowIndex' for meta_training_data aligns with the OOF predictions.
+meta_training_data <- classification_train_fe %>%
+  select(perfectMentalHealth) %>%
+  mutate(rowIndex = row_number()) %>% # Add rowIndex for joining
+  arrange(rowIndex) %>%
+  left_join(svc_oof_probs, by = "rowIndex") %>%
+  left_join(rf_oof_probs, by = "rowIndex") %>%
+  left_join(xgb_oof_probs, by = "rowIndex") %>%
+  select(-rowIndex) # Remove index after joining
+
+# Check for NAs in meta_training_data (important after joining)
+if (any(is.na(meta_training_data))) {
+  na_summary <- colSums(is.na(meta_training_data))
+  warning("NA values found in meta_training_data after combining OOF probabilities. Columns with NAs:", paste(names(na_summary[na_summary > 0]), collapse = ", "))
+  # Consider imputing or removing rows with NAs if this warning appears often.
+  # If NAs persist, investigate why some rows don't have OOF predictions from all base models.
+}
+
+
+# --- Meta-Model Training (SVM Radial) ---
+# INCREASED number and repeats for more robust CV
+train_control_meta <- trainControl(
+  method = "repeatedcv",
+  number = 10, # Increased from 5
+  repeats = 5, # Increased from 3
+  classProbs = TRUE,
+  summaryFunction = macroF1,
+  verboseIter = FALSE,
+  allowParallel = TRUE
+)
+
+set.seed(42)
+message("\n--- Training Meta-Model (SVM Radial) ---")
+invisible(capture.output( # Reverted to invisible(capture.output()) for cleaner logs
+  meta_model <- train(
+    perfectMentalHealth ~ ., # Use all probability columns as predictors
+    data = meta_training_data,
+    method = "svmRadial",
+    trControl = train_control_meta,
+    tuneLength = 20, # Using your desired tuneLength
+    metric = "F1",
+    maximize = TRUE,
+    preProcess = c("center", "scale"), # Keep preProcess for SVM meta-model
+    weights = class_weights_normalized[meta_training_data$perfectMentalHealth] # Apply weights as discussed
+  )
+))
+message("Meta-Model Training Complete.\n")
+message("Meta-Model Best Tune:")
+message(paste("  sigma =", meta_model$bestTune$sigma, "C =", meta_model$bestTune$C)) # Explicitly message the values
+message("Meta-Model CV Macro-F1: ", max(meta_model$results$F1))
+
+
+# --- Performance Comparison ---
+message("\n--- Model Performance Comparison ---")
+message("SVC CV Macro-F1: ", round(max(svc_model$results$F1), 4))
+message("RF CV Macro-F1: ", round(max(rf_model$results$F1), 4))
+message("XGB CV Macro-F1: ", round(max(xgb_model$results$F1), 4))
+message("Stacked Ensemble CV Macro-F1: ", round(max(meta_model$results$F1), 4))
+
+# ==============================================================================
+# --- Prediction Block for Test Data (Stacked Ensemble) ---
+# ==============================================================================
+
+message("\n--- Generating Predictions for Test Data (Stacked Ensemble) ---")
+
+# Load test data
+test_data <- read.csv("classification_test.csv")
+
+# Prepare test data
+test_preprocessed <- prepare_data_for_model(
+  test_data,
+  is_training = FALSE,
+  target_variable_name = "perfectMentalHealth" # Even though it's test, function needs it
+)
+
+# Get levels for prediction type="prob"
+target_levels_valid <- levels(classification_train_fe$perfectMentalHealth)
+
+# Make predictions (probabilities) from each base model on the preprocessed test data
+# Using type="prob" to get class probabilities
+svc_test_probs <- predict(svc_model, newdata = test_preprocessed, type = "prob")
+rf_test_probs <- predict(rf_model, newdata = test_preprocessed, type = "prob")
+xgb_test_probs <- predict(xgb_model, newdata = test_preprocessed, type = "prob")
+
+# Rename columns to match meta-model training data
+# Note: The column names in model$pred will be the valid_levels themselves (e.g., X.2, X.1, X0, X1, X2)
+# We need to ensure consistency.
+colnames(svc_test_probs) <- paste0("SVC_Prob_", target_levels_valid)
+colnames(rf_test_probs) <- paste0("RF_Prob_", target_levels_valid)
+colnames(xgb_test_probs) <- paste0("XGB_Prob_", target_levels_valid)
+
+# Create a dataframe of these test probabilities for the meta-model
+meta_test_data <- cbind(
+  svc_test_probs,
+  rf_test_probs,
+  xgb_test_probs
+)
+
+# Make final predictions using the meta-model
+final_predictions_valid <- predict(meta_model, newdata = meta_test_data)
+
+# Convert predictions back to original labels
+final_predictions_original <- factor(
+  as.character(final_predictions_valid),
+  levels = valid_levels,
+  labels = original_levels
+)
+
+# Convert to integer values
+predictions_int <- as.integer(as.character(final_predictions_original))
+
+# Save predictions
+write.csv(
+  data.frame(RowIndex = seq_along(predictions_int), Prediction = predictions_int), # Use seq_along for robustness
+  "ClassificationPredictLabel_StackedEnsemble_NoSelection.csv",
+  row.names = FALSE
+)
+message("Predictions saved to ClassificationPredictLabel_StackedEnsemble_NoSelection.csv")
+```
+
+```{r}
+
+# After SVC model training
+best_svc_params <- svc_model$bestTune
+best_svc_params
+
+# After Random Forest model training
+best_rf_params <- rf_model$bestTune
+best_rf_params
+
+# After XGBoost model training
+best_xgb_params <- xgb_model$bestTune
+best_xgb_params
+
+# After Meta-Model training
+best_meta_params <- meta_model$bestTune
+best_meta_params
+```

@@ -1,0 +1,400 @@
+# SVR RF XGB stack, using SVMradial meta model, removed lasso feature selection (does not have feature selection). 
+```{r}
+# Load necessary libraries (ensure you have these installed)
+library(e1071)      # For Support Vector Machines (svmRadial method)
+library(caret)      # For streamlined model training, CV, and tuning
+library(dplyr)      # For data manipulation
+library(forcats)    # For factor handling
+library(Matrix)     # Used by dummyVars for efficient sparse matrix creation
+library(glmnet)     # For glmnet meta-model option (Lasso part removed for feature selection)
+library(randomForest) # For Random Forest base model (and rf meta-model option)
+library(xgboost)    # For XGBoost base model
+library(doParallel) # Uncomment and set up if you use parallel processing
+registerDoParallel(cores = detectCores() - 1) # Example: Use all but one core
+
+# --- Data Pre-processing Configuration (Keep as is) ---
+ordinal_vars <- c(
+  "whatIsYourHeightExpressItAsANumberInMetresM",
+  "howOftenDoYouFeelSociallyConnectedWithYourPeersAndFriends",
+  "howOftenDoYouParticipateInSocialActivitiesIncludingClubsSportsV",
+  "doYouFeelComfortableEngagingInConversationsWithPeopleFromDiffer"
+)
+
+multi_level_categorical_vars <- c(
+  "doYouHaveASupportSystemOfFriendsAndFamilyToTurnToWhenNeeded",
+  "income"
+)
+
+custom_ordinal_orders <- list(
+  "income" =
+    c("0 - 10k","10k - 15k", "15k - 20k", "20k - 50k", "50k - 80k", "80k - 120k", "120k - 150k", "150k - 200k", "200k above"),
+  "howOftenDoYouParticipateInSocialActivitiesIncludingClubsSportsV" =
+    c("No", "Rarely", "At least once a month","At least once a week", "More than three times a week"),
+  "howOftenDoYouFeelSocialallyConnectedWithYourPeersAndFriends" =
+    c("Never", "Rarely", "Sometimes", "Always"),
+  "doYouFeelComfortableEngagingInConversationsWithPeopleFromDiffer" =
+    c("Never", "Rarely", "Sometimes", "Always")
+)
+
+# --- Global Objects for Data Preparation (Learned from Training Data) ---
+dummy_spec <- NULL
+selected_features_lasso <- NULL # This will now effectively store all OHE features
+
+# --- Comprehensive Data Preparation Function (MODIFIED TO REMOVE LASSO SELECTION) ---
+factor_convert_data <- function(data) {
+  for (var in ordinal_vars) {
+    if (var %in% base::names(custom_ordinal_orders)) {
+      data[[var]] <- base::factor(data[[var]],
+                            levels = custom_ordinal_orders[[var]],
+                            ordered = TRUE)
+    } else {
+      data[[var]] <- base::factor(data[[var]], ordered = TRUE)
+    }
+  }
+  for (var in multi_level_categorical_vars) {
+    if (var %in% base::names(custom_ordinal_orders)) {
+        data[[var]] <- base::factor(data[[var]],
+                            levels = custom_ordinal_orders[[var]],
+                            ordered = FALSE)
+    } else {
+      data[[var]] <- base::as.factor(data[[var]])
+    }
+  }
+  return(data)
+}
+
+prepare_data_for_model <- function(data, is_training = TRUE, target_variable_name = "happiness") {
+
+  data_fe <- factor_convert_data(data)
+
+  if (is_training) {
+    if (base::any(base::is.na(data_fe))) {
+      na_count <- base::sum(base::is.na(data_fe))
+      cols_with_na <- base::names(data_fe)[base::colSums(base::is.na(data_fe)) > 0]
+      base::stop(
+        paste0("Error: Found ", na_count, " NA values in training data after initial preprocessing. ",
+               "Columns with NAs: ", paste(cols_with_na, collapse = ", "),
+               ". Please clean your raw data or update 'custom_ordinal_orders'.")
+      )
+    }
+    base::message("Training data is clean (no NAs) after initial preprocessing.")
+  } else {
+    if (base::any(base::is.na(data_fe))) {
+      na_count_test <- base::sum(base::is.na(data_fe))
+      base::warning(paste0("Warning: Found ", na_count_test, " NA values in test data after initial preprocessing. These will be handled by predict.dummyVars or may cause issues."))
+    }
+  }
+
+  predictors_for_ohe_current <- data_fe
+  if (target_variable_name %in% base::colnames(predictors_for_ohe_current)) {
+    predictors_for_ohe_current <- predictors_for_ohe_current %>% dplyr::select(-dplyr::all_of(target_variable_name))
+  }
+  if ("RowIndex" %in% base::colnames(predictors_for_ohe_current)) {
+    predictors_for_ohe_current <- predictors_for_ohe_current %>% dplyr::select(-RowIndex)
+  }
+
+  base::message("\nPerforming One-Hot Encoding...")
+  # Explicitly declare local_data_processed_x to ensure it's always in scope
+  local_data_processed_x <- NULL
+  if (is_training) {
+    assign("dummy_spec", caret::dummyVars(~ ., data = predictors_for_ohe_current, contrasts = FALSE), envir = .GlobalEnv)
+    local_data_processed_x <- base::as.data.frame(stats::predict(dummy_spec, newdata = predictors_for_ohe_current))
+  } else {
+    if (base::is.null(dummy_spec)) {
+      base::stop("Error: 'dummy_spec' not found. Run training data preparation first to fit dummyVars.")
+    }
+    local_data_processed_x <- base::as.data.frame(stats::predict(dummy_spec, newdata = predictors_for_ohe_current))
+  }
+  base::message("One-Hot Encoding Complete.")
+
+  # Explicitly declare local_data_processed to ensure it's always in scope
+  local_data_processed <- NULL
+  if (is_training) {
+    local_data_processed <- base::cbind(local_data_processed_x, data_fe[[target_variable_name]])
+    base::colnames(local_data_processed)[base::ncol(local_data_processed)] <- target_variable_name
+
+    assign("selected_features_lasso", colnames(local_data_processed_x), envir = .GlobalEnv)
+    base::message(paste0("\nUsing all ", base::length(selected_features_lasso), " features (Lasso selection skipped)."))
+
+  } else {
+    # For test data, local_data_processed is just the OHE features
+    local_data_processed <- local_data_processed_x
+    if (base::is.null(selected_features_lasso)) {
+      base::stop("Error: 'selected_features_lasso' not found. Run training data preparation first to determine features.")
+    }
+  }
+
+  base::message("\nSubsetting data to include only selected features...")
+  if (is_training) {
+    final_data <- local_data_processed %>%
+      dplyr::select(dplyr::all_of(selected_features_lasso), dplyr::all_of(target_variable_name))
+  } else {
+    missing_features_in_test <- selected_features_lasso[!selected_features_lasso %in% colnames(local_data_processed)]
+    if (length(missing_features_in_test) > 0) {
+      base::warning(paste0("Warning: The following features are missing in the test data after OHE: ",
+                           paste(missing_features_in_test, collapse = ", "),
+                           ". dplyr::select will drop them."))
+    }
+    final_data <- local_data_processed %>%
+      dplyr::select(dplyr::all_of(selected_features_lasso))
+  }
+  return(final_data)
+}
+
+
+
+# --- MAIN SCRIPT EXECUTION ---
+
+# Load training data
+regression_train <- read.csv("regression_train.csv")
+
+# Prepare TRAINING Data
+base::message("\n--- Preparing Training Data ---")
+regression_train_fe_selected <- prepare_data_for_model(regression_train, is_training = TRUE, target_variable_name = "happiness")
+
+# Display summary statistics for the 'happiness' target variable.
+base::message("\nSummary of 'happiness' variable (after full prep):")
+base::print(base::summary(regression_train_fe_selected$happiness))
+base::message("Standard Deviation of 'happiness': ", stats::sd(regression_train_fe_selected$happiness, na.rm = TRUE), "\n")
+
+
+# Define common formula for base models
+# Note: `selected_features_lasso` now contains ALL OHE features
+quoted_selected_features <- paste0("`", selected_features_lasso, "`")
+model_formula_selected <- stats::as.formula(paste("happiness ~", paste(quoted_selected_features, collapse = " + ")))
+
+# --- Base Model Training Controls ---
+# Separate trainControl for each base model based on optimal CV settings
+train_control_svr <- caret::trainControl(
+  method = "repeatedcv",
+  number = 5,
+  repeats = 3,
+  verboseIter = FALSE,
+  search = "random",
+  savePredictions = "final",
+  allowParallel = TRUE
+)
+tune_length_svr <- 1
+
+train_control_rf <- caret::trainControl(
+  method = "repeatedcv",
+  number = 10,
+  repeats = 3,
+  verboseIter = FALSE,
+  search = "random",
+  savePredictions = "final",
+  allowParallel = TRUE
+)
+tune_length_rf <- 1
+
+train_control_xgb <- caret::trainControl(
+  method = "repeatedcv",
+  number = 10,
+  repeats = 3,
+  verboseIter = FALSE,
+  search = "random",
+  savePredictions = "final",
+  allowParallel = TRUE
+)
+tune_length_xgb <- 1
+
+# --- Train SVR Model (Base Learner 1) ---
+base::set.seed(42)
+base::message("\n--- Training Support Vector Regression (SVR) Model (Base Learner) ---")
+invisible(capture.output(
+  svr_model <- caret::train(
+    model_formula_selected,
+    data = regression_train_fe_selected,
+    method = "svmRadial",
+    trControl = train_control_svr,
+    tuneLength = tune_length_svr,
+    preProcess = c("center", "scale")
+  )
+))
+base::message("SVR Model Training Complete.\n")
+base::message("SVR Best Tune:\n")
+base::print(svr_model$bestTune)
+base::message("SVR CV RMSE: ", svr_model$results[which.min(svr_model$results$RMSE), ]$RMSE, "\n")
+
+
+# --- Train Random Forest Model (Base Learner 2) ---
+base::set.seed(42)
+base::message("\n--- Training Random Forest (RF) Model (Base Learner) ---")
+invisible(capture.output(
+  rf_model <- caret::train(
+    model_formula_selected,
+    data = regression_train_fe_selected,
+    method = "rf",
+    trControl = train_control_rf,
+    tuneLength = tune_length_rf,
+    preProcess = c("center", "scale")
+  )
+))
+base::message("Random Forest Model Training Complete.\n")
+base::message("RF Best Tune:\n")
+base::print(rf_model$bestTune)
+base::message("RF CV RMSE: ", rf_model$results[which.min(rf_model$results$RMSE), ]$RMSE, "\n")
+
+
+# --- Train XGBoost Model (Base Learner 3) ---
+base::set.seed(42)
+base::message("\n--- Training XGBoost (xgbTree) Model (Base Learner) ---")
+invisible(capture.output(
+  xgb_model <- caret::train(
+    model_formula_selected,
+    data = regression_train_fe_selected,
+    method = "xgbTree",
+    trControl = train_control_xgb,
+    tuneLength = tune_length_xgb,
+    preProcess = c("center", "scale")
+  )
+))
+base::message("XGBoost Model Training Complete.\n")
+base::message("XGBoost Best Tune:\n")
+base::print(xgb_model$bestTune)
+base::message("XGBoost CV RMSE: ", xgb_model$results[which.min(xgb_model$results$RMSE), ]$RMSE, "\n")
+
+
+# ==============================================================================
+# --- Stacking Ensemble Setup ---
+# ==============================================================================
+base::message("\n--- Setting up Stacking Ensemble ---")
+
+# Get out-of-fold predictions from SVR, Random Forest, and XGBoost models
+svr_oof_preds <- svr_model$pred %>%
+  dplyr::filter(sigma == svr_model$bestTune$sigma,
+                C == svr_model$bestTune$C) %>%
+  dplyr::group_by(rowIndex) %>%
+  dplyr::summarise(SVR_Prediction = mean(pred, na.rm = TRUE)) %>%
+  dplyr::ungroup() %>%
+  dplyr::arrange(rowIndex)
+
+rf_oof_preds <- rf_model$pred %>%
+  dplyr::filter(mtry == rf_model$bestTune$mtry) %>%
+  dplyr::group_by(rowIndex) %>%
+  dplyr::summarise(RF_Prediction = mean(pred, na.rm = TRUE)) %>%
+  dplyr::ungroup() %>%
+  dplyr::arrange(rowIndex)
+
+xgb_oof_preds <- xgb_model$pred %>%
+  dplyr::filter(nrounds == xgb_model$bestTune$nrounds,
+                max_depth == xgb_model$bestTune$max_depth,
+                eta == xgb_model$bestTune$eta,
+                gamma == xgb_model$bestTune$gamma,
+                colsample_bytree == xgb_model$bestTune$colsample_bytree,
+                min_child_weight == xgb_model$bestTune$min_child_weight,
+                subsample == xgb_model$bestTune$subsample) %>%
+  dplyr::group_by(rowIndex) %>%
+  dplyr::summarise(XGB_Prediction = mean(pred, na.rm = TRUE)) %>%
+  dplyr::ungroup() %>%
+  dplyr::arrange(rowIndex)
+
+# Combine the out-of-fold predictions with the true happiness values for the meta-model training.
+meta_training_data <- regression_train_fe_selected %>%
+  dplyr::select(happiness) %>%
+  dplyr::mutate(rowIndex = base::seq_along(happiness)) %>%
+  dplyr::arrange(rowIndex) %>%
+  dplyr::left_join(svr_oof_preds, by = "rowIndex") %>%
+  dplyr::left_join(rf_oof_preds, by = "rowIndex") %>%
+  dplyr::left_join(xgb_oof_preds, by = "rowIndex") %>%
+  dplyr::select(-rowIndex)
+
+# Check for NAs in meta_training_data
+if (any(is.na(meta_training_data))) {
+  stop("NA values found in meta_training_data after combining OOF predictions. This should not happen if base models completed successfully.")
+}
+
+
+# --- Meta-Model Configuration ---
+# Choose your meta-model method here: "lm", "glmnet", "svmRadial", "rf"
+meta_model_method <- "svmRadial" # "svmRadial" found to be the best by trial and error
+
+base::set.seed(42)
+base::message(paste0("\n--- Training Meta-Model (Method: '", meta_model_method, "') ---"))
+
+train_control_meta_model <- caret::trainControl(
+  method = "repeatedcv",
+  number = 5,
+  repeats = 3,
+  verboseIter = FALSE,
+  search = "random"
+)
+
+tune_length_meta_model <- 20
+
+# Train the meta-model
+invisible(capture.output(
+  meta_model <- caret::train(
+    happiness ~ SVR_Prediction + RF_Prediction + XGB_Prediction,
+    data = meta_training_data,
+    method = meta_model_method,
+    trControl = train_control_meta_model,
+    tuneLength = tune_length_meta_model,
+    preProcess = if(meta_model_method %in% c("svmRadial", "glmnet")) c("center", "scale") else NULL
+  )
+))
+base::message("Meta-Model Training Complete.\n")
+base::message(paste0("Meta-Model (", meta_model_method, ") Best Tune:\n"))
+base::print(meta_model$bestTune)
+base::message(paste0("Meta-Model (", meta_model_method, ") CV RMSE: ", meta_model$results[which.min(meta_model$results$RMSE), ]$RMSE, "\n"))
+
+
+# --- Evaluate Stacked Ensemble (Using Meta-Model's CV Results) ---
+best_meta_tune <- meta_model$results[which.min(meta_model$results$RMSE), ]
+
+base::message("\n--- Stacked Ensemble Performance (Meta-Model Cross-Validation Results) ---")
+base::message("Stacked Ensemble MAE (CV): ", best_meta_tune$MAE)
+base::message("Stacked Ensemble RMSE (CV): ", best_meta_tune$RMSE)
+base::message("Stacked Ensemble R-squared (CV): ", best_meta_tune$Rsquared)
+
+
+# --- Model Performance Comparison ---
+base::message("\n--- RMSE Comparison (Lower is Better) ---")
+base::message("Previous BIC Stepwise Model RMSE (Training Data): 7.330305\n")
+base::message("Previous Full Linear Model RMSE (Training Data): 6.672557\n")
+base::message("Previous Best 2 Predictors Model RMSE (Training Data): 7.885411\n")
+base::message("Previous Random Forest Model RMSE (Training Data): 4.117436\n")
+base::message("SVR Average CV RMSE (No Lasso): ", svr_model$results[which.min(svr_model$results$RMSE),]$RMSE, "\n")
+base::message("Random Forest Average CV RMSE (No Lasso): ", rf_model$results[which.min(rf_model$results$RMSE),]$RMSE, "\n")
+base::message("XGBoost Average CV RMSE (No Lasso): ", xgb_model$results[which.min(xgb_model$results$RMSE),]$RMSE, "\n")
+base::message("Stacked Ensemble RMSE (Meta-Model CV, No Lasso): ", best_meta_tune$RMSE, "\n")
+
+
+# ==============================================================================
+# --- Prediction Block for Test Data (Stacked Ensemble) ---
+# ==============================================================================
+
+base::message("\n--- Generating Predictions for Test Data (Stacked Ensemble) ---")
+
+# Load your test dataset
+test <- read.csv("regression_test.csv")
+
+# Prepare TEST Data using the SAME function
+test_fe_selected <- prepare_data_for_model(test, is_training = FALSE, target_variable_name = "happiness")
+
+# Make predictions from each base model on the preprocessed test data
+svr_test_preds <- predict(svr_model, newdata = test_fe_selected)
+rf_test_preds <- predict(rf_model, newdata = test_fe_selected)
+xgb_test_preds <- predict(xgb_model, newdata = test_fe_selected)
+
+# Create a dataframe of these test predictions for the meta-model
+meta_test_data <- data.frame(
+  SVR_Prediction = svr_test_preds,
+  RF_Prediction = rf_test_preds,
+  XGB_Prediction = xgb_test_preds
+)
+
+# Make final predictions using the meta-model
+stacked_pred_label <- predict(meta_model, newdata = meta_test_data)
+
+
+# Put these predicted labels in a csv file for Kaggle
+write.csv(
+    data.frame("RowIndex" = seq(1, length(stacked_pred_label)), "Prediction" = stacked_pred_label),
+    "RegressionPredictLabel_StackedEnsemble_NoLasso.csv", # New file name
+    row.names = FALSE
+)
+
+base::message("Stacked Ensemble Predictions generated and saved to RegressionPredictLabel_StackedEnsemble_SVMRadial_NoLasso.csv")
+
+```

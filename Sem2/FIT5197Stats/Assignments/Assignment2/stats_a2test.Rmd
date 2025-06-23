@@ -1,0 +1,487 @@
+```{r}
+
+library(this.path)
+setwd(this.path::here())
+regression_train <- read.csv("regression_train.csv")
+multlin_model <- lm(happiness ~ ., data = regression_train)
+# summary(multlin_model)
+
+# Save the summary output to an object
+model_summary <- summary(multlin_model)
+model_summary
+# Access the coefficients table and convert it to a data frame
+coefficients_table <- as.data.frame(model_summary$coefficients)
+
+# Significance level, alpha = 0.01
+alpha <- 0.01
+
+# Filter for significant variables first
+significant_coeffs <- coefficients_table[coefficients_table$`Pr(>|t|)` < alpha, ]
+
+# Sort these significant variables by highest estimate first
+significant_and_sorted <- significant_coeffs[order(significant_coeffs$Estimate, decreasing = TRUE), ]
+significant_and_sorted
+```
+
+
+```{r}
+calculate_model_metrics <- function(model, dataset, ground_truth_col_name) {
+  # Ensure the model is an 'lm' object
+  if (!inherits(model, "lm")) {
+    stop("Input 'model' must be an 'lm' object.")
+  }
+
+  # Get ground truth values from the dataset
+  # Using [[ ]] ensures correct column selection even if name has special characters
+  ground_truth <- dataset[[ground_truth_col_name]]
+
+  # Get model predictions for the given dataset
+  # 'newdata' argument is crucial if 'dataset' is different from the training data
+  predictions <- predict(model, newdata = dataset)
+
+  # Calculate residuals (difference between ground truth and predictions)
+  residuals <- ground_truth - predictions
+
+  # --- 1. Prediction Error Metrics (Residual-Based) ---
+  # These quantify how far off the predictions are from the actual values.
+
+  # Mean Absolute Error (MAE): Average of the absolute differences. Robust to outliers.
+  mae <- mean(abs(residuals))
+
+  # Mean Squared Error (MSE): Average of the squared differences. Penalizes large errors more.
+  mse <- mean(residuals^2)
+
+  # Root Mean Squared Error (RMSE): Square root of MSE. In the same units as the response variable.
+  rmse <- sqrt(mse)
+
+  # --- 2. Goodness-of-Fit and Model Complexity Metrics (Model-Based) ---
+  # These evaluate how well the model fits the data and its complexity.
+  # These metrics are typically derived from the model fit on the *training* data.
+  # Applying them to a separate 'dataset' might not be standard unless it's the training set.
+
+  model_summary <- summary(model) # Get the summary object for the model
+
+  # R-squared: Proportion of variance in the dependent variable explained by the model.
+  r_squared <- model_summary$r.squared
+
+  # Adjusted R-squared: R-squared adjusted for the number of predictors.
+  # Penalizes adding unnecessary predictors. Better for comparing models with different numbers of terms.
+  adj_r_squared <- model_summary$adj.r.squared
+
+  # Residual Standard Error (RSE) or Sigma:
+  # An estimate of the standard deviation of the error term.
+  # It represents the typical distance between the observed values and the regression line.
+  rse <- model_summary$sigma
+
+  # Akaike Information Criterion (AIC):
+  # A measure of the relative quality of statistical models for a given set of data.
+  # It balances goodness of fit and model complexity. Lower AIC is better.
+  aic <- AIC(model)
+
+  # Bayesian Information Criterion (BIC): (You specifically asked for this)
+  # Similar to AIC, but penalizes model complexity more heavily (especially with large N).
+  # Tends to select simpler models than AIC. Lower BIC is better.
+  bic <- BIC(model)
+
+  # Return all calculated metrics as a list
+  return(list(
+    predictions = predictions,
+    residuals = residuals,
+    mae = mae,
+    rmse = rmse,
+    mse = mse,
+    r_squared = r_squared,
+    adj_r_squared = adj_r_squared,
+    rse = rse,
+    aic = aic,
+    bic = bic
+  ))
+}
+
+
+evaluate_model <- function(model, dataset, variable){
+  training_results <- calculate_model_metrics(model, regression_train, "happiness")
+  cat("--- Training Data Error ---", "\n")
+  cat("MAE:", training_results$mae, "\n")
+  cat("RMSE:", training_results$rmse, "\n")
+  cat("MSE:", training_results$mse, "\n")
+  cat("Rsquared:", training_results$r_squared, "\n")
+  cat("Adj Rsquared:", training_results$adj_r_squared, "\n")
+  cat("RSE:", training_results$rse, "\n")
+  cat("AIC:", training_results$aic, "\n")
+  cat("BIC:", training_results$bic, "\n")
+  cat("Number of predictors (excluding intercept):", length(coef(model)) - 1, "\n\n")
+}
+
+```
+
+```{r}
+library(caret) # Make sure you have this package installed: install.packages("caret")
+
+# Your existing calculate_model_metrics function (no changes needed here)
+calculate_model_metrics <- function(model, dataset, ground_truth_col_name) {
+  # Ensure the model is an 'lm' object
+  if (!inherits(model, "lm")) {
+    stop("Input 'model' must be an 'lm' object.")
+  }
+
+  # Get ground truth values from the dataset
+  # Using [[ ]] ensures correct column selection even if name has special characters
+  ground_truth <- dataset[[ground_truth_col_name]]
+
+  # Get model predictions for the given dataset
+  # 'newdata' argument is crucial if 'dataset' is different from the training data
+  predictions <- predict(model, newdata = dataset)
+
+  # Calculate residuals (difference between ground truth and predictions)
+  residuals <- ground_truth - predictions
+
+  # --- 1. Prediction Error Metrics (Residual-Based) ---
+  mae <- mean(abs(residuals))
+  mse <- mean(residuals^2)
+  rmse <- sqrt(mse)
+
+  # --- 2. Goodness-of-Fit and Model Complexity Metrics (Model-Based) ---
+  model_summary <- summary(model)
+
+  r_squared <- model_summary$r.squared
+  adj_r_squared <- model_summary$adj.r.squared
+  rse <- model_summary$sigma
+  aic <- AIC(model)
+  bic <- BIC(model)
+
+  # Return all calculated metrics as a list
+  return(list(
+    predictions = predictions,
+    residuals = residuals,
+    mae = mae,
+    rmse = rmse,
+    mse = mse,
+    r_squared = r_squared,
+    adj_r_squared = adj_r_squared,
+    rse = rse,
+    aic = aic,
+    bic = bic
+  ))
+}
+
+# ---
+# Updated evaluate_model function to include K-Fold Cross-Validation
+# ---
+evaluate_model <- function(formula, data, ground_truth_col_name, k_folds = 5) {
+  # Perform k-fold cross-validation
+  # Create data partitions for k-fold CV
+  set.seed(123) # for reproducibility
+  folds <- createFolds(data[[ground_truth_col_name]], k = k_folds, list = TRUE, returnTrain = FALSE)
+
+  # Store metrics for each fold
+  cv_mae_list <- c()
+  cv_rmse_list <- c()
+  cv_mse_list <- c()
+  cv_r_squared_list <- c()
+
+  cat(paste0("--- K-Fold Cross-Validation (k=", k_folds, ") ---", "\n"))
+  for (i in 1:k_folds) {
+    # Split data into training and test sets for the current fold
+    test_indices <- folds[[i]]
+    cv_train_data <- data[-test_indices, ]
+    cv_test_data <- data[test_indices, ]
+
+    # Fit the linear model on the training data for this fold
+    fold_model <- lm(formula, data = cv_train_data)
+
+    # Calculate metrics on the test data for this fold
+    fold_metrics <- calculate_model_metrics(fold_model, cv_test_data, ground_truth_col_name)
+
+    # Store results
+    cv_mae_list <- c(cv_mae_list, fold_metrics$mae)
+    cv_rmse_list <- c(cv_rmse_list, fold_metrics$rmse)
+    cv_mse_list <- c(cv_mse_list, fold_metrics$mse)
+    cv_r_squared_list <- c(cv_r_squared_list, fold_metrics$r_squared) # R-squared on test set
+
+    cat(paste0("Fold ", i, " - MAE: ", round(fold_metrics$mae, 4),
+               ", RMSE: ", round(fold_metrics$rmse, 4),
+               ", R-squared: ", round(fold_metrics$r_squared, 4), "\n"))
+  }
+
+  # Calculate average cross-validation metrics
+  avg_cv_mae <- mean(cv_mae_list)
+  avg_cv_rmse <- mean(cv_rmse_list)
+  avg_cv_mse <- mean(cv_mse_list)
+  avg_cv_r_squared <- mean(cv_r_squared_list)
+
+  cat("\n--- Average Cross-Validation Metrics ---", "\n")
+  cat("Average CV MAE:", avg_cv_mae, "\n")
+  cat("Average CV RMSE:", avg_cv_rmse, "\n")
+  cat("Average CV MSE:", avg_cv_mse, "\n")
+  cat("Average CV R-squared:", avg_cv_r_squared, "\n\n")
+
+  # Fit the model on the entire dataset for final training metrics, AIC, and BIC
+  # These are typically calculated once on the full training data used for the "final" model
+  full_model <- lm(formula, data = data)
+  training_results <- calculate_model_metrics(full_model, data, ground_truth_col_name)
+
+  cat("--- Full Model Training Data Error (for reference) ---", "\n")
+  cat("MAE:", training_results$mae, "\n")
+  cat("RMSE:", training_results$rmse, "\n")
+  cat("MSE:", training_results$mse, "\n")
+  cat("Rsquared:", training_results$r_squared, "\n")
+  cat("Adj Rsquared:", training_results$adj_r_squared, "\n")
+  cat("RSE:", training_results$rse, "\n")
+  cat("AIC:", training_results$aic, "\n")
+  cat("BIC:", training_results$bic, "\n")
+  cat("Number of predictors (excluding intercept):", length(coef(full_model)) - 1, "\n\n")
+
+  invisible(list(
+    avg_cv_mae = avg_cv_mae,
+    avg_cv_rmse = avg_cv_rmse,
+    avg_cv_mse = avg_cv_mse,
+    avg_cv_r_squared = avg_cv_r_squared,
+    training_results = training_results
+  ))
+}
+```
+
+
+```{r}
+# Function to predict and calculate error metrics for a given model and dataset
+calculate_prediction_error <- function(model, dataset, ground_truth_col_name) {
+  # Get ground truth values
+  ground_truth <- dataset[[ground_truth_col_name]] # Using [[ ]] for column name as string
+
+  # Get model predictions
+  predictions <- predict(model, newdata = dataset)
+
+  # Calculate residuals
+  residuals <- ground_truth - predictions
+
+  # Calculate error metrics
+  mae <- mean(abs(residuals))
+  rmse <- sqrt(mean(residuals^2))
+  mse <- mean(residuals^2)
+
+  # Return results as a list
+  return(list(
+    predictions = predictions,
+    residuals = residuals,
+    mae = mae,
+    rmse = rmse,
+    mse = mse
+  ))
+}
+
+# Example usage on your training data:
+# Assuming 'variable' is the name of your ground truth column (e.g., 'happiness')
+training_results <- calculate_prediction_error(multlin_model, regression_train, "happiness")
+
+cat("--- Training Data Error ---", "\n")
+cat("MAE:", training_results$mae, "\n")
+cat("RMSE:", training_results$rmse, "\n")
+cat("MSE:", training_results$mse, "\n")
+cat("Rsquared:", training_results$r_squared, "\n")
+cat("Adj Rsquared:", training_results$adj_r_squared, "\n")
+cat("RSE:", training_results$rse, "\n")
+cat("AIC:", training_results$aic, "\n")
+cat("BIC:", training_results$bic, "\n")
+
+
+# You can also access training_results$predictions or training_results$residuals if needed
+
+# # Load your test dataset
+# # Assuming your test dataset is named 'regression_test.csv'
+# regression_test <- read.csv("regression_test.csv")
+# 
+# # Make predictions on the test data
+# # The 'newdata' argument is crucial here. It tells the predict function to use this new data.
+# # Ensure that the column names in regression_test match the predictor names used in multlin_model.
+# test_predictions <- predict(multlin_model, newdata = regression_test)
+# 
+# # View the first few predictions
+# head(test_predictions)
+
+```
+
+
+
+
+```{r}
+# Assuming multlin_model is your initial full model:
+# multlin_model <- lm(variable ~ ., data = regression_train)
+
+# Perform bidirectional stepwise regression using BIC
+#
+# Arguments for step():
+#   object: The initial model.
+#   scope: Defines the range of models to consider.
+#          list(lower = ~1) means the smallest model is just an intercept.
+#          list(upper = ~.) means the largest model is the full model (all predictors).
+#   direction: "both" for bidirectional stepwise selection.
+#   k: The penalty per parameter. For BIC, k = log(n), where n is the number of observations.
+#
+# Important: Ensure 'variable' is your response variable and 'regression_train' is your data.
+
+n_obs <- nrow(regression_train) # Number of observations in your training data
+bic_penalty <- log(n_obs)
+
+bic_step_model <- step(
+  object = multlin_model,
+  scope = list(lower = ~1, upper = ~.),
+  direction = "both",
+  k = bic_penalty
+)
+
+# View the summary of the selected model
+summary(bic_step_model)
+
+# Compare the final model to your initial full model (optional)
+cat("\n--- BIC Stepwise Model Information ---")
+cat("\nNumber of predictors (excluding intercept):", length(coef(bic_step_model)) - 1)
+cat("\nBIC for selected model:", BIC(bic_step_model))
+
+cat("\n\n--- Full Model Information ---")
+cat("\nNumber of predictors (excluding intercept):", length(coef(multlin_model)) - 1)
+cat("\nBIC for full model:", BIC(multlin_model))
+cat("\n")
+
+```
+
+
+
+```{r}
+training_results <- calculate_prediction_error(bic_step_model, regression_train, "happiness")
+
+cat("--- Training Data Error ---", "\n")
+cat("MAE:", training_results$mae, "\n")
+cat("RMSE:", training_results$rmse, "\n")
+cat("MSE:", training_results$mse, "\n")
+
+
+training_results <- calculate_prediction_error(multlin_model, regression_train, "happiness")
+
+cat("--- Training Data Error ---", "\n")
+cat("MAE:", training_results$mae, "\n")
+cat("RMSE:", training_results$rmse, "\n")
+cat("MSE:", training_results$mse, "\n")
+```
+
+```{r}
+# Ensure regression_train is loaded and multlin_model is fitted from previous steps
+# If not already loaded/defined, uncomment and run:
+# regression_train <- read.csv("regression_train.csv")
+# multlin_model <- lm(variable ~ ., data = regression_train) # Assuming 'variable' is your response
+
+# Define the name of your response variable
+response_var_name <- "happiness" # Change this if your response column is named "happiness" or something else
+
+# Get the names of all potential predictor variables from the training data
+predictor_names <- names(regression_train)[names(regression_train) != response_var_name]
+
+# --- 1. Calculate RMSE for the Full Model (multlin_model) on Training Data ---
+cat("Calculating RMSE for the full model on training data...\n")
+ground_truth_full_model <- regression_train[[response_var_name]]
+predictions_full_model <- predict(multlin_model, newdata = regression_train)
+rmse_full_model <- sqrt(mean((ground_truth_full_model - predictions_full_model)^2))
+cat("RMSE for Full Model (on training data):", rmse_full_model, "\n\n")
+
+
+# --- 2. Find the Best Lightweight Model (Two Predictors) ---
+
+cat("Searching for the best two-predictor model (least RMSE on training data)...\n")
+
+# Generate all unique combinations of two predictor names
+# combn(x, m) generates all combinations of m elements from x
+two_predictor_combinations <- combn(predictor_names, 2, simplify = FALSE)
+
+# Initialize variables to store the best model's information
+min_rmse_two_predictors <- Inf
+best_two_predictor_model_formula <- NULL
+best_two_predictor_model_object <- NULL # To store the actual lm object
+
+# Loop through each combination of two predictors
+for (i in seq_along(two_predictor_combinations)) {
+  pair <- two_predictor_combinations[[i]]
+
+  # Construct the model formula string for the current pair
+  formula_str <- paste(response_var_name, "~", paste(pair, collapse = " + "))
+  model_formula <- as.formula(formula_str)
+
+  # Fit the linear model using only these two predictors
+  current_model <- lm(model_formula, data = regression_train)
+
+  # Get predictions on the training data for the current model
+  predictions_current_model <- predict(current_model, newdata = regression_train)
+
+  # Calculate RMSE for the current model on the training data
+  current_rmse <- sqrt(mean((regression_train[[response_var_name]] - predictions_current_model)^2))
+
+  # Check if this model has a lower RMSE than the current best
+  if (current_rmse < min_rmse_two_predictors) {
+    min_rmse_two_predictors <- current_rmse
+    best_two_predictor_model_formula <- formula_str
+    best_two_predictor_model_object <- current_model # Store the model object
+  }
+}
+
+cat("Search for best two-predictor model complete.\n\n")
+
+# --- 3. Display Best Lightweight Model Results ---
+
+cat("--- Best Lightweight Model (Two Predictors) Results ---", "\n")
+cat("Formula:", best_two_predictor_model_formula, "\n")
+cat("RMSE on Training Data:", min_rmse_two_predictors, "\n")
+cat("\nSummary of the Best Lightweight Model:\n")
+print(summary(best_two_predictor_model_object))
+
+
+# --- 4. Comparison and Explanation ---
+
+cat("\n--- Comparison of RMSEs ---", "\n")
+cat("Full Model RMSE (Training Data):", rmse_full_model, "\n")
+cat("Best Lightweight Model RMSE (Training Data):", min_rmse_two_predictors, "\n")
+
+cat("\n--- Explanation of Results ---", "\n")
+cat("The results typically show that the Full Model (with all available predictors) achieves a lower or equal RMSE on the training dataset compared to the Best Lightweight Model (with only two predictors).\n\n")
+cat("This is generally expected because:\n")
+cat("1.  **Flexibility:** The full model has a much higher number of parameters (coefficients) and thus greater flexibility to 'learn' and fit the specific patterns and even random noise present in the training data. With 50+ predictors, it can capture intricate relationships that a two-predictor model simply cannot.\n")
+cat("2.  **Overfitting to Training Data:** While a lower RMSE on the training data seems good, it doesn't necessarily mean the full model is 'better' in a general sense. A complex model can 'overfit' the training data, meaning it performs very well on the data it was trained on but might perform poorly on new, unseen data (your test dataset) because it has learned noise rather than underlying true relationships.\n")
+cat("3.  **Trade-off:** The lightweight model sacrifices some fit to the training data (resulting in a higher RMSE) in favor of simplicity and interpretability. The benefit of such a model is that it is less prone to overfitting and can often generalize better to new data, especially if many of the 50+ predictors in the full model were not truly strong predictors or were highly correlated (multicollinear).\n")
+cat("4.  **Information Content:** The 'best' two predictors found by this search are those that, in combination, capture the most predictive power for '", response_var_name, "' on their own, minimizing the error. The full model potentially includes many predictors that contribute very little or redundant information, making it overly complex without significant gains in actual predictive accuracy on independent data.\n\n")
+cat("To truly determine which model is 'best' for generalization, you would need to evaluate both the full model and the best lightweight model on an independent test dataset (if you had ground truth for it) or use cross-validation techniques. Given your R-squared on the full model was already low, a simpler model might offer a more robust and interpretable solution, even if its training RMSE is slightly higher.\n")
+
+```
+
+```{r}
+
+training_results <- evaluate_model(bic_step_model, regression_train, "happiness")
+training_results <- evaluate_model(multlin_model, regression_train, "happiness")
+training_results <- evaluate_model(best_two_predictor_model_object, regression_train, "happiness")
+```
+
+```{r}
+predictor_names
+```
+
+```{r}
+
+```
+```{r}
+
+```
+
+```{r}
+
+```
+```{r}
+
+```
+
+```{r}
+
+```
+```{r}
+
+```
+
+```{r}
+
+```
