@@ -5,3 +5,8 @@ Use CNNs
 Study weekly quiz for exam
 
 Use bayesian optimizer (optuna) for parameter search space
+
+
+Don't use Relu, use PReLu or something else
+Dying relu -> use Leaky ReLU/ELU/GELU, apply He initialization, and control learning rates.
+Don't use normalize (0.5,0.5), it will kill all the pixels in mnist to black
