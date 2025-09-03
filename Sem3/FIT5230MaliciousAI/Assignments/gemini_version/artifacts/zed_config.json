@@ -1,0 +1,7 @@
+{
+    "model_name": "bmshj2018_hyperprior",
+    "quality": 8,
+    "threshold_low_bpp": 0.5247380137443542,
+    "threshold_high_bpp": 2.4546891689300505,
+    "num_calibration_samples": 37947
+}
