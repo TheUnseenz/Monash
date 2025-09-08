@@ -122,45 +122,57 @@ def train(args):
             model.load_state_dict(state["model_state"])
             optimizer.load_state_dict(state["optim_state"])
             start_epoch = state["epoch"] + 1
+    else:
+        print("Training from scratch")
 
     # 4) training loop
-    for epoch in range(start_epoch, args.epochs):
-        model.train()
-        running_loss = 0.0
-        tk = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch {epoch}/{args.epochs-1} [train]")
-        for i, (imgs, labels, _) in tk:
-            imgs = imgs.to(DEVICE)
-            labels = labels.to(DEVICE)
-            optimizer.zero_grad()
-            outputs = model(imgs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-            running_loss += loss.item()
-            if (i + 1) % args.log_interval == 0:
-                tk.set_postfix(loss=running_loss / (i + 1))
-
-        # validation pass
-        model.eval()
-        val_loss = 0.0
-        with torch.inference_mode():
-            for imgs, labels, _ in tqdm(val_loader, desc="Validation"):
+    try:
+        for epoch in range(start_epoch, args.epochs):
+            model.train()
+            running_loss = 0.0
+            tk = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch {epoch}/{args.epochs-1} [train]")
+            for i, (imgs, labels, _) in tk:
                 imgs = imgs.to(DEVICE)
                 labels = labels.to(DEVICE)
+                optimizer.zero_grad()
                 outputs = model(imgs)
                 loss = criterion(outputs, labels)
-                val_loss += loss.item()
-        val_loss /= max(1, len(val_loader))
-        print(f"Epoch {epoch} complete. Val loss: {val_loss:.4f}")
+                loss.backward()
+                optimizer.step()
+                running_loss += loss.item()
+                if (i + 1) % args.log_interval == 0:
+                    tk.set_postfix(loss=running_loss / (i + 1))
 
-        # save checkpoint
+            # validation pass
+            model.eval()
+            val_loss = 0.0
+            with torch.inference_mode():
+                for imgs, labels, _ in tqdm(val_loader, desc="Validation"):
+                    imgs = imgs.to(DEVICE)
+                    labels = labels.to(DEVICE)
+                    outputs = model(imgs)
+                    loss = criterion(outputs, labels)
+                    val_loss += loss.item()
+            val_loss /= max(1, len(val_loader))
+            print(f"Epoch {epoch} complete. Val loss: {val_loss:.4f}")
+
+            # save checkpoint
+            state = {
+                "epoch": epoch,
+                "model_state": model.state_dict(),
+                "optim_state": optimizer.state_dict(),
+                "args": vars(args)
+            }
+            save_training_checkpoint(state, f"ckpt_epoch_{epoch}.pt")
+    except KeyboardInterrupt:
+        print("\nTraining interrupted. Saving last checkpoint...")
         state = {
             "epoch": epoch,
             "model_state": model.state_dict(),
             "optim_state": optimizer.state_dict(),
             "args": vars(args)
         }
-        save_training_checkpoint(state, f"ckpt_epoch_{epoch}.pt")
+        save_training_checkpoint(state, "ckpt_interrupted.pt")
 
     # After training: save a minimal config
     config = {
@@ -186,7 +198,7 @@ if __name__ == "__main__":
     parser.add_argument("--test_split", type=float, default=0.1, help="Test fraction when splitting.")
     parser.add_argument("--min_image_dim", type=int, default=256, help="Minimum width/height to accept.")
     parser.add_argument("--force_download", action="store_true", help="Force dataset re-download and saving.")
-    parser.add_argument("--epochs", type=int, default=50)
+    parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--weight_decay", type=float, default=1e-6)
