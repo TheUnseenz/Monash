@@ -40,7 +40,7 @@ def save_img(img: Image.Image, src_path, out_root, transform_name, input_root):
     return dest_path
 
 
-def resize_image(img, size=(512,512)):
+def resize_image(img, size=(1024,1024)):
     return img.resize(size, resample=Image.BICUBIC)
 
 def jpeg_compress(img, quality=85):
@@ -73,14 +73,14 @@ def vae_roundtrip_pil(img: Image.Image, vae=None, device="cpu"):
     """
     Convert PIL image -> latent via SD VAE encoder -> decode back.
     vae should be an AutoencoderKL or compatible model from diffusers.
-    Works at 512 resolution expected; will resize image to 512x512.
+    Works at 1024 resolution expected; will resize image to 1024x1024.
     """
     if vae is None:
         raise RuntimeError("VAE model not provided")
     import torch
     from torchvision import transforms
     img = img.convert("RGB")
-    img_resized = img.resize((512, 512), resample=Image.BICUBIC)
+    img_resized = img.resize((1024, 1024), resample=Image.BICUBIC)
     to_tensor = transforms.ToTensor()
     x = to_tensor(img_resized).unsqueeze(0).to(device) * 2.0 - 1.0  # [-1,1]
     with torch.no_grad():
@@ -117,8 +117,8 @@ def main(args):
             continue
 
         # base resize (always produce 512 copy)
-        r = resize_image(img, (512, 512))
-        save_img(r, path, out, "resize512", inp)
+        r = resize_image(img, (1024, 1024))
+        save_img(r, path, out, "resize1024", inp)
 
         # jpeg compressed
         j = jpeg_compress(r, quality=85)
@@ -148,8 +148,8 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input_dir", default="Sem3/FIT5230MaliciousAI/Assignments/cloned_repos/aeroblade/fake_img")
-    parser.add_argument("--out_dir", default="Sem3/FIT5230MaliciousAI/Assignments/cloned_repos/aeroblade/fake_img_processed")
+    parser.add_argument("--input_dir", default="Sem3/FIT5230MaliciousAI/Assignments/cloned_repos/aeroblade/real_img/real_400_faces")
+    parser.add_argument("--out_dir", default="Sem3/FIT5230MaliciousAI/Assignments/cloned_repos/aeroblade/real_img/real_400_faces_processed")
     parser.add_argument("--enable_vae", default=True, action="store_true", help="Use SD VAE roundtrip (heavy, needs diffusers + torch)")
     parser.add_argument("--device", default="cuda", help="device for VAE (cpu or cuda)")
     args = parser.parse_args()
