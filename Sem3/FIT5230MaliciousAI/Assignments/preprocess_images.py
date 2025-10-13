@@ -148,8 +148,8 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input_dir", default="Sem3/FIT5230MaliciousAI/Assignments/cloned_repos/aeroblade/real_img/real_400_faces")
-    parser.add_argument("--out_dir", default="Sem3/FIT5230MaliciousAI/Assignments/cloned_repos/aeroblade/real_img/real_400_faces_processed")
+    parser.add_argument("--input_dir", default="Sem3/FIT5230MaliciousAI/Assignments/cloned_repos/aeroblade/real_img/real_1024")
+    parser.add_argument("--out_dir", default="Sem3/FIT5230MaliciousAI/Assignments/cloned_repos/aeroblade/real_img/real_1024_processed")
     parser.add_argument("--enable_vae", default=True, action="store_true", help="Use SD VAE roundtrip (heavy, needs diffusers + torch)")
     parser.add_argument("--device", default="cuda", help="device for VAE (cpu or cuda)")
     args = parser.parse_args()
