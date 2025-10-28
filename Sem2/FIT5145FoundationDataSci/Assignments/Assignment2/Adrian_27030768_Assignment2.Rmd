@@ -1,0 +1,439 @@
+# FIT5145: Foundation of Data Science
+## Assignment 2
+### Student ID: 27030768
+
+A data analysis on Australia's waste generation, recovery and fate.
+We will start by loading and cleaning the data.
+Data cleaning done in this first step:
+1. "Category" column is found to have inconsistent names.  
+  - For consistency, every category ending with s is converted to singular form.  
+  - "&" is converted to "and".  
+  - "hw" and "toxic waste" are converted to "hazardous waste" as they mean the same.
+2. There are a few values in "Category" that are missing,  
+and a few that are incorrectly encoded.  
+  - Categories that have fewer than 10 entries are converted to match the Category  
+    that most commonly contains its Type.  
+
+Type column is clean, so it does not need data cleaning.
+One entry for "space debris" was found. However, its type, "Defunct satellite",  
+did not match any other category, so it was left to be its own category.   
+It has a clear category, so it was not called "Unclassified".  
+The "broom" and "stringr" library were used for tidier model presentation and  
+string manipulation respectively. They can be installed with install.packages("broom")  
+and install.packages("stringr") respectively.
+```{r} 
+# Load all libraries used
+# Change directory to file location
+library(this.path)
+setwd(this.path::here())
+
+library(dplyr)
+library(stringr) # install.packages("stringr")
+library(ggplot2)
+library(broom) # install.packages("broom")
+wastes <- read.csv("Wastes.csv")
+
+# Data cleaning
+# Clean the Category column
+wastes <- wastes %>%
+    mutate(
+        Category = tolower(Category),
+        # Remove trailing "s" only if the preceding letter is not "s" or "i"
+        Category = str_replace(Category, "(?<![si])s$", ""),
+        Category = str_replace(Category, "&", "and"),
+        Category = str_trim(Category),
+        Category = ifelse(Category == "hw", "hazardous waste", Category),
+        Category = ifelse(Category == "toxic waste", "hazardous waste", Category),
+    )
+
+# Identify mappings between Type and the most frequent Category for that Type
+type_category_map <- wastes %>%
+    filter(!is.na(Category) & Category != "") %>%
+    group_by(Type, Category) %>%
+    summarise(n = n(), .groups = "drop") %>%
+    arrange(Type, desc(n)) %>%
+    group_by(Type) %>%
+    slice_head(n = 1) %>%
+    ungroup() %>%
+    select(Type, Most_Common_Category = Category)
+ 
+# Recode missing and low-frequency Categories based on Type
+wastes <- wastes %>%
+    left_join(type_category_map, by = "Type", suffix = c("", "_matched")) %>%
+    mutate(
+        Category = ifelse(is.na(Category) | Category == "" | (Category %in% (wastes %>% count(Category) %>% filter(n < 10) %>% pull(Category))),
+            Most_Common_Category,
+            Category
+        )
+    ) %>%
+    select(-Most_Common_Category)
+
+# # Calculate sums after recoding
+# print(wastes %>% group_by(Category) %>% summarise(Total_Tonnes = sum(Tonnes, na.rm = TRUE), Count = n(), .groups = "drop") %>% arrange(Category))
+
+```
+1.  How many unique “Category” values are there in the data file (6 marks)? 
+```{r} 
+unique_categories <- unique(wastes$Category)
+print(length(unique_categories))
+```
+2.  How  many  negative  feedback  comments  are  in  the  'Description'  column  with  an 
+environmental impact score of 2 or 3 (4 marks)?   
+
+  For Q2, I am assuming that every row with an environmental impact score of 2 or 3 is one
+  negative feedback comment. Some comments were worded more harshly than others, but that
+  is a subjective measure while "2/10" or "3/10" is objectively a low score. Some rows also
+  had feedback in multiple sentences, while others only had a single sentence, but I
+  considered it to be simply sentence structure and flow of speech.  
+  As per the question, an environmental impact score of 1 is ignored.
+```{r} 
+negative_env_score <- length(grep(" 3/10.| 2/10.", wastes$Description))
+print(negative_env_score)
+```
+3.  For each Category value, calculate the fractions of waste tonnes of different 
+waste sources, and then draw a chart to visualise the fraction numbers specific to the Category 
+value. 
+
+  Waste tonnes are summed by each category, and then arranged and drawn in a bar chart.
+  A bar chart was chosen as it has better visual clarity by virtue of not being too compact,
+  unlike a pie chart.
+```{r} 
+# Calculate the sum of 'value' for each category
+category_sums <- wastes %>%
+    group_by(Category) %>%
+    summarise(Total_Category_Wastes = sum(Tonnes, na.rm = TRUE)) %>%
+    arrange(desc(Total_Category_Wastes)) # Descending order for plot
+
+# Convert Category to a factor with levels in the desired order
+category_sums$Category <- factor(category_sums$Category, levels = category_sums$Category)
+
+# Solid colour bar chart
+category_chart <- ggplot(category_sums, aes(x = Category, y = Total_Category_Wastes, fill = Category)) +
+    geom_bar(stat = "identity") +
+    labs(title = "Total Waste Tonnes by Category", x = "Category", y = "Total Waste Tonnes", fill = "Category") +
+    theme_minimal() +
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "right"
+    ) +
+    scale_fill_hue(l = 60, c = 80) # Use a rainbow-like hue scale
+
+print(category_chart)
+```
+  
+4.  Add the 'Year' and 'State' values from Year_State_ID.csv to Wastes.csv, compute the 
+total waste tonnes for each year and state, and store the result in a dataset named 'temp'. Then, 
+use a single R function/command to display the statistical information (i.e., Min, Max, and 
+Mean)  of  the  total  waste  tonnes  for  each  state  in  ‘temp’.   
+
+  The contents of Year_State_ID.csv was merged into the dataframe for Wastes.csv by matching
+  ID from Year_State_ID.csv to Year_State_ID from Wastes.csv. To avoid duplicate columns, the
+  newly-merged ID column was removed. "Australia" was removed from the State columns as it
+  is not a State.
+```{r} 
+year_state <- read.csv("Year_State_ID.csv")
+# Merge the data frames based on ID -> Year_State_ID
+wastes_merged <- merge(wastes, year_state[, c("ID", "Year", "State", "Economic_Growth")], by.x = "Year_State_ID", by.y = "ID", all.x = FALSE)
+wastes_merged$ID <- NULL
+
+temp <- wastes_merged %>%
+    filter(State != "Australia") %>%
+    group_by(State) 
+
+# Compute and display the stats of waste tonnes for each year and state
+temp %>% summarise(
+        Min_Tonnes = min(Tonnes, na.rm = TRUE),
+        Max_Tonnes = max(Tonnes, na.rm = TRUE),
+        Mean_Tonnes = mean(Tonnes, na.rm = TRUE),
+        Total_Tonnes = sum(Tonnes, na.rm = TRUE),
+        SD_Tonnes = sd(Tonnes, na.rm = TRUE),
+        Q1_Tonnes = quantile(Tonnes, 0.25, na.rm = TRUE),
+        Median_Tonnes = median(Tonnes, na.rm = TRUE),
+        Q3_Tonnes = quantile(Tonnes, 0.75, na.rm = TRUE),
+        Count = n() # Number of observations for each state
+    )
+```
+
+5.  Draw a chart showing a yearly trend of total waste tonnes of food organics for 
+each state. Convert the Year-Year formats of all Year values into Year formats.  
+    
+  The Year-Year format is converted into Year formats by observing the [x]-[y] format and taking
+  the first number as separated by "-". A line chart is chosen to easily show the changes in
+  totals for each state as the years pass.
+```{r} 
+# Extract only the first year of the range
+wastes_merged$Year <- as.numeric(sub("-.*", "", wastes_merged$Year))
+
+filtered_type <- "Food organics"
+
+# Filter data for Type = "Food organics"
+waste_type_yearly <- wastes_merged %>%
+    filter(Type == filtered_type) %>%
+    group_by(Year, State) %>%
+    summarise(Total_Waste_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+
+# Coloured line chart 
+yearly_trend_chart <- ggplot(waste_type_yearly, aes(x = Year, y = Total_Waste_Tonnes, color = State)) +
+    geom_line() +
+    geom_point() +
+    labs(
+        title = paste("State breakdown of total waste of", filtered_type),
+        x = "Year",
+        y = "Total Waste Tonnes",
+        color = "State"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "right")
+
+# Display the chart
+print(yearly_trend_chart)
+```
+  
+6.  Display the most recycled waste Type and the most disposed waste Type with the
+corresponding year. Also display the most increased waste Type over years. 
+```{r}
+# Most Recycled Waste Type and Year
+most_recycled <- wastes_merged %>%
+  filter(Fate == "Recycling") %>%
+  group_by(Year, Type) %>%
+  summarise(Total_Recycled = sum(Tonnes, na.rm = TRUE), .groups = "drop") %>%
+  arrange(desc(Total_Recycled)) %>%
+  slice_head(n = 1) %>%
+  select(Year, Type, Total_Recycled) %>%
+  ungroup()
+
+recycled_output <- paste0(
+  "--- Most Recycled Waste ---\n",
+  "Type: ", most_recycled$Type, "\n",
+  "Year: ", most_recycled$Year, "\n",
+  "Total Recycled (Tonnes): ", most_recycled$Total_Recycled, "\n\n"
+)
+
+# Most Disposed Waste Type and Year
+most_disposed <- wastes_merged %>%
+  filter(Fate == "Disposal") %>%
+  group_by(Year, Type) %>%
+  summarise(Total_Disposed = sum(Tonnes, na.rm = TRUE), .groups = "drop") %>%
+  arrange(desc(Total_Disposed)) %>%
+  slice_head(n = 1) %>%
+  select(Year, Type, Total_Disposed) %>%
+  ungroup()
+
+disposed_output <- paste0(
+  "--- Most Disposed Waste ---\n",
+  "Type: ", most_disposed$Type, "\n",
+  "Year: ", most_disposed$Year, "\n",
+  "Total Disposed (Tonnes): ", most_disposed$Total_Disposed, "\n\n"
+)
+
+# Most Increased Waste Type Over the Years
+# Sum by year
+yearly_waste_trends <- wastes_merged %>%
+  group_by(Year, Type) %>%
+  summarise(Total_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop") %>%
+  arrange(Year, Type) %>%
+  ungroup()
+
+# Get total change over the years
+most_increased <- yearly_waste_trends %>%
+  group_by(Type) %>%
+  summarise(
+    Total_Increase = last(Total_Tonnes) - first(Total_Tonnes),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Total_Increase)) %>%
+  slice_head(n = 1) %>%
+  select(Type, Total_Increase) %>%
+  ungroup()
+
+increased_output <- paste0(
+  "--- Most Increased Waste (by Tonnes) ---\n",
+  "Type: ", most_increased$Type, "\n",
+  "Increase (Tonnes): ", most_increased$Total_Increase, "\n"
+)
+
+# Combine all output into a single cat() call
+final_output <- paste0(recycled_output, disposed_output, increased_output)
+cat(final_output)
+```
+  
+7.  Investigate the factors influencing environmental impact scores. 
+Analyze, discuss and reason the insights and conclusions.  
+
+  Environmental score is extracted by extracting the first number from the format:
+  "Environmental Impact Score: [x]/10."  
+  The variables analysed for impact are Economic_Growth, Tonnes, Stream, Fate, Core_Non.core,
+  Category, Type. As this includes categorical data, a multiple regression analysis is chosen.
+  The factors found are displayed as a table, arranged in descending order of magnitude of
+  correlation, after filtering for p < 0.05 for statistically significant results.  
+  
+  Unsurprisingly, recycling was associated with higher environmental impact scores, and plastic
+  with lower scores, but perhaps less obvious is the high impact of cardboard being good.  
+  
+  Overall, the model only had a R-squared score of 0.238931018144097 and an adjusted R-squared
+  of 0.237725940313149, showing environmental impact is a complex phenomena with many more factors
+  than these. It could also simply be a non-linear correlation, as regression analysis analyzes 
+  linear relationships.  
+```{r} 
+# Extract the Environmental Impact Score
+wastes_impact <- wastes_merged %>%
+    mutate(
+        Impact_Score_Text = str_extract(Description, "Environmental Impact Score: [0-9]+/10\\."),
+        Environmental_Impact_Score = as.numeric(str_extract(Impact_Score_Text, "[0-9]+"))
+    ) %>%
+    filter(!is.na(Environmental_Impact_Score)) # Keep only rows with scores
+
+# Convert categorical variables to factors for regression
+wastes_impact <- wastes_impact %>%
+    mutate(
+        Stream = as.factor(Stream),
+        Fate = as.factor(Fate),
+        Core_Non_core = as.factor(`Core_Non.core`), # Be mindful of the hyphen
+        Category = as.factor(Category),
+        Type = as.factor(Type)
+    )
+
+# Multiple Regression Analysis
+# Include all relevant predictors
+model <- lm(Environmental_Impact_Score ~ Economic_Growth + Tonnes + Stream +
+    Fate + `Core_Non.core` + Category + Type, data = wastes_impact)
+
+# The model is difficult to parse. Use tidy() from broom library for easier viewing.
+tidy_model <- tidy(model)
+# Filter for statistically significant terms (p-value < 0.05), then arrange for highest estimate first.
+tidy_model <- tidy_model %>%
+    filter(p.value < 0.05) %>%
+    arrange(desc(abs(estimate)))
+
+print(tidy_model)
+
+# # Extract the R-squared and Adjusted R-squared values
+# env_impact_r_squared <- summary(model)$r.squared
+# env_impact_adjusted_r_squared <- summary(model)$adj.r.squared
+# 
+# # Paste them into a single string variable
+# env_impact_r_squared_values <- paste("\nR-squared:", env_impact_r_squared, 
+#                                      "\nAdjusted R-squared:", env_impact_adjusted_r_squared)
+# 
+# # Print the combined string
+# cat("\nMultiple Regression Analysis:", env_impact_r_squared_values, "\n")
+```
+
+8.  Filtering the data records of non-zero Category values of Hazardous wastes, and Type values of
+Tyres (T140), add a new column "Tonnes_range" categorizing it into the following bins:
+○        [0, 10000) 
+○        [10000, 20000) 
+○        [20000, 40000) 
+○        [40000, 80000] 
+
+Then, for each state, display a chart to show the number of cases of different score_range 
+values. What is observed?  
+
+  There is a clear correlation of more populated states having cases of higher score_range values.  
+  The lower populated states have more distributed cases with lower score_range on each case.
+```{r} 
+# Filter the data for Hazardous waste, Tyres (T140), Tonnes > 0
+filtered_tyres <- wastes_merged %>%
+    filter(Category == "hazardous waste", Type == "Tyres (T140)", Tonnes > 0)
+
+# Add the Tonnes_range column
+filtered_tyres <- filtered_tyres %>%
+    mutate(
+        Tonnes_range = case_when(
+            Tonnes >= 0 & Tonnes < 10000 ~ "1",
+            Tonnes >= 10000 & Tonnes < 20000 ~ "2",
+            Tonnes >= 20000 & Tonnes < 40000 ~ "3",
+            Tonnes >= 40000 & Tonnes <= 80000 ~ "4",
+            TRUE ~ NA_character_ # Handle any values outside the specified ranges
+        ),
+        Tonnes_range = as.factor(Tonnes_range) # Convert to categorical factor
+    )
+
+# Count the number of cases for each Tonnes_range within each State
+state_tonnes_range_counts <- filtered_tyres %>%
+    group_by(State, Tonnes_range) %>%
+    summarise(n = n(), .groups = "drop")
+
+# Create bar chart
+tonnes_range_by_state_chart <- ggplot(
+    state_tonnes_range_counts,
+    aes(x = State, y = n, fill = Tonnes_range)
+) +
+    geom_bar(stat = "identity", position = "dodge") +
+    labs(
+        title = "Number of Tyres (T140) Cases by Tonnes Range and State",
+        x = "State",
+        y = "Number of Cases",
+        fill = "Tonnes Range"
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Display the bar chart
+print(tonnes_range_by_state_chart)
+```
+9.  Investigate the factors influencing the yearly trend of total C&D waste tonnes. 
+Analyze, discuss and reason the insights and conclusions.  
+
+  A multiple regression analysis is run with all the variables found in Wastes.csv and Year_State_ID.csv.
+  An additional data column of total waste tons per year is added to measure its impact.
+  "Stream" and `Core-Non.core` columns are omitted, as after filtering to only items within the C&D
+  stream, they all fall within the "C&D" stream and the "Core waste" group.  
+
+  The R-squared score of this model is better than the previous, at R-squared: 0.333232778990791 and
+  Adjusted R-squared: 0.329339140525223. No external data sources were used. Although this is a
+  better R-squared score, it is still quite low, indicating many more factors are at play, or that
+  it is a non-linear relationship.
+```{r} 
+# Calculate Total Waste Tonnes per Year across all streams
+total_yearly_waste <- wastes_merged %>%
+    group_by(Year) %>%
+    summarise(Total_All_Waste_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+
+# Aggregate C&D Waste by Year
+yearly_cd_data <- wastes_merged %>%
+    filter(Stream == "C&D") %>%
+    group_by(Year, Economic_Growth, Fate, Category, Type) %>%
+    summarise(Total_C_D_Tonnes = sum(Tonnes, na.rm = TRUE), .groups = "drop")
+
+# Merge Total Yearly Waste with C&D Yearly Data
+yearly_cd_trends <- yearly_cd_data %>%
+    left_join(total_yearly_waste, by = "Year")
+
+# Convert categorical variables to factors for regression
+yearly_cd_trends <- yearly_cd_trends %>%
+    mutate(
+        Fate = as.factor(Fate),
+        Category = as.factor(Category),
+        Type = as.factor(Type)
+    )
+
+# Multiple Regression Analysis
+model_cd_yearly_all <- lm(
+    Total_C_D_Tonnes ~ Economic_Growth + Total_All_Waste_Tonnes +
+        Fate + Category + Type,
+    data = yearly_cd_trends
+)
+
+# The model is difficult to parse. Use tidy() from broom library for easier viewing.
+tidy_model_cd_yearly_all <- tidy(model_cd_yearly_all)
+
+# Filter for statistically significant terms (p-value < 0.05)
+significant_terms_cd_yearly_all <- tidy_model_cd_yearly_all %>%
+    filter(p.value < 0.05) %>%
+    arrange(desc(abs(estimate)))
+
+print(significant_terms_cd_yearly_all)
+
+# # Extract the R-squared and Adjusted R-squared values
+# cd_r_squared <- summary(model_cd_yearly_all)$r.squared
+# cd_adjusted_r_squared <- summary(model_cd_yearly_all)$adj.r.squared
+# 
+# # Paste them into a single string variable
+# cd_r_squared_values <- paste("\nR-squared:", cd_r_squared,
+#                                      "\nAdjusted R-squared:", cd_adjusted_r_squared)
+# 
+# # Print the combined string
+# cat("\nMultiple Regression Analysis:", cd_r_squared_values, "\n")
+
+```

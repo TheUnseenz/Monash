@@ -1,0 +1,48 @@
+About the data:  
+There are two dataset files used in this project containing attributes from the 
+AusStage dataset that we have been using in the programming exercises throughout 
+the unit. In this assignment, the data are in .json format and hosted on GitHub for 
+you (you can see the data if you visit the url).  
+ 
+The AusStage subset focuses on the collaborator involved in the most events, Kelley 
+Abbey. We have already cleaned and transformed the data into the format you need. 
+In wrangling the data we have removed duplicates, removed events not in Victoria 
+and, if a collaborator has played various roles in different events, we have simplified 
+this information to a single combined string property under “Role”, e.g., a collaborator 
+may have been an Actor but also a Director.    
+ 
+The two files contain the following attributes and example values. 
+  
+1)  event_contribution_network.json to create the “event contribution network 
+diagram”. In this network, there are two types of nodes (indicated by the 
+“type” property): ”event” and “contributor”:  
+ 
+“nodes” contain the following properties, with an example: 
+"id": "event_158557",  
+"type": "event", 
+"name": "Jesus Christ Superstar",  
+"first_date": "2017-07-29", 
+"last_date": "2017-08-13",  
+"venue_id": "21",  
+"venue_name": "The State Theatre", 
+"suburb": "Melbourne" 
+ 
+“edges”:  
+     "source": "event_28513", 
+      "target": "contributor_564388"   
+ 
+2)  collaboration_network.json to create the “collaboration network diagram”. In 
+this network, there are only “contributor” node types: 
+ 
+“nodes”: 
+"id": "contributor_1840", 
+"type": "contributor", 
+"name": "Eamon D'Arcy", 
+"nationality": "Australian", 
+"sex": "Male",  
+"role": "Set Designer", 
+"number_of_collaborators": 43 
+“edges”: 
+    "source": "contributor_3060", 
+    "target": "contributor_4070", 
+    "weight": 1 

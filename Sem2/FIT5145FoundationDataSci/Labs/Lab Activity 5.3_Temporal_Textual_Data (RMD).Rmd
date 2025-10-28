@@ -1,0 +1,561 @@
+---
+title: "Applied Class 5.2 - Processing temporal and textual data"
+author: "Chris Yun"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: show
+    highlight: haddock
+    theme: flatly
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+---
+
+
+
+
+---
+
+In this lab, we will learn the techniques and methods of pre-processing both temporal and textual data. 
+
+Specifically, we'll explore datetime formats including various formats of date, datetime, time, and time duration, and attempt to parse them. Additionally, we'll focus on refining textual data, including strategies for tokenisation, text removal (e.g.: removing stop words), and stemming/lemmatisation, which are essential for subsequent analysis.
+
+Through these exercises, you'll gain a understanding of the crucial initial steps to effectively handle temporal and textual data in various analytical contexts.
+
+<br>
+
+## Processing temporal data
+
+Data often comes in different time formats (e.g.: 2024-02-16 12:33:00, 16/02/24, Feb 16, 2024), depending on the source.
+It's important to properly parse datetime information in order to extract insight from temporal data. 
+We can parse various types of datetime formats by using the `lubridate` library. You can refer to [Lubridate](https://lubridate.tidyverse.org/).
+
+### Parsing date formats
+We want to learn how to parse different date formats in temporal data. Date formats typically consist of numerical representations for year, month and day. However,they can also include texual representations such as month names (e.g., February), day names (e.g., Friday), and ordinal indicators (e.g., 16th). Let's explore how to handle these various formats using functions availble in the `lubridate` library.
+
+Please fill out the missing parts of the code chunk (`???`) below.
+
+<br>
+
+#### **- Parsing a date with a different order of date components**
+
+```{r eval=FALSE}
+# Load lubridate
+library(lubridate)
+
+# Parsing a date in "YYYY-MM-DD" format
+date_string1 <- "2024-02-16"
+parsed_date1 <- ymd(date_string1)
+print(parsed_date1)
+
+# Parsing a date in "DD-MM-YYYY" format
+date_string2 <- "16-02-2024"
+parsed_date2 <- dmy(date_string2)
+print(parsed_date2)
+```
+
+
+<br>
+
+#### **- Parsing a date with different separators**
+
+```{r eval=FALSE}
+# Parsing a date with non-standard separators
+date_string_nonstd_sep <- "16/06/2024"
+parsed_date_nonstd_sep <- dmy(date_string_nonstd_sep)
+print(parsed_date_nonstd_sep)
+
+# Parsing a date without separators
+date_string_no_sep <- "20240216"
+parsed_date_no_sep <- ymd(date_string_no_sep)
+print(parsed_date_no_sep)
+
+# Parsing a date with a two-digit year
+date_string_2digit_year <- "16/02/24"
+parsed_date_2digit_year <- dmy(date_string_2digit_year)
+print(parsed_date_2digit_year)
+```
+
+
+<br>
+
+#### **- Parsing a date with month and day names**
+```{r eval=FALSE}
+# Parsing a date in "Month Day, Year" format
+date_string_month <- "February 16, 2024"
+parsed_date_month <- mdy(date_string_month)
+print(parsed_date_month)
+
+# Parsing a date with abbreviated month names
+date_string_abbr_month <- "Feb 16, 2024"
+parsed_date_abbr_month <- mdy(date_string_abbr_month)
+print(parsed_date_abbr_month)
+
+# Parsing a date with ordinal indicators of a day
+date_string_day_suf <- "16th of February 2024"
+parsed_day_suf <- dmy(date_string_day_suf)
+print(parsed_day_suf)
+```
+
+
+
+<br>
+
+#### **- Parsing a date with day of the week (Challenge)**
+```{r eval=FALSE}
+### Parsing a date with day of the week (Hint: use strptime function, Note: strptime is not part of lubridate library)
+# Set your local settings to the C local for strptime use
+Sys.setlocale("LC_TIME", "C")
+
+date_string_day_of_week <- "Monday, February 16, 2024"
+parsed_date_day_of_week <- strptime(date_string_day_of_week, format = "%A, %B %d, %Y")
+print(parsed_date_day_of_week)
+```
+
+
+
+<br>
+
+---
+
+### Parsing time formats
+
+In addition to the variability in date formats, temporal data can also exhibit diverse time formats.
+Please fill out the missing parts of the code chunk (`???`) below.
+
+```{r eval=FALSE}
+# Parsing a time in "HH:MM:SS" format
+time_string <- "14:30:35"
+parsed_time <- hms(time_string)
+print(parsed_time)
+
+# Parsing a time with hour and minute only
+time_string_hour_minute <- "14:30"
+parsed_time_hour_minute <- hm(time_string_hour_minute)
+print(parsed_time_hour_minute)
+
+# Challenge: Parsing a time with AM/PM indicator (Hint: use strptime function)
+time_string_ampm <- "2:30 PM"
+parsed_time_ampm <- strptime(time_string_ampm, "%I:%M %p")
+parsed_time_ampm <- format(parsed_time_ampm, "%H:%M")
+parsed_time_ampm <- hm(parsed_time_ampm)
+print(parsed_time_ampm )
+
+```
+
+
+<br>
+
+---
+
+### Parsing datetime formats
+
+Some data comes with different datetime formats. Let's see the different expressions of datetime. We might also need to convert the given time, based on the different time zone. 
+Please fill out the missing parts of the code chunk (`???`) below.
+
+```{r eval=FALSE}
+# Parsing a date-time combination in "YYYY-MM-DD HH:MM:SS" format
+datetime_string <- "2024-02-16 14:30:00"
+parsed_datetime <- ymd_hms(datetime_string)
+print(parsed_datetime)
+
+# Parsing a date-time with AM/PM indicator
+datetime_string_ampm <- "2024-02-16 02:30:00 PM"
+parsed_datetime_ampm <- ymd_hms(datetime_string_ampm)
+print(parsed_datetime_ampm)
+
+# Parsing a date-time combination with timezone information
+datetime_string_with_tz <- "2024-02-16 14:30:00 EST"
+parsed_datetime_with_tz <- ymd_hms(datetime_string_with_tz, locale="EST")
+print(parsed_datetime_with_tz)
+
+# Parsing a date-time combination with timezone information and convert into the Australia/Sydney timezone
+datetime_string_conv_tz <- "2024-02-16 02:30:00 PM UTC"
+parsed_datetime_conv_tz <- ymd_hms(datetime_string_conv_tz, locale="UTC")
+#parsed_datetime_conv_tz <- format(parsed_datetime_conv_tz, locale="AEST")
+print(parsed_datetime_conv_tz)
+```
+
+
+* Why do we sometimes need to convert datetime information into the different timezone?
+
+<br>
+
+---
+
+### Parsing duration
+Some data contains duration, representing a length of time. If we know a specific starting point (e.g.: a time of day), we can convert them into datetime. Duration is typically stored as seconds. Here's an example:
+
+```{r}
+# Assign duration representing 2 hours, 30 minutes, and 45 seconds
+duration_obj <- 9045
+
+# Create a specific starting time (midnight in this case)
+start_time <- ymd_hms("2024-01-01 00:00:00")
+
+# Add the duration to the starting time to get the resulting time
+resulting_time <- start_time + duration_obj
+
+# Print the resulting time
+print(resulting_time)
+```
+* What are the benefits of using the duration time format in temporal data?
+
+<br>
+
+---
+
+---
+
+## Pre-processing textual data
+
+
+Natural Language Processing (NLP) is a field of artificial intelligence (AI) that focuses on enabling computers to understand, interpret, and generate human language in a way that is both meaningful and contextually relevant.
+
+Text pre-processing is the initial stage in NLP workflows, with the goal of converting unstructured textual data into a structured format to make it suitable for further analysis and processing.
+
+Text pre-processing typically involves a series of steps as follows:
+
+<br>
+
+**1. Tokenisation**
+
+**2. Text removal (Removing stop words, punctuation, numbers, and space, and case normalisation)**
+
+**3. Stemming and Lemmatisation**
+
+**4. Feature extraction: Bag of Words (Bow)**
+
+<br>
+
+**Note**: <span style="text-decoration: underline;">The feature extraction step is not typically considered part of text pre-processing. Instead, it is performed after pre-processing. However, we include it here to illustrate and understand the overall flow of NLP.</span>
+
+
+For the practice of pre-processing textual data, we will use the AI vs Human text data from [Kaggle](https://www.kaggle.com/datasets/shanegerami/ai-vs-human-text), which includes essays created by both AI and humans. 
+To simplify the problem, we extracted a sample dataset containing only 1000 essays and the text column (essay contents), which you can download from Moodle.
+
+We will be using `tm` library, a popular package in the R programming language for text processing tasks.
+
+In this lab, we will learn the basic techniques commonly used in pre-processing textual data along with feature extraction.
+
+<br>
+
+### Read data
+
+* Load the `tm` library
+
+* Read `AI_Human.csv` and store the data in an object named `essay`. 
+
+Fill out the missing parts of the code chunk (`???`) to look at the data.
+
+Note: We need to use read.csv, rather than read_csv of tidyverse, since the  `tm` package doesn't support the `tibble` class.
+
+```{r eval=FALSE}
+# Load tm
+library(tm)
+
+# Read AI_Human data
+essay <- read.csv("AI_Human.csv")
+```
+
+
+
+
+<br>
+
+#### **Look at `essay`**
+
+Before performing tokenisation, look at what is inside of `essay`. 
+Fill out the missing parts of the code chunk (`???`) to look at the data.
+```{r eval=FALSE}
+# Head of essay
+head(essay,1) 
+
+# Check structure of essay
+structure(essay)
+```
+
+
+* How many rows (observations) and columns (variables) are in the `essay` data?
+* What can this data be used for?
+
+<br>
+
+---
+
+### 1. Tokenisation
+
+The first step of text pre-processing is tokenisation.
+The tokenisation process typically involves splitting the text into individual words or tokens based on whitespace characters.
+We have two approaches to perform tokenisation in r.
+
+<br>
+
+#### Approach 1: Use the tokenizers library:
+```{r}
+
+# Load the tokenizers library
+library(tokenizers)
+
+# Tokenise using the tokenizers library
+tokenised_essay <- lapply(essay$text, function(line) {
+  unlist(tokenize_words(line)) 
+})
+
+# Check the data
+tokenised_essay[1]
+```
+<br>
+
+#### Approach 2: Create corpus object using the tm library:
+Generating a corpus object in the tm package is a crucial step in text analysis workflows, providing a structured and efficient framework for working with textual data and performing various text analysis tasks.
+
+<span style="text-decoration: underline;">The Corpus() function internally tokenises each document so we don't need to explicitly tokenise documents, using tokenizer library.</span>
+
+* Create a  your DataFrameSource object from `essay` data frame, using the `DataFrameSource()` function. DataFrameSource() handles the conversion of the data frame to a format that can be processed by the tm package.
+* Create a Corpus from the `DataFrameSource` object.
+
+Fill out the missing parts of the code chunk (`???`) to create corpus object.
+
+```{r eval=FALSE}
+
+# DataframeSource function only accepts a dataframe with two columns named `doc_id` and `text`. 
+# The `doc_id` column is just row index so please create it.
+essay$doc_id <- seq(nrow(essay))
+
+# Create your DataFrameSource
+essay_source <- DataFrameSource(essay)
+
+# Create a Corpus
+essay_corpus <- Corpus(essay_source)
+
+# Check corpus
+essay_corpus
+
+# print the first essay in corpus
+print(essay_corpus[1:1])
+```
+
+
+
+<br>
+
+---
+
+### 2. Text removal (Removing stop words, punctuation, numbers, and spaces and case normalisation)
+
+We can try some text removal functions, using the `tm_map` function of `tm` library.
+
+* To remove stop words, use `removeWords` fucntion
+* To remove punctuation, use `removePunctuation` fucntion
+* To remove numbers, use `removeNumbers` fucntion
+* To remove spaces, use `stripWhitespace` fucntion
+* To lower cases, use `content_transformer(tolower)` fucntion
+
+
+Fill out the missing parts of the code chunk (`???`) to perform the text removal step.
+
+```{r eval=FALSE}
+# remove stop words
+essay_corpus <- tm_map(essay_corpus, removeWords, stopwords("english")) 
+
+# remove punctuation
+essay_corpus <- tm_map(essay_corpus, removePunctuation) 
+
+# remove all numbers
+essay_corpus <- tm_map(essay_corpus, removeNumbers)
+
+# remove redundant spaces
+essay_corpus <- tm_map(essay_corpus, stripWhitespace) 
+
+# case normalisation
+essay_corpus <- tm_map(essay_corpus, content_transformer(tolower))
+```
+
+
+
+
+* What's the reasons of performing the text removal? Please explain based on some of methods above (e.g.: stop words, case normalisation)
+
+<br>
+
+
+<br>
+
+---
+
+### 3. Stemming and Lemmatisation
+
+
+Stemming and lemmatisation are both techniques used in natural language processing (NLP) to reduce words to their base or root forms, which helps in reducing sparsity and improving the efficiency and accuracy of text analysis tasks. 
+However, Stemming and lemmatisation have different approaches and outcomes.
+
+<br>
+
+#### **Stemming**
+
+Stemming reduces words to their base or root forms by removing suffixes or prefixes
+
+
+* To perform stemming, use `stemDocument` function.
+Fill out the missing parts (`???`) and then run the code.
+
+```{r eval=FALSE}
+# perform stemming to reduce inflected and derived words to their root form
+essay_stem <- tm_map(essay_corpus, stemDocument) 
+
+# Inspect the stemmed corpus
+inspect(essay_stem[1])
+```
+
+
+
+<br>
+
+#### **Lemmatisation**
+Lemmatisation reduces words to their dictionary or lemma forms, which are valid words. It typically uses a vocabulary and morphological analysis of words to accurately determine the lemma form.
+
+The tm package itself doesn't provide a built-in lemmatisation function. However, we can still perform lemmatisation in combination with other packages or tools. One such approach is to use the textstem package for lemmatisation.
+
+
+* Install and load library, `textstem`
+* Define a function to lemmatise the text
+* To perform lemmatisation, use `content_transformer(lemmatise_text)` function.
+* Inspect the lemmatised corpus
+
+Fill out the missing parts (`???`) and then run the code.
+
+```{r eval=FALSE}
+
+# Install and load necessary package, textstem
+# install.packages("textstem")
+library(textstem)
+
+# Define a function to lemmatise the text
+lemmatise_text <- function(text) {
+  lemmatised <- lemmatize_strings(text)
+  return(lemmatised)
+}
+
+# Apply lemmatisation to the corpus
+essay_lemma <- tm_map(essay_corpus, content_transformer(lemmatise_text))
+
+# Inspect the lemmatised corpus
+inspect(essay_lemma[1])
+```
+
+
+
+* What are the reasons for performing stemming and lemmatisation?
+
+<br>
+
+#### **Stemming vs Lemmatisation**
+```{r}
+
+# Inspect the stemmed corpus
+inspect(essay_stem[1])
+
+# Inspect the lemmatised corpus
+inspect(essay_lemma[1])
+```
+
+* Let's compare the results of both approaches and discuss what the benefits and drawbacks of using stemming and lemmatisation are.
+
+<br>
+
+---
+
+### 4. Feature extraction: Bag of Words (Bow)
+
+After completing text pre-processing, we need to represent the pre-processed words as numerical expressions, which machines can understand for analysis. One of the methods used for this purpose is Bag of Words (BoW).
+
+* Create a document-term matrix, using `DocumentTermMatrix` function
+* check the matrix
+
+The following code chunk is partially complete. Fill out the missing parts (`???`) and then run the code.
+
+```{r eval=FALSE}
+#  Create a matrix which its rows are the documents and columns are the words. 
+essay_dtm <- DocumentTermMatrix(essay_stem)
+
+# check dtm
+inspect(essay_dtm)
+```
+
+
+
+* What do rows, columns, and cells represent?
+* What does the sparsity mean in the matrix?
+* Please discuss any further pre-processing or any other methods to improve the numerical representation of text.
+* The following code uses another approach, which is `Term Frequency-Inverse Document Frequency (TF-IDF)` to represent text data. Please investigate how the approach represents text data.
+
+```{r}
+# Create a matrix
+dtm <- DocumentTermMatrix(essay_stem)
+
+#  Convert DTM to TF-IDF weighted matrix
+tfidf <- weightTfIdf(dtm)
+
+# check tfidf
+inspect(tfidf)
+```
+<br>
+
+---
+
+### Visulisation
+By visualising our pre-processed textual data, we can gain insights (e.g.: the top 10 frequent words).
+We can plot the top 10 frequent words with their corresponding frequencies using ggplot2 and also can create word cloud, based on them.
+
+<br>
+
+#### **Bar plot**
+
+```{r}
+# Load library
+library(tidyverse)
+library(ggplot2)
+
+# Convert the DocumentTermMatrix into a regular matrix object and calculate term frequencies
+term_freq<- colSums(as.matrix(essay_dtm))
+
+# Create a dataframe
+df<- data.frame(term = names(term_freq), freq = term_freq)
+
+# Filter terms with a frequency of at least 100
+df <- df %>%
+  filter(freq>=100) %>%
+  arrange(desc(freq))
+
+# Select the top 10 frequent words
+df_plot<- df %>%
+  top_n(10, freq)
+
+# Plot word frequency
+ggplot(df_plot, aes(x = fct_reorder(term, freq), y = freq, fill = freq)) + geom_bar(stat = "identity")+ xlab("Terms")+ylab("Count")+coord_flip()
+
+```
+
+<br>
+
+#### **Word cloud**
+
+```{r}
+# Load library
+library(wordcloud2)
+
+# Create a word cloud using the wordcloud2 library
+wordcloud2(df, color = "random-dark", backgroundColor = "white")
+
+```
+```
+<br>
+
+* After pre-processing our textual data, what is the next step? In other words, what can this pro-processed text dataset be used for?
+
+<br>
+
+All of the material is copyrighted under the [Creative Commons BY-SA 4.0](https://creativecommons.org/licenses/by/4.0/) copyright.

@@ -1,0 +1,1001 @@
+gender,race_ethnicity,parental_level_of_education,test_preparation_course,suburb,family_Income_level,total_study_hours,math_score,reading_score,writing_score
+female,group B,bachelor's degree,none,Suburb C,Level 5,223.73,72.11,72.99,74.63
+female,group C,diploma,completed,Suburb E,Level 6,290.16,69.63,90.32,88.21
+female,group B,master's degree,none,Suburb B,Level 8,280.38,90.43,95.25,93.7
+male,group A,associate's degree,none,Suburb E,Level 2,204.46,47.11,57.84,44.51
+male,group C,diploma,none,Suburb E,Level 6,292.41,76.4,78.71,75.3
+female,group B,associate's degree,none,Suburb E,Level 5,288.65,71.33,83.83,78.49
+female,group B,diploma,completed,Suburb E,Level 8,317.37,88.06,95.07,92.24
+male,group B,diploma,none,Suburb C,Level 1,190.87,40.42,43.44,39.01
+male,group D,high school,completed,Suburb D,Level 4,206.99,64.66,64.11,67.22
+female,group B,high school,none,Suburb C,Level 2,198.75,38.53,60.51,50.71
+male,group C,associate's degree,none,Suburb A,Level 3,209.4,58.89,54.67,52.84
+male,group D,associate's degree,none,Suburb C,Level 2,152.29,40.95,52.91,43.43
+female,group B,high school,none,Suburb D,Level 5,259.67,65.07,81.49,73.11
+male,group A,diploma,completed,Suburb E,Level 5,234.9,78.13,72.58,70.19
+female,group A,master's degree,none,Suburb A,Level 2,186.59,50.48,53.71,58.4
+female,group C,primary school,none,Suburb D,Level 5,252.07,69.76,75.79,78.52
+male,group C,high school,none,Suburb A,Level 7,304.2,88.43,89.9,86.87
+female,group B,primary school,none,Suburb E,Level 1,122.16,18.24,32.06,28.86
+male,group C,master's degree,completed,Suburb E,Level 1,177.62,46.53,42.28,46.81
+female,group C,associate's degree,none,Suburb B,Level 3,236.4,54.5,58.9,61
+male,group D,high school,none,Suburb D,Level 4,242.81,66.76,69.33,63.72
+female,group B,diploma,completed,Suburb E,Level 4,222.75,65.21,75.03,70.51
+male,group D,diploma,none,Suburb C,Level 2,180.01,44.48,54.58,53.95
+female,group C,primary school,none,Suburb D,Level 5,272.04,69.08,73.22,73.74
+male,group D,bachelor's degree,completed,Suburb D,Level 5,247.43,74.32,71.53,80.58
+male,group A,master's degree,none,Suburb E,Level 5,279.32,73.51,74.66,72.15
+male,group B,diploma,none,Suburb B,Level 3,235.1,69.44,54.46,55.2
+female,group C,bachelor's degree,none,Suburb C,Level 4,219.8,67.75,69.86,75.19
+male,group C,high school,none,Suburb E,Level 4,230,70.31,70.98,65.71
+female,group D,master's degree,none,Suburb A,Level 4,276.86,62.18,70.31,75.37
+female,group D,diploma,none,Suburb D,Level 5,230.04,69.43,74.13,74.48
+female,group B,diploma,none,Suburb B,Level 4,223.96,63.16,65.05,61.75
+female,group E,master's degree,none,Suburb A,Level 4,205.68,56.43,72.75,65.5
+male,group D,diploma,none,Suburb A,Level 1,159.09,40.93,42.28,38.88
+male,group E,diploma,none,Suburb C,Level 8,305.66,97.86,87.63,82.17
+male,group E,associate's degree,completed,Suburb E,Level 6,255.53,81.7,81.98,79.85
+female,group D,associate's degree,none,Suburb B,Level 6,304.73,74.72,81.52,83.49
+female,group D,primary school,none,Suburb A,Level 3,227.04,50.52,64.44,59.08
+female,group D,associate's degree,completed,Suburb D,Level 6,275.49,75.4,90.46,88.63
+male,group B,associate's degree,none,Suburb E,Level 3,238.45,57.43,56.44,57.58
+male,group C,associate's degree,none,Suburb C,Level 3,209.53,55.92,61.92,54.69
+female,group C,associate's degree,none,Suburb C,Level 4,262.52,58.32,73.96,68.24
+female,group B,associate's degree,none,Suburb D,Level 3,239.76,53.67,58.12,65.97
+male,group B,diploma,completed,Suburb A,Level 3,216.47,59.92,65.26,66.29
+female,group E,associate's degree,none,Suburb C,Level 2,199.97,50.28,56.37,54.32
+male,group B,associate's degree,none,Suburb C,Level 3,182.66,65.12,54.65,57.89
+female,group A,associate's degree,completed,Suburb E,Level 3,238.02,55.03,65.7,62.29
+female,group C,high school,none,Suburb B,Level 4,230.57,66.88,71.5,76.19
+female,group D,associate's degree,completed,Suburb D,Level 4,242.9,57.21,74.3,76.39
+male,group C,high school,completed,Suburb A,Level 6,286.76,82.56,84.02,82.18
+male,group E,diploma,none,Suburb E,Level 2,226.03,53.52,55.97,48.54
+male,group E,associate's degree,completed,Suburb D,Level 5,235.12,77.15,69.88,68.09
+male,group C,diploma,none,Suburb C,Level 2,177.35,53.25,44.62,42.48
+male,group D,high school,none,Suburb C,Level 6,285.42,88.34,78.17,75.91
+female,group C,primary school,completed,Suburb A,Level 6,304.34,71.83,84.77,87.74
+female,group C,high school,none,Suburb D,Level 1,170.23,33.24,41.74,43.25
+female,group E,associate's degree,completed,Suburb A,Level 7,263.11,82.79,85.33,86.99
+male,group D,associate's degree,none,Suburb B,Level 2,159.86,52.03,55.56,49.27
+male,group D,diploma,completed,Suburb A,Level 3,192.79,58.33,59.6,58.86
+female,group C,primary school,none,Suburb A,Level 1,96.48,0.53,17.75,10.2
+male,group E,bachelor's degree,completed,Suburb E,Level 5,274.76,79.39,74.99,72.38
+male,group A,primary school,none,Suburb A,Level 1,140,39.32,39.23,34.45
+male,group A,associate's degree,none,Suburb C,Level 3,208.54,62.41,61.5,55.63
+female,group C,associate's degree,none,Suburb A,Level 5,239.61,69.38,80.21,71.02
+female,group D,primary school,none,Suburb B,Level 3,206.99,59.01,58.84,59.14
+male,group B,primary school,none,Suburb C,Level 4,240.23,67.35,64.72,61.16
+male,group D,primary school,none,Suburb D,Level 1,180.01,45.61,37.65,37.75
+female,group C,diploma,none,Suburb B,Level 4,261.15,60.21,72.27,74.67
+male,group B,associate's degree,none,Suburb E,Level 3,222.4,61.19,58.73,56.48
+female,group C,associate's degree,none,Suburb E,Level 2,226.26,39.01,64.5,57.75
+female,group D,diploma,completed,Suburb B,Level 3,207.34,58.15,63.1,73.09
+male,group D,diploma,completed,Suburb C,Level 3,244.51,63.84,55.88,63.79
+female,group A,associate's degree,none,Suburb C,Level 2,198.17,41.41,51.55,48.21
+male,group C,primary school,none,Suburb C,Level 3,217.17,61.18,57.66,56.33
+male,group C,primary school,none,Suburb C,Level 2,205.1,49.61,49.77,41.72
+male,group B,associate's degree,none,Suburb A,Level 1,183.05,44.44,41.69,38.92
+male,group E,primary school,none,Suburb D,Level 1,125.25,30.78,26.56,22.91
+male,group A,bachelor's degree,completed,Suburb A,Level 6,248.67,80.92,78.73,81.02
+female,group D,primary school,completed,Suburb D,Level 4,241.74,61.54,74.96,72.24
+female,group E,master's degree,none,Suburb A,Level 4,211.33,62.84,68.86,68.63
+female,group B,associate's degree,none,Suburb B,Level 2,164.62,47.31,49.83,50.48
+male,group B,high school,none,Suburb E,Level 2,169.79,49.59,45.35,45.85
+male,group A,diploma,completed,Suburb D,Level 2,198.02,50.23,47.36,54.43
+male,group E,associate's degree,none,Suburb A,Level 4,256.49,72.95,64.9,63.64
+male,group D,high school,none,Suburb C,Level 1,153.52,42.25,39.38,34.89
+female,group C,diploma,none,Suburb C,Level 5,294.33,73.12,80.35,82.86
+female,group C,diploma,none,Suburb A,Level 6,280.08,76.87,83.37,88.84
+female,group D,associate's degree,none,Suburb A,Level 5,231,71.14,71.16,74.7
+female,group A,diploma,none,Suburb C,Level 4,241.48,58.7,70.39,67.39
+female,group D,primary school,none,Suburb C,Level 6,297.96,73.95,86.25,82.76
+female,group C,bachelor's degree,none,Suburb C,Level 4,242.5,65.66,72.1,74.74
+male,group C,high school,none,Suburb B,Level 1,148.95,27.54,34.37,36.04
+male,group C,high school,none,Suburb E,Level 5,251.08,71.71,79.19,71.18
+male,group C,associate's degree,completed,Suburb C,Level 1,173.37,43.14,45.07,50.16
+female,group B,diploma,none,Suburb E,Level 6,280.15,79.73,86.73,92.69
+male,group C,associate's degree,completed,Suburb D,Level 6,253.05,78.18,81.15,82.72
+male,group B,primary school,completed,Suburb A,Level 4,201,65.13,66.61,62.26
+female,group E,diploma,completed,Suburb B,Level 4,209.73,63.75,72.05,70.93
+female,group D,diploma,none,Suburb D,Level 3,255.79,58.02,67.38,62.39
+female,group D,bachelor's degree,none,Suburb C,Level 4,252.06,65.76,67.3,62
+male,group B,diploma,none,Suburb E,Level 5,254.58,79.5,67.27,67.81
+male,group D,bachelor's degree,completed,Suburb D,Level 5,285.1,68.09,74.63,74.38
+female,group D,associate's degree,none,Suburb D,Level 7,299.77,85.1,91.2,89.47
+male,group B,high school,completed,Suburb E,Level 2,182.29,61,44.22,47.07
+male,group C,diploma,completed,Suburb C,Level 8,281.84,98.59,86.54,90.71
+female,group C,diploma,none,Suburb B,Level 3,241.4,58.01,67.65,72.74
+female,group D,master's degree,none,Suburb B,Level 8,356.36,87.37,100.4,100.59
+male,group E,associate's degree,completed,Suburb D,Level 4,260.66,66.21,63.14,64.31
+female,group B,associate's degree,none,Suburb D,Level 4,242.81,52.35,76.58,70.88
+female,group B,primary school,none,Suburb D,Level 4,210.67,70.94,64.48,72.25
+female,group D,associate's degree,completed,Suburb D,Level 6,327.6,77.09,89.75,98.76
+male,group C,high school,none,Suburb E,Level 3,200.45,62.18,55.27,49
+male,group A,associate's degree,none,Suburb B,Level 2,225.08,54.14,53.97,47.97
+female,group D,diploma,none,Suburb E,Level 3,194.12,51.53,58.69,54.9
+female,group E,bachelor's degree,completed,Suburb C,Level 10,335.15,99.64,100.5,100.01
+male,group C,high school,none,Suburb C,Level 6,258.92,84.9,77.25,74.77
+female,group B,bachelor's degree,none,Suburb E,Level 6,264.24,75.77,85.25,82.22
+female,group D,bachelor's degree,none,Suburb E,Level 6,262.32,78.68,82.26,79.38
+female,group D,primary school,none,Suburb D,Level 3,239.67,51.35,63.85,61.47
+female,group C,diploma,none,Suburb A,Level 3,200.27,55.7,69.99,65.58
+female,group C,bachelor's degree,completed,Suburb C,Level 7,269.37,79.92,92.12,89.33
+male,group B,associate's degree,completed,Suburb C,Level 8,296.12,91.87,89.47,92.78
+female,group C,diploma,completed,Suburb A,Level 8,307.22,88.89,93.32,93.01
+male,group D,high school,none,Suburb B,Level 3,196.59,63.54,57.32,56.73
+male,group E,diploma,none,Suburb B,Level 6,306.79,83.82,80.75,73.22
+female,group B,high school,none,Suburb A,Level 8,292.79,87.67,95.19,86.93
+male,group B,primary school,none,Suburb C,Level 4,243.52,72.06,68.33,67.13
+male,group D,diploma,completed,Suburb E,Level 5,250.71,65.01,77.12,74.58
+male,group D,master's degree,none,Suburb A,Level 6,255.55,82.95,82.69,74.91
+female,group A,bachelor's degree,none,Suburb E,Level 2,187.5,51.79,49.52,51.19
+male,group D,master's degree,none,Suburb D,Level 7,269.34,89.43,84.94,82.97
+male,group C,primary school,completed,Suburb E,Level 2,193.37,54,37.13,40.24
+male,group E,diploma,completed,Suburb C,Level 6,264.04,87.4,74.23,70.41
+female,group C,diploma,completed,Suburb B,Level 6,271.68,75.57,81.05,84.06
+male,group D,bachelor's degree,completed,Suburb D,Level 5,248.78,74.24,79.74,75.8
+male,group C,bachelor's degree,none,Suburb B,Level 3,200.63,58.97,55.39,48.27
+male,group B,primary school,completed,Suburb B,Level 2,178.28,51.34,54.17,41.77
+male,group E,high school,none,Suburb D,Level 3,226.86,70.42,55.18,56.26
+female,group C,associate's degree,none,Suburb C,Level 3,223.88,59.53,66.33,67.02
+male,group D,diploma,completed,Suburb D,Level 4,268.65,71.88,61.62,69.15
+female,group D,primary school,none,Suburb B,Level 5,232.12,76.07,72.69,71.36
+female,group C,diploma,none,Suburb D,Level 3,228.28,59.1,62.01,64.17
+female,group E,diploma,completed,Suburb C,Level 2,198.15,42.55,55.75,54.85
+male,group A,high school,none,Suburb B,Level 2,194.91,57.82,43.75,47.34
+male,group D,diploma,none,Suburb E,Level 6,266.02,88.41,73.18,78.43
+female,group C,diploma,none,Suburb C,Level 1,134.95,22.53,39.69,33.73
+male,group B,primary school,none,Suburb E,Level 7,298.84,88.82,84.35,75.67
+male,group C,associate's degree,none,Suburb B,Level 4,213.8,73.35,68,66.45
+female,group D,bachelor's degree,completed,Suburb A,Level 5,282.38,68.96,75.3,81.12
+male,group E,associate's degree,completed,Suburb A,Level 10,314.18,100.93,100.99,93.26
+male,group A,primary school,completed,Suburb C,Level 4,221.77,62.57,67.85,69.35
+male,group A,bachelor's degree,none,Suburb D,Level 5,263.51,77.52,67.72,68.27
+female,group B,associate's degree,completed,Suburb D,Level 4,237.04,59.55,70.47,66.02
+male,group D,bachelor's degree,none,Suburb E,Level 2,163.05,54.44,49.81,47.8
+male,group D,primary school,none,Suburb A,Level 4,231.9,62.7,67.23,61.97
+female,group C,diploma,completed,Suburb C,Level 6,308.78,70.74,89.23,88.81
+female,group E,high school,completed,Suburb C,Level 4,226.61,66.23,74.96,78.42
+male,group B,diploma,none,Suburb B,Level 3,191.74,60.35,60.11,60.28
+female,group B,associate's degree,completed,Suburb A,Level 5,299.39,61.96,86.86,87.57
+male,group D,associate's degree,none,Suburb B,Level 4,235.52,66.91,62.18,64.43
+male,group B,associate's degree,completed,Suburb C,Level 6,254.3,82.78,78.75,74.77
+female,group E,diploma,completed,Suburb E,Level 6,250.67,75.48,88.21,85.98
+male,group B,master's degree,none,Suburb A,Level 2,190.82,49.11,53.58,52.13
+male,group C,high school,none,Suburb A,Level 2,170.06,52.42,53.4,49.24
+female,group E,master's degree,none,Suburb A,Level 7,316.45,81.97,92.74,91.74
+female,group C,bachelor's degree,completed,Suburb E,Level 9,343.39,96.92,100.97,100.5
+male,group C,high school,completed,Suburb C,Level 2,174.25,53.53,51.95,51.77
+female,group B,master's degree,completed,Suburb A,Level 4,243.26,58.99,76.28,78.99
+female,group B,high school,completed,Suburb C,Level 5,292.99,68.24,83.42,78.33
+female,group C,diploma,completed,Suburb A,Level 5,271.3,67.62,75.25,70.43
+male,group A,high school,completed,Suburb A,Level 5,225.85,72.48,73.65,74.72
+male,group E,primary school,none,Suburb E,Level 8,283.53,94.12,88.61,78.8
+female,group D,diploma,none,Suburb E,Level 6,316.15,79.89,86.9,81.36
+female,group C,associate's degree,none,Suburb E,Level 4,271.84,63.07,67.88,70.89
+female,group C,bachelor's degree,completed,Suburb A,Level 2,156.25,43.64,51.33,54.28
+female,group C,master's degree,completed,Suburb B,Level 7,317.53,81.83,91.55,87.15
+female,group B,high school,completed,Suburb B,Level 2,171.42,46.26,54.49,58.67
+female,group C,associate's degree,completed,Suburb E,Level 5,264.73,71.68,77.61,77.44
+female,group B,master's degree,completed,Suburb B,Level 3,193.44,52.55,70.7,62.19
+female,group D,primary school,completed,Suburb A,Level 9,347.1,97.25,100.77,100.08
+male,group C,master's degree,completed,Suburb A,Level 4,234.99,62.35,68.6,75.04
+female,group C,diploma,none,Suburb A,Level 2,217.8,46.38,64.61,66.81
+female,group E,high school,none,Suburb B,Level 2,171.07,50.38,50.37,47.32
+female,group D,associate's degree,none,Suburb D,Level 4,206.64,65.94,69.03,70.67
+male,group C,primary school,completed,Suburb C,Level 2,218.08,45.88,52.91,49.29
+male,group C,associate's degree,completed,Suburb D,Level 4,209.23,65.77,67.48,65.98
+male,group E,high school,none,Suburb B,Level 6,261.96,80.09,76.91,65.96
+male,group D,primary school,completed,Suburb D,Level 4,228.8,62.12,66.38,68.3
+male,group B,primary school,none,Suburb A,Level 2,171.35,48.24,52.31,45.8
+female,group C,bachelor's degree,none,Suburb D,Level 6,299.09,77.42,88.38,87.29
+female,group E,associate's degree,none,Suburb E,Level 4,245.55,66.56,65.69,69.3
+male,group D,diploma,completed,Suburb C,Level 6,263.44,76.85,83.22,79.37
+female,group B,primary school,none,Suburb B,Level 4,204.83,62.95,64.65,66.23
+male,group D,diploma,completed,Suburb A,Level 4,257.97,77.47,62.7,62.8
+female,group C,master's degree,completed,Suburb B,Level 5,260.36,69.12,84.71,85.53
+male,group D,associate's degree,none,Suburb C,Level 3,192.91,61.49,55.91,52.51
+male,group C,primary school,completed,Suburb E,Level 4,209.05,59.27,69.75,65.03
+male,group E,high school,none,Suburb A,Level 3,229.55,55.95,56.33,51.27
+female,group B,diploma,none,Suburb D,Level 2,161.55,45.97,53.08,55.5
+female,group B,bachelor's degree,none,Suburb C,Level 6,282.74,78.82,79.02,76.9
+female,group C,associate's degree,completed,Suburb A,Level 5,308.59,67.82,84.61,86.16
+female,group D,diploma,none,Suburb A,Level 5,284.07,65.89,81.42,77.76
+male,group C,associate's degree,none,Suburb A,Level 5,254.77,69.49,77.52,69.76
+female,group B,associate's degree,none,Suburb A,Level 3,209.72,57.25,69.01,68.46
+male,group C,diploma,none,Suburb A,Level 2,184.15,59.86,41.01,42.28
+male,group D,primary school,completed,Suburb E,Level 5,279.05,74.28,71.7,78.07
+male,group E,bachelor's degree,none,Suburb C,Level 5,273.58,82.83,62.38,62.37
+male,group E,high school,completed,Suburb B,Level 6,239.42,81.53,80.07,76.82
+female,group B,diploma,none,Suburb A,Level 6,268.18,74.72,81.19,76.27
+female,group B,diploma,none,Suburb A,Level 3,228.08,58.88,61.94,66.26
+male,group D,primary school,completed,Suburb B,Level 6,261.97,80.76,79.14,79.07
+male,group C,diploma,none,Suburb A,Level 1,118.22,35.53,28.1,27.59
+female,group C,high school,none,Suburb A,Level 2,178.09,42.03,62.98,60.08
+male,group C,associate's degree,completed,Suburb A,Level 3,233.47,60.27,51.07,56.13
+male,group E,high school,completed,Suburb D,Level 8,330.14,87.72,91.32,81.1
+male,group B,primary school,completed,Suburb C,Level 7,294.46,84.99,83.57,75.9
+female,group E,associate's degree,completed,Suburb E,Level 7,326.01,83.63,86.78,88.6
+female,group C,high school,none,Suburb C,Level 1,183.11,34.96,42.54,39.61
+male,group B,high school,none,Suburb B,Level 5,221.79,66.86,77.89,70.04
+male,group B,primary school,completed,Suburb E,Level 3,179.99,61.97,56.56,56.46
+female,group D,high school,completed,Suburb E,Level 3,219.3,56.76,68.04,74.5
+male,group B,associate's degree,none,Suburb D,Level 7,253.59,87.54,85.29,73.76
+female,group C,primary school,none,Suburb A,Level 3,190.42,55.88,65.88,62.66
+male,group D,primary school,none,Suburb C,Level 6,269.38,86.29,80.25,75.84
+female,group B,associate's degree,completed,Suburb E,Level 3,213.39,52.45,66.63,73.31
+female,group E,master's degree,none,Suburb E,Level 2,159.77,45.46,56.71,54.6
+female,group C,diploma,none,Suburb C,Level 5,234.27,72.76,72.75,71.76
+male,group D,high school,none,Suburb B,Level 2,180.63,57.73,50.11,54.79
+male,group A,primary school,none,Suburb D,Level 4,232.89,68.58,72.46,64.85
+female,group C,diploma,completed,Suburb C,Level 8,290.29,88.9,95.12,94.27
+male,group D,diploma,none,Suburb B,Level 4,239.12,76.29,64.64,66.19
+male,group C,associate's degree,none,Suburb D,Level 1,183.21,46.13,43.15,42.93
+female,group B,bachelor's degree,none,Suburb B,Level 5,283.65,67.33,86.24,83.08
+male,group E,primary school,none,Suburb C,Level 8,292.78,92.38,87.24,78.16
+male,group C,bachelor's degree,completed,Suburb B,Level 6,291.48,83.64,82.7,84.14
+male,group D,associate's degree,none,Suburb A,Level 6,239.14,80.3,75.95,77.89
+male,group D,bachelor's degree,none,Suburb E,Level 4,215.92,63.61,66.56,67.75
+female,group D,primary school,completed,Suburb B,Level 3,230.11,64.46,60.08,74.57
+male,group B,diploma,none,Suburb A,Level 2,213.53,54.78,52.35,51.4
+male,group C,associate's degree,none,Suburb A,Level 6,246.67,84.03,80.6,80.04
+male,group D,high school,completed,Suburb D,Level 5,251.21,73.85,68.26,66.1
+female,group E,bachelor's degree,none,Suburb D,Level 6,306.73,80.06,83.82,83.85
+female,group D,high school,none,Suburb E,Level 2,188.58,56.52,52.69,55.37
+male,group E,diploma,none,Suburb E,Level 3,172.41,59.12,51.67,43.62
+male,group D,primary school,none,Suburb E,Level 5,256.36,75.39,74.4,69.57
+male,group C,associate's degree,none,Suburb D,Level 6,260.12,85.09,76.18,71.85
+male,group E,associate's degree,none,Suburb D,Level 6,305.59,89.59,76.61,74.39
+female,group B,high school,completed,Suburb E,Level 4,242.29,58.63,70.24,68.42
+female,group B,high school,none,Suburb D,Level 4,243.24,65.88,64.41,62.95
+male,group C,high school,none,Suburb A,Level 4,219.16,68.43,60.23,53.5
+male,group A,primary school,completed,Suburb E,Level 2,170.1,47.34,49.01,49.75
+female,group D,diploma,none,Suburb A,Level 5,278.04,71.39,83.1,83.55
+female,group B,primary school,completed,Suburb B,Level 4,216.54,60.13,70.6,70.81
+male,group D,master's degree,none,Suburb B,Level 6,238.21,80.58,80.93,72.7
+male,group D,high school,none,Suburb E,Level 2,194.3,54.4,52.87,52.03
+female,group E,diploma,none,Suburb B,Level 4,245.22,62.91,73.94,70.37
+female,group C,associate's degree,none,Suburb E,Level 4,255.98,64.25,73.22,68.51
+male,group C,associate's degree,completed,Suburb E,Level 6,263.31,78.69,77.99,77.63
+female,group B,diploma,none,Suburb D,Level 5,282.34,70.96,75.8,78.58
+female,group C,master's degree,completed,Suburb B,Level 5,298.07,65.16,81.12,81.79
+female,group C,primary school,completed,Suburb C,Level 5,237.59,64.34,79.9,77.35
+male,group C,diploma,completed,Suburb C,Level 6,274.56,79.72,79.39,78.45
+female,group C,primary school,none,Suburb E,Level 2,208.46,44.55,50.88,51.03
+female,group E,high school,none,Suburb C,Level 9,295.98,99.89,93.75,90.34
+male,group D,high school,none,Suburb D,Level 5,281.49,76.26,73.68,68.55
+male,group D,primary school,none,Suburb C,Level 2,168.63,59.69,42.6,41.34
+female,group C,bachelor's degree,none,Suburb A,Level 4,284.96,63.55,75.48,81.93
+female,group D,high school,none,Suburb B,Level 5,231.93,69.46,72.82,77.65
+female,group D,associate's degree,completed,Suburb A,Level 8,319.72,88.55,92.3,95.87
+female,group E,diploma,none,Suburb E,Level 5,232.88,71.19,76.11,70.58
+male,group C,bachelor's degree,none,Suburb D,Level 4,216.48,69.88,63.18,61.42
+male,group C,diploma,none,Suburb D,Level 2,207.09,58.14,49.46,42.49
+female,group D,associate's degree,none,Suburb B,Level 2,193.23,47.86,53.72,58.65
+female,group D,diploma,none,Suburb C,Level 4,242.68,65.06,70.28,71.34
+male,group B,diploma,completed,Suburb C,Level 7,274.28,88.14,85.45,76.69
+male,group C,bachelor's degree,none,Suburb D,Level 6,252.88,83.66,78.93,73.29
+female,group C,primary school,completed,Suburb C,Level 7,315.12,85.63,92.2,93.29
+female,group E,high school,completed,Suburb D,Level 3,201.28,59.39,63.06,75.83
+female,group C,primary school,none,Suburb A,Level 5,262.37,65.23,86.13,80.01
+male,group B,bachelor's degree,none,Suburb D,Level 4,198.28,73.23,56.92,57.13
+male,group D,high school,none,Suburb A,Level 2,205.37,53.21,52.02,42.14
+male,group D,high school,none,Suburb C,Level 2,193.6,45.69,48.75,46.16
+female,group D,bachelor's degree,none,Suburb E,Level 5,297.77,73.11,79.64,84.02
+female,group D,diploma,completed,Suburb D,Level 5,260.38,70.16,78.02,78.2
+female,group B,primary school,none,Suburb D,Level 1,176.04,37.85,46.57,46.62
+male,group B,associate's degree,completed,Suburb A,Level 6,287.74,81.98,82.05,82.71
+male,group E,associate's degree,completed,Suburb B,Level 8,300.37,97.9,82.15,88.32
+female,group B,primary school,none,Suburb D,Level 6,284.03,67.93,89.85,82.25
+male,group B,bachelor's degree,none,Suburb D,Level 6,271.45,88.83,75.38,76.24
+male,group E,primary school,completed,Suburb D,Level 5,238.83,77.32,76.56,77.95
+male,group C,associate's degree,none,Suburb E,Level 5,268.74,76.5,70.97,68.27
+male,group D,primary school,none,Suburb E,Level 6,259.09,86.93,73.88,70.28
+male,group C,primary school,completed,Suburb D,Level 3,248.95,63.2,60.07,57.68
+female,group E,bachelor's degree,none,Suburb E,Level 4,270.28,65.09,73.3,75.89
+male,group D,high school,completed,Suburb D,Level 6,245.81,78.76,77.29,80.76
+male,group B,associate's degree,none,Suburb D,Level 4,217.45,67.8,62.58,60.07
+male,group A,primary school,completed,Suburb B,Level 1,149.38,46.35,41.09,43.94
+male,group E,associate's degree,completed,Suburb D,Level 5,229.2,71.66,74.4,68.14
+male,group C,high school,completed,Suburb B,Level 1,169.94,40.79,46.21,50.94
+male,group D,associate's degree,none,Suburb D,Level 7,291.22,90.43,87.28,75.51
+male,group A,diploma,completed,Suburb B,Level 6,302.1,81.4,78.31,81.39
+male,group D,primary school,none,Suburb C,Level 3,186.5,56.54,54.57,52.39
+female,group C,associate's degree,completed,Suburb D,Level 5,263.35,67.96,84.31,81.08
+male,group B,associate's degree,none,Suburb E,Level 6,240.03,80.53,76.73,64.77
+female,group C,associate's degree,completed,Suburb A,Level 5,284.77,74.37,75.28,83.12
+male,group A,diploma,none,Suburb A,Level 4,263.89,69,67.48,69.41
+male,group E,diploma,completed,Suburb B,Level 8,317.96,99.34,87.73,81.89
+male,group C,primary school,none,Suburb D,Level 2,166.62,51.38,52.94,44.3
+female,group B,associate's degree,none,Suburb E,Level 3,197.53,53.53,71.95,67.05
+female,group D,high school,none,Suburb D,Level 2,181.18,49.44,57.75,52.99
+female,group B,associate's degree,none,Suburb A,Level 5,290.18,73.67,76.67,80.84
+male,group B,bachelor's degree,none,Suburb A,Level 4,234.27,66.73,60.91,57.63
+male,group D,bachelor's degree,completed,Suburb C,Level 4,221.37,67.92,61.59,68.86
+female,group C,associate's degree,completed,Suburb A,Level 4,243.98,68.86,67.6,69.52
+female,group C,bachelor's degree,completed,Suburb B,Level 3,211.14,59.09,64.09,75.96
+male,group C,high school,none,Suburb D,Level 4,215.53,71.14,66.71,65.68
+female,group D,master's degree,completed,Suburb E,Level 6,253.64,77.55,82.01,91.08
+male,group C,associate's degree,none,Suburb A,Level 6,257.67,83.75,72.85,78.07
+male,group B,bachelor's degree,none,Suburb E,Level 4,247.01,63.61,71.7,69.7
+female,group D,associate's degree,none,Suburb E,Level 3,209.72,56.04,65.83,63.85
+female,group C,high school,completed,Suburb D,Level 5,244.31,67.29,79.19,84.83
+female,group E,high school,none,Suburb E,Level 6,243.59,75.76,86.02,79.81
+female,group C,diploma,none,Suburb E,Level 5,279,71.84,81.15,80.01
+female,group C,primary school,none,Suburb D,Level 2,220.79,43.68,53.7,53.41
+female,group C,high school,none,Suburb D,Level 1,178.7,41.18,46.65,43.87
+female,group C,diploma,none,Suburb B,Level 7,309.32,82.47,90.17,94.68
+male,group C,diploma,none,Suburb E,Level 3,251.48,61.82,61.92,62.74
+male,group A,diploma,none,Suburb B,Level 1,105.58,28.21,23.44,19.93
+male,group C,associate's degree,completed,Suburb E,Level 6,240.85,82.15,75.06,77.64
+female,group B,primary school,none,Suburb D,Level 2,203.88,41.26,55.3,51.32
+male,group C,high school,none,Suburb A,Level 4,226.02,71.33,60.68,61.01
+male,group C,associate's degree,none,Suburb A,Level 1,123.67,47.58,37.61,35.48
+male,group E,associate's degree,completed,Suburb B,Level 3,190.99,62.28,56.74,53.97
+male,group B,associate's degree,none,Suburb D,Level 7,293.85,90.75,78.47,81.63
+female,group C,bachelor's degree,none,Suburb E,Level 7,279.04,83.91,93.36,95.77
+female,group B,diploma,none,Suburb C,Level 4,212.26,61.38,68.25,66.63
+male,group D,primary school,completed,Suburb B,Level 5,255.83,76.59,70.11,69.13
+male,group C,associate's degree,none,Suburb A,Level 2,148.51,49.05,51.37,43.09
+female,group B,primary school,none,Suburb B,Level 1,131.49,24.74,38.68,27.07
+female,group D,primary school,completed,Suburb C,Level 1,206.3,35.09,55.34,60.87
+male,group C,high school,none,Suburb C,Level 3,206.83,58.46,61.23,52.14
+female,group C,high school,none,Suburb C,Level 4,265.28,61.06,73.32,63.9
+female,group B,high school,completed,Suburb B,Level 5,270.96,69.34,76.74,74.88
+male,group D,associate's degree,completed,Suburb B,Level 4,257.5,67.29,72.48,67.73
+male,group D,diploma,none,Suburb D,Level 5,262.31,79.9,73.03,67.38
+female,group C,high school,none,Suburb A,Level 5,260.46,72.96,80.46,75.04
+male,group B,diploma,none,Suburb A,Level 3,235.56,62.61,61.26,57.69
+female,group C,bachelor's degree,completed,Suburb E,Level 7,286.9,77.08,94.34,95.48
+male,group D,high school,none,Suburb B,Level 5,247.64,75.76,74.12,66.76
+male,group E,associate's degree,none,Suburb E,Level 6,297.98,87.88,74.02,76.08
+female,group B,bachelor's degree,none,Suburb A,Level 3,236.58,52.5,65.34,69.74
+male,group E,diploma,none,Suburb E,Level 3,206.03,66.37,57.2,52.46
+female,group C,diploma,completed,Suburb D,Level 4,259.48,63.76,78.34,80.38
+female,group C,associate's degree,none,Suburb B,Level 2,172.65,46.22,58.77,57.66
+female,group C,diploma,none,Suburb E,Level 4,232.19,59.23,71.81,70.15
+female,group B,bachelor's degree,none,Suburb A,Level 4,208.66,61.75,72.47,70.44
+male,group A,associate's degree,none,Suburb B,Level 3,212.21,63.91,61.92,61.38
+female,group C,diploma,completed,Suburb D,Level 2,199.75,42.2,66.13,69.42
+male,group D,diploma,none,Suburb B,Level 3,242.56,59.46,62.6,61.5
+female,group D,diploma,none,Suburb B,Level 7,311.66,80.01,90.47,89.18
+female,group B,high school,none,Suburb A,Level 3,245.02,58.49,62.2,59.33
+male,group B,primary school,completed,Suburb D,Level 7,268.09,85.51,84.11,78.47
+female,group C,diploma,none,Suburb D,Level 3,229.86,52.27,58,58.59
+female,group D,primary school,none,Suburb C,Level 1,109.86,27.01,34.17,32.68
+male,group C,diploma,none,Suburb E,Level 3,193.64,59.49,60.15,59
+male,group A,bachelor's degree,completed,Suburb D,Level 2,184.77,49.81,58.75,60.21
+male,group C,high school,completed,Suburb B,Level 4,197.88,69.16,58.2,53.52
+male,group C,bachelor's degree,none,Suburb C,Level 4,237.54,61.49,66.05,62
+female,group A,primary school,none,Suburb E,Level 2,173.15,44.67,64.24,58.24
+female,group D,primary school,none,Suburb A,Level 6,295.38,73.07,84.01,85.3
+male,group E,diploma,none,Suburb B,Level 6,272.15,84.07,77.63,71.45
+female,group C,diploma,completed,Suburb C,Level 3,238.12,45.18,73.37,70.57
+male,group D,primary school,none,Suburb C,Level 5,255.76,74.53,74.5,72.73
+female,group D,diploma,completed,Suburb D,Level 8,334.04,82.83,97.54,96.67
+female,group D,bachelor's degree,none,Suburb E,Level 4,244.98,59.47,70.82,73.69
+male,group E,associate's degree,none,Suburb E,Level 2,153.74,47,43.89,41.85
+female,group D,primary school,none,Suburb E,Level 7,316.33,80.65,90.81,82.87
+female,group D,master's degree,completed,Suburb D,Level 8,335.27,85.64,95.79,100.84
+female,group A,primary school,none,Suburb A,Level 5,301.71,71.13,83.18,77.4
+male,group A,bachelor's degree,none,Suburb C,Level 4,216.27,66.66,64.79,62.82
+female,group B,associate's degree,none,Suburb B,Level 6,307.86,80.6,86.25,83.01
+male,group C,associate's degree,completed,Suburb B,Level 8,288.39,87.76,100.25,95.38
+male,group C,master's degree,none,Suburb E,Level 6,269.92,79.03,81.6,71.29
+female,group E,primary school,none,Suburb E,Level 1,149.07,38.55,49.26,45.26
+female,group A,primary school,none,Suburb A,Level 1,145.82,38.43,43.61,43.78
+female,group E,diploma,none,Suburb A,Level 5,266.77,67.62,76.16,75.99
+female,group E,bachelor's degree,none,Suburb E,Level 4,234.02,64.98,73.16,70.88
+female,group C,associate's degree,none,Suburb C,Level 4,265.86,57.06,78.81,67.99
+female,group D,high school,none,Suburb B,Level 4,252.03,62.33,64.85,64.85
+male,group D,master's degree,none,Suburb D,Level 5,262.66,73.49,70.33,75.84
+male,group E,primary school,completed,Suburb D,Level 4,224.54,73.34,67.11,59.09
+female,group D,diploma,none,Suburb C,Level 5,225.6,77.37,68.57,77.66
+male,group E,diploma,none,Suburb D,Level 5,226.1,76.12,67.39,67.59
+male,group C,associate's degree,completed,Suburb D,Level 3,218.34,57.78,54.85,56.71
+female,group C,primary school,completed,Suburb D,Level 4,238.3,65.29,74.68,77.33
+male,group A,high school,none,Suburb D,Level 2,157.96,48.43,45.08,41.45
+female,group B,high school,none,Suburb E,Level 3,183.07,50.24,67.88,63.95
+female,group C,associate's degree,none,Suburb A,Level 7,320.06,85.97,89.14,95.95
+male,group B,primary school,none,Suburb A,Level 4,249.72,74.03,63.75,57.94
+male,group D,primary school,none,Suburb A,Level 3,181.64,60.67,59.36,54.61
+female,group C,primary school,completed,Suburb E,Level 3,240.87,59.32,54.1,67.45
+male,group A,diploma,none,Suburb E,Level 2,162.62,53.52,43.51,43.59
+female,group A,diploma,none,Suburb A,Level 3,204.42,49.96,65.66,55.8
+female,group D,high school,completed,Suburb D,Level 8,325.14,88.11,99.57,100.46
+female,group C,high school,none,Suburb B,Level 3,184.93,54.77,59,62.16
+female,group C,primary school,none,Suburb C,Level 4,240.52,63.05,73.38,68.09
+male,group B,associate's degree,completed,Suburb D,Level 4,240.13,65.37,65.56,63.2
+female,group B,associate's degree,none,Suburb A,Level 6,268,82.1,80.55,77.35
+female,group D,high school,completed,Suburb D,Level 3,195.62,52.89,57.32,56.41
+male,group D,associate's degree,completed,Suburb A,Level 7,286.63,87.1,84.09,85.44
+female,group D,master's degree,completed,Suburb C,Level 5,256.73,70.75,71.93,74.05
+male,group E,diploma,completed,Suburb A,Level 7,298.91,84.63,83.26,78.02
+male,group D,associate's degree,none,Suburb B,Level 4,244.53,71.34,66.28,60.91
+male,group B,primary school,completed,Suburb E,Level 4,229.86,63.81,67.93,67.12
+female,group C,bachelor's degree,completed,Suburb D,Level 3,254.83,51.39,72.78,79.66
+male,group E,high school,none,Suburb C,Level 6,273.01,84.71,73.63,69.67
+male,group C,bachelor's degree,completed,Suburb B,Level 5,281.01,71.94,74.32,68.75
+male,group C,associate's degree,none,Suburb B,Level 5,243.46,74.06,73.72,67.68
+male,group D,diploma,none,Suburb A,Level 4,231.04,68.15,59.5,62.39
+male,group E,high school,completed,Suburb A,Level 3,183.34,57.83,56.33,54.18
+female,group C,associate's degree,completed,Suburb A,Level 7,306.81,82.95,93.16,93.7
+female,group D,high school,completed,Suburb C,Level 3,218.69,57.56,58.09,64.04
+female,group D,master's degree,completed,Suburb A,Level 2,186.13,47.59,58.03,67.51
+female,group A,primary school,completed,Suburb E,Level 5,288.53,59.82,85.51,80.2
+male,group B,diploma,none,Suburb A,Level 1,126.04,41.91,39.16,34.97
+female,group C,diploma,none,Suburb B,Level 4,217.57,62.23,67.28,62.06
+male,group C,bachelor's degree,none,Suburb C,Level 7,321.97,86.8,83.71,86.46
+male,group C,primary school,none,Suburb C,Level 5,274.14,69.99,71.68,65.47
+male,group A,primary school,none,Suburb E,Level 3,179.72,65.28,59.18,53.26
+male,group C,primary school,none,Suburb D,Level 4,204.67,68.71,63.23,54.73
+male,group C,associate's degree,none,Suburb D,Level 4,258.01,64.65,67,59.36
+female,group C,high school,none,Suburb B,Level 4,274.16,61.86,72.5,70.8
+male,group C,high school,none,Suburb B,Level 3,197.12,61.49,56.81,55.82
+female,group A,primary school,none,Suburb C,Level 2,165.27,47.3,59.04,50.93
+male,group C,primary school,none,Suburb C,Level 4,276.86,73.78,66.36,66.72
+male,group C,diploma,completed,Suburb A,Level 2,157.06,50.09,48.99,53.98
+male,group D,associate's degree,none,Suburb E,Level 5,213.16,75.4,68.15,64.61
+male,group D,associate's degree,none,Suburb B,Level 5,229.38,75.94,66.91,73.53
+male,group C,high school,none,Suburb A,Level 3,238.93,70.58,56.31,51.04
+male,group D,primary school,completed,Suburb C,Level 7,264.37,89.77,88.05,82.55
+female,group C,diploma,completed,Suburb B,Level 5,240.87,67.37,81.1,79.4
+female,group D,high school,none,Suburb E,Level 6,294.86,78.36,81.64,80.86
+female,group A,primary school,none,Suburb E,Level 4,208.54,59.54,73,69
+female,group B,associate's degree,none,Suburb E,Level 6,259.14,73.61,83.7,76.83
+male,group A,primary school,none,Suburb A,Level 6,255.75,79.41,82.03,73.31
+female,group C,primary school,completed,Suburb C,Level 5,246.23,67.06,74.69,77.48
+male,group D,diploma,none,Suburb C,Level 4,199.34,69.01,66.95,60.38
+male,group C,high school,completed,Suburb B,Level 7,281.03,86.39,81.37,80.27
+male,group B,high school,none,Suburb D,Level 2,201.15,47.87,46.15,42.13
+male,group B,associate's degree,none,Suburb E,Level 6,280.48,81.43,73.8,72.25
+female,group C,diploma,completed,Suburb A,Level 5,295.74,64.38,85.8,85.56
+female,group E,diploma,none,Suburb D,Level 9,360.71,100.38,92.69,97.64
+female,group C,associate's degree,none,Suburb B,Level 5,236.33,65.06,77.78,74.49
+male,group C,diploma,none,Suburb D,Level 3,223.14,65.38,58.19,49.57
+female,group C,associate's degree,none,Suburb C,Level 3,191.68,53.05,61.37,62.26
+male,group C,bachelor's degree,none,Suburb B,Level 2,188.97,37.09,56.57,47.31
+female,group D,bachelor's degree,none,Suburb A,Level 7,292.61,79.08,89.62,89.91
+male,group D,associate's degree,none,Suburb C,Level 2,226.18,53.95,54.01,48.22
+female,group E,bachelor's degree,none,Suburb A,Level 10,363.53,100.95,100.51,100.07
+male,group B,high school,completed,Suburb B,Level 4,227.83,72.39,65.14,68.3
+male,group C,bachelor's degree,none,Suburb C,Level 3,211.2,53.17,58.73,55.3
+male,group B,diploma,none,Suburb D,Level 2,170.84,54.99,54.29,45.56
+female,group E,diploma,none,Suburb C,Level 5,228.67,71.42,70.83,76.42
+female,group C,diploma,none,Suburb C,Level 7,329.38,77.29,90.85,91.24
+male,group A,bachelor's degree,completed,Suburb B,Level 4,235.13,75.19,58.5,62.44
+female,group C,diploma,none,Suburb A,Level 7,266.75,84.96,87.65,91.14
+female,group D,associate's degree,none,Suburb D,Level 1,118.34,26.89,31.16,38.29
+male,group A,high school,completed,Suburb B,Level 4,256.44,72.9,67.52,65.02
+female,group A,high school,completed,Suburb B,Level 6,319.08,77.38,88.94,85.76
+male,group C,diploma,none,Suburb D,Level 6,247.12,91.5,74.52,76.1
+female,group C,associate's degree,completed,Suburb E,Level 7,311.18,83.13,85.94,90.11
+female,group C,high school,none,Suburb D,Level 4,254.83,63.31,69.86,74.66
+female,group C,associate's degree,completed,Suburb B,Level 5,303.88,68.06,86.71,84.11
+female,group D,primary school,none,Suburb C,Level 4,235.61,59.3,67.71,61.6
+female,group B,associate's degree,completed,Suburb B,Level 8,309.06,90.31,90.73,91.02
+female,group D,bachelor's degree,completed,Suburb C,Level 5,290.85,71.26,76.25,83.34
+male,group E,bachelor's degree,completed,Suburb C,Level 4,241.94,76.92,62.11,66.91
+male,group D,associate's degree,none,Suburb B,Level 5,286.18,80.6,68.81,72.77
+female,group D,master's degree,none,Suburb C,Level 3,202.75,55.59,64.15,70.01
+male,group E,associate's degree,none,Suburb E,Level 5,237.67,76.3,71.9,67.47
+male,group B,high school,completed,Suburb E,Level 5,255.09,73.95,71.21,68.93
+female,group D,associate's degree,none,Suburb D,Level 3,197.74,52.74,59.76,56.24
+male,group C,diploma,none,Suburb E,Level 4,265.5,68.35,68.34,61.81
+male,group A,high school,none,Suburb A,Level 3,171.17,59.23,52.09,46.85
+female,group B,associate's degree,none,Suburb C,Level 2,171.57,49.23,52.79,54.55
+male,group C,high school,none,Suburb C,Level 5,219.51,70.61,74.08,71.82
+male,group D,diploma,none,Suburb A,Level 2,173.39,61.73,47.33,56.33
+female,group C,associate's degree,none,Suburb C,Level 4,261.87,60.86,75.14,74.87
+male,group B,primary school,completed,Suburb B,Level 3,190.74,64.02,53.89,57.83
+male,group A,associate's degree,completed,Suburb A,Level 6,245.92,79.64,82.23,82.05
+female,group A,associate's degree,none,Suburb A,Level 5,237.95,65.54,85.56,76.85
+female,group C,associate's degree,none,Suburb B,Level 4,262.19,64.99,64.46,70.74
+female,group C,diploma,none,Suburb A,Level 6,293.01,83.92,83.06,90.03
+female,group C,bachelor's degree,none,Suburb E,Level 7,300.65,81.73,88.98,90.94
+female,group B,high school,none,Suburb D,Level 3,247.93,54.65,64.73,68.55
+male,group D,high school,completed,Suburb E,Level 4,237.24,68.76,64.41,66.07
+female,group C,diploma,none,Suburb A,Level 2,205.18,54.76,48.58,52.84
+female,group D,diploma,completed,Suburb A,Level 4,271.9,59.42,78.36,76.12
+female,group B,primary school,none,Suburb C,Level 4,266.68,66.21,69.18,68.29
+male,group E,diploma,none,Suburb E,Level 5,256.29,76.77,71.96,72.56
+female,group D,master's degree,none,Suburb B,Level 5,262.26,74.21,79.73,82.32
+female,group B,associate's degree,completed,Suburb D,Level 8,339.2,94.78,87.44,92.98
+male,group C,diploma,none,Suburb D,Level 3,196.34,63.89,61.61,54.84
+female,group E,associate's degree,completed,Suburb C,Level 8,300.25,95.59,89.42,92.24
+female,group D,master's degree,none,Suburb D,Level 2,173.76,40.6,59.23,54.93
+female,group B,primary school,none,Suburb B,Level 6,257.49,82.47,82.97,80.05
+male,group A,high school,none,Suburb A,Level 4,218.95,68.93,70.89,66.13
+male,group B,bachelor's degree,none,Suburb D,Level 3,197.51,55.45,59.5,54.56
+male,group C,master's degree,none,Suburb A,Level 6,299.63,79.54,78.98,77.11
+female,group C,bachelor's degree,none,Suburb A,Level 8,271.93,86.56,92.63,87.74
+male,group D,diploma,none,Suburb B,Level 5,281.77,76.74,71.55,73.48
+male,group A,primary school,none,Suburb D,Level 3,170.28,64.59,50.09,43.6
+male,group D,primary school,none,Suburb A,Level 3,189.7,62.32,49.42,52.96
+female,group B,primary school,completed,Suburb C,Level 3,240.19,54.03,61.94,62.22
+female,group B,master's degree,completed,Suburb D,Level 7,296.84,77.01,97.93,94.9
+female,group C,primary school,completed,Suburb B,Level 6,317.36,76.46,87.29,85.61
+female,group D,diploma,none,Suburb C,Level 6,262.45,74.05,89.5,84.9
+female,group E,diploma,completed,Suburb C,Level 4,233.67,66.24,74.11,73.32
+female,group D,primary school,completed,Suburb D,Level 5,290.33,66.06,78.1,78.17
+female,group B,high school,completed,Suburb D,Level 5,241.55,67.89,78.31,79.35
+male,group D,diploma,none,Suburb A,Level 3,241.2,71.6,49.46,52.14
+female,group C,associate's degree,none,Suburb A,Level 7,316.69,91.22,86.37,84.1
+male,group D,bachelor's degree,none,Suburb E,Level 4,235.42,69.91,58.81,57.7
+male,group C,master's degree,none,Suburb E,Level 3,195.2,54.39,59.72,50.09
+male,group C,high school,completed,Suburb D,Level 2,187.57,53.97,52.7,49.9
+male,group E,diploma,none,Suburb B,Level 4,243.99,68.35,60.26,59.38
+male,group C,primary school,completed,Suburb E,Level 3,197,56.28,61.3,60.42
+female,group C,high school,none,Suburb C,Level 1,143.48,36.63,53.46,43.39
+female,group D,bachelor's degree,none,Suburb E,Level 1,143.16,29.1,41.21,47.85
+female,group C,associate's degree,none,Suburb C,Level 4,240.48,62.37,74.94,70.17
+female,group C,associate's degree,completed,Suburb A,Level 4,233.39,68.24,67.97,73.18
+female,group C,primary school,none,Suburb E,Level 2,208.76,47.58,54.26,53.92
+male,group E,associate's degree,completed,Suburb C,Level 3,247.76,62.11,61.21,58.44
+female,group E,associate's degree,completed,Suburb A,Level 7,313.92,79.76,88.68,94.48
+male,group B,high school,completed,Suburb A,Level 5,250.52,73.35,69.13,68.04
+female,group C,bachelor's degree,completed,Suburb C,Level 5,258.43,66.73,83.64,83.06
+male,group C,associate's degree,completed,Suburb A,Level 3,230.58,51.01,60.52,58.05
+female,group D,high school,none,Suburb D,Level 3,239.6,51.94,66.23,62.43
+male,group E,bachelor's degree,completed,Suburb C,Level 5,256.49,85.36,66.93,71.2
+male,group A,associate's degree,completed,Suburb D,Level 9,325.36,97.2,92.61,86.55
+male,group C,high school,completed,Suburb B,Level 5,280.14,75.1,69.7,68.34
+male,group D,associate's degree,completed,Suburb A,Level 6,284.84,79.04,82.76,80.04
+female,group C,associate's degree,none,Suburb B,Level 6,278.65,81.07,77.5,79.08
+female,group D,associate's degree,none,Suburb A,Level 7,268.28,82.01,95.13,89.14
+female,group D,master's degree,none,Suburb E,Level 4,252.43,64.92,63.82,66.69
+male,group E,primary school,completed,Suburb C,Level 6,276.32,78.27,83.47,80.58
+female,group A,primary school,completed,Suburb E,Level 9,316.69,92.82,101,97.87
+male,group C,high school,completed,Suburb E,Level 4,263.06,72.85,67.48,64.73
+female,group C,high school,none,Suburb A,Level 4,205.13,62.65,67.72,64.76
+male,group C,master's degree,none,Suburb C,Level 5,250.68,79.9,72.7,69.08
+male,group C,primary school,none,Suburb C,Level 6,243.42,79.4,76.8,65.22
+male,group B,bachelor's degree,completed,Suburb E,Level 7,295.33,87.91,90.9,88.52
+female,group B,associate's degree,none,Suburb D,Level 1,151.49,40.09,48.47,50.93
+male,group D,diploma,none,Suburb D,Level 4,252.54,77.54,62.31,64.69
+male,group E,associate's degree,none,Suburb B,Level 2,209.4,53.62,45.24,40.54
+female,group C,diploma,none,Suburb B,Level 1,167.71,32.21,39.66,33.84
+female,group C,associate's degree,completed,Suburb A,Level 4,242.72,55.13,72.89,79.7
+male,group C,master's degree,none,Suburb A,Level 4,230.9,61.11,67.95,66.84
+female,group B,associate's degree,none,Suburb C,Level 3,249.25,53.76,70.11,70.38
+male,group D,primary school,none,Suburb C,Level 4,226.99,73.19,66.16,62.64
+female,group D,diploma,completed,Suburb C,Level 5,290.19,74.11,75.04,79.04
+female,group C,diploma,none,Suburb D,Level 4,273.46,63.77,74.06,74.63
+male,group C,bachelor's degree,completed,Suburb E,Level 8,302.18,96.8,91,92.38
+female,group D,diploma,completed,Suburb D,Level 5,250.88,63.97,80.87,80.04
+male,group B,bachelor's degree,none,Suburb C,Level 2,149.16,48.54,51.22,46.4
+male,group B,associate's degree,none,Suburb B,Level 2,145.62,48.61,43.48,45.53
+female,group E,bachelor's degree,completed,Suburb E,Level 9,328.11,92.99,100.92,100.2
+female,group D,master's degree,completed,Suburb C,Level 4,222.29,61.04,71.99,78.26
+male,group B,high school,none,Suburb A,Level 3,160.63,63.86,48.21,47.56
+male,group D,bachelor's degree,none,Suburb B,Level 4,273.38,68.65,68.96,67.77
+male,group B,diploma,completed,Suburb B,Level 5,261.95,71.57,75.58,70.8
+male,group A,bachelor's degree,none,Suburb D,Level 8,342.96,91.42,96.26,92.28
+female,group C,diploma,none,Suburb A,Level 3,242.28,53.89,62.34,56.05
+female,group C,high school,completed,Suburb C,Level 3,231.8,50.57,66.68,64.55
+female,group E,high school,none,Suburb D,Level 6,283.24,74.02,81.15,71.07
+male,group A,associate's degree,completed,Suburb A,Level 2,186.79,40.73,55.03,53.03
+male,group A,diploma,completed,Suburb D,Level 3,179.72,61.03,51.3,52.39
+female,group B,high school,none,Suburb A,Level 7,267.52,81.11,91.13,89.28
+female,group B,diploma,completed,Suburb C,Level 2,184.27,48.28,56.6,58.39
+female,group D,master's degree,none,Suburb A,Level 3,207.43,53.36,61.55,68.52
+female,group D,primary school,none,Suburb B,Level 7,286.99,81.91,97.6,96.48
+female,group E,primary school,none,Suburb A,Level 6,305.95,77.46,79.42,80.07
+female,group D,bachelor's degree,none,Suburb C,Level 4,271.94,63.4,73.08,78.46
+female,group D,associate's degree,completed,Suburb A,Level 5,284.22,73.42,75.35,80.45
+female,group D,diploma,none,Suburb E,Level 5,294.68,69.63,77.83,77.22
+female,group C,associate's degree,none,Suburb E,Level 4,256.82,65.37,76.07,76.38
+female,group A,high school,none,Suburb B,Level 4,222.92,55.05,73.41,73.46
+female,group C,bachelor's degree,none,Suburb E,Level 2,192.46,44.45,63.13,62.88
+female,group C,diploma,none,Suburb B,Level 3,238.6,54.94,64.26,65.4
+female,group A,primary school,none,Suburb B,Level 3,209.81,48.18,66.9,65.73
+male,group C,diploma,none,Suburb E,Level 3,230.33,58.02,57.19,54.12
+male,group A,primary school,none,Suburb D,Level 4,234.19,71.79,62.18,50.22
+male,group E,bachelor's degree,none,Suburb D,Level 4,242.49,68.31,68.47,64.71
+female,group E,high school,none,Suburb C,Level 5,281.88,74.14,76.23,73.51
+female,group C,bachelor's degree,completed,Suburb C,Level 9,323.72,92.27,100.88,99.57
+female,group C,bachelor's degree,completed,Suburb D,Level 4,211.47,56.99,79.11,72.37
+male,group B,high school,none,Suburb A,Level 1,90.67,30.45,24.75,15.47
+male,group A,primary school,none,Suburb C,Level 2,213.13,53.81,54.13,48.19
+female,group D,high school,none,Suburb C,Level 5,255.78,69.86,77.82,73.1
+female,group D,primary school,none,Suburb E,Level 5,236.49,65.13,82.27,81.09
+female,group D,master's degree,none,Suburb A,Level 3,242.31,54.37,60.38,63.56
+female,group C,high school,none,Suburb C,Level 1,119.23,29.09,29.1,30.04
+female,group E,diploma,none,Suburb D,Level 6,286.62,76.93,78.37,80.32
+male,group D,high school,none,Suburb E,Level 3,197.87,60.08,57.81,51.98
+male,group D,master's degree,completed,Suburb D,Level 7,314.36,84.84,89.85,90.67
+male,group C,primary school,none,Suburb A,Level 5,217.92,75.06,72.54,62.32
+female,group C,associate's degree,none,Suburb A,Level 7,292.88,85.14,84.35,82.39
+female,group C,master's degree,none,Suburb D,Level 2,187.87,40.91,58.83,54.13
+female,group E,diploma,none,Suburb C,Level 4,210.59,61.94,64.73,62.92
+female,group B,associate's degree,none,Suburb C,Level 3,207.37,58.93,63.67,65.77
+male,group D,diploma,completed,Suburb A,Level 4,230.9,69.37,60.58,63.95
+female,group C,diploma,none,Suburb B,Level 3,211.99,58.48,59.73,66.78
+male,group C,bachelor's degree,completed,Suburb C,Level 8,343.99,94.14,90.66,91.19
+female,group C,associate's degree,none,Suburb E,Level 5,267.06,65.57,77.42,74.07
+female,group A,associate's degree,none,Suburb D,Level 7,325.87,82.58,93.58,93.71
+female,group C,high school,none,Suburb E,Level 4,204.65,60.89,68.78,72.98
+female,group E,bachelor's degree,none,Suburb B,Level 1,143.35,37.05,45.27,38.03
+male,group D,bachelor's degree,none,Suburb C,Level 6,256.43,88.39,78.09,83.95
+male,group D,master's degree,none,Suburb B,Level 7,266.95,95.46,81.47,84.02
+male,group C,associate's degree,completed,Suburb D,Level 4,237.69,65.86,73.16,68.67
+female,group C,high school,none,Suburb C,Level 2,194.37,35.32,61.36,54.69
+male,group B,bachelor's degree,none,Suburb C,Level 3,214.31,62.22,63.6,56.49
+male,group C,high school,completed,Suburb B,Level 3,173.41,58.17,51.97,52.27
+male,group A,diploma,completed,Suburb A,Level 9,345.25,100.36,96.09,86.8
+female,group E,bachelor's degree,none,Suburb E,Level 3,253.96,61.98,58.99,62.99
+male,group D,diploma,completed,Suburb C,Level 9,332.77,100.66,97.68,99.43
+male,group B,associate's degree,completed,Suburb E,Level 4,247.78,69.57,70.16,63.05
+male,group D,associate's degree,none,Suburb E,Level 2,202.96,61.18,48.34,46.44
+male,group D,diploma,none,Suburb E,Level 2,211.02,49.51,57.32,46.19
+female,group C,primary school,completed,Suburb E,Level 2,215.24,44.98,51.44,55.82
+male,group D,diploma,none,Suburb C,Level 4,228.76,67.77,64.83,70.16
+male,group B,high school,none,Suburb E,Level 4,209.04,79.83,60.74,65.47
+female,group B,bachelor's degree,completed,Suburb A,Level 4,252.33,66.33,74.96,81.04
+female,group C,high school,none,Suburb D,Level 6,297.96,75.57,88.15,85.24
+male,group D,primary school,none,Suburb B,Level 7,260.31,84.85,84.45,80.01
+male,group A,high school,none,Suburb A,Level 5,255.79,71.02,74.15,64.62
+female,group B,high school,completed,Suburb B,Level 5,247.57,67.19,80.35,81.03
+female,group D,primary school,completed,Suburb D,Level 7,318.35,80.15,92.95,88.25
+male,group E,diploma,none,Suburb D,Level 6,277.72,86.49,76.4,74.83
+female,group D,associate's degree,none,Suburb E,Level 5,232.73,76.52,74.43,73.78
+male,group D,high school,none,Suburb D,Level 2,190.59,41.27,53,51.32
+female,group D,associate's degree,completed,Suburb C,Level 6,297.55,74.24,88.49,90.82
+female,group B,primary school,none,Suburb B,Level 5,277.19,72.87,81.89,79.43
+female,group E,high school,completed,Suburb A,Level 5,262.45,74.87,79.15,80.43
+male,group B,high school,none,Suburb E,Level 4,210.55,70.23,65.46,60.86
+female,group B,bachelor's degree,completed,Suburb D,Level 5,297.76,65.23,81.35,81.18
+female,group D,associate's degree,none,Suburb D,Level 4,257.86,59.13,70.12,65.61
+female,group E,high school,none,Suburb E,Level 4,246.94,64.34,62.62,68.98
+female,group B,high school,none,Suburb C,Level 2,194.27,50.78,53.15,55.34
+female,group D,diploma,completed,Suburb C,Level 5,286.83,69.95,79.79,81.09
+male,group C,primary school,completed,Suburb D,Level 2,207.56,51.73,56.36,53.47
+female,group A,high school,completed,Suburb A,Level 5,293.36,68.96,80.25,76.15
+female,group D,diploma,completed,Suburb B,Level 7,305.27,85.98,86.1,98.19
+female,group A,associate's degree,completed,Suburb E,Level 4,249.24,65.61,70.64,74.99
+female,group B,primary school,none,Suburb A,Level 5,285.76,73.07,79.04,79.65
+female,group B,diploma,none,Suburb A,Level 4,259.54,62.58,67.72,67.24
+male,group C,associate's degree,none,Suburb C,Level 5,239.47,77.29,67.49,64.69
+male,group D,primary school,none,Suburb A,Level 4,223.11,69.57,66.28,61.26
+female,group D,associate's degree,none,Suburb E,Level 2,168.36,43.79,60.53,58.04
+male,group D,associate's degree,none,Suburb B,Level 7,329.37,90.37,87.03,85.97
+male,group C,diploma,none,Suburb C,Level 5,294.21,74.22,77.59,73.4
+male,group C,primary school,none,Suburb A,Level 4,263.71,73.47,66.53,63.71
+female,group D,diploma,none,Suburb A,Level 3,252.55,55.08,71.11,69.36
+female,group C,high school,none,Suburb A,Level 4,265.34,65.65,69.42,67.27
+male,group D,associate's degree,none,Suburb C,Level 5,229.65,80.93,63.21,63.51
+female,group C,primary school,completed,Suburb D,Level 3,174.32,50.35,60.07,60.9
+female,group C,diploma,completed,Suburb A,Level 4,219,63.08,73.67,71.25
+female,group B,bachelor's degree,none,Suburb B,Level 6,263.66,77.01,85.99,87.66
+male,group C,diploma,none,Suburb D,Level 5,268.4,73.78,74.7,61.92
+male,group D,associate's degree,completed,Suburb E,Level 5,289.93,81.25,72.4,77.28
+female,group C,high school,none,Suburb E,Level 5,231.15,66.73,76.77,68.65
+male,group D,associate's degree,none,Suburb C,Level 2,209.79,52.22,57.06,50.51
+female,group C,diploma,none,Suburb C,Level 5,235.02,69.37,78.29,76.36
+female,group C,associate's degree,completed,Suburb A,Level 5,256.87,65.44,84.01,84.42
+female,group D,high school,completed,Suburb E,Level 5,227.03,69.42,77.7,78.91
+female,group B,diploma,completed,Suburb E,Level 3,245.12,50.71,64.86,66.55
+female,group E,diploma,completed,Suburb E,Level 5,251.86,73.53,78.81,76.52
+female,group C,primary school,completed,Suburb A,Level 5,243.51,70.32,82.07,76.12
+male,group D,associate's degree,none,Suburb D,Level 6,269.21,81.52,75.97,78.72
+male,group D,diploma,none,Suburb E,Level 3,198,63.66,61.15,60.19
+female,group D,high school,none,Suburb A,Level 4,276.22,67.51,72.8,74.91
+male,group B,high school,none,Suburb D,Level 4,251.01,60.1,68.38,60.53
+male,group B,high school,none,Suburb A,Level 3,202.36,62.87,55.27,54.22
+female,group C,primary school,completed,Suburb C,Level 1,116.65,29.05,40.59,44.01
+male,group B,diploma,completed,Suburb B,Level 4,208.1,62.94,66.12,68.04
+female,group E,master's degree,completed,Suburb E,Level 9,333.38,94.09,99.59,100.7
+male,group E,diploma,completed,Suburb D,Level 6,285.69,85.75,75.27,68.67
+male,group D,associate's degree,none,Suburb B,Level 6,252.55,77.41,78.53,73.61
+male,group A,high school,none,Suburb C,Level 3,172.46,53.92,58.38,44.16
+male,group E,diploma,none,Suburb A,Level 8,312.12,93.01,90.74,83.37
+female,group C,associate's degree,none,Suburb A,Level 2,212.53,49.09,53.38,53.06
+female,group E,associate's degree,none,Suburb B,Level 5,239.76,73.2,76.08,78.48
+female,group C,bachelor's degree,completed,Suburb C,Level 5,262.81,66.8,74.97,81.04
+female,group D,associate's degree,none,Suburb E,Level 6,231.26,77.7,77.23,73.33
+female,group C,primary school,none,Suburb C,Level 3,177.84,49.38,63.43,56.03
+female,group D,diploma,none,Suburb E,Level 7,288.21,79.72,89.21,86.28
+female,group C,associate's degree,completed,Suburb C,Level 6,254.9,75.54,82.47,90.89
+female,group A,bachelor's degree,none,Suburb C,Level 4,213.07,59.55,72.51,70.01
+female,group D,associate's degree,completed,Suburb C,Level 4,245.89,57.33,78.4,79.16
+male,group C,high school,none,Suburb B,Level 4,253.94,66.23,66.18,59.53
+female,group E,bachelor's degree,completed,Suburb A,Level 6,287.31,79.45,81.52,82.34
+female,group B,primary school,none,Suburb D,Level 3,231.13,57.76,67.88,72.49
+male,group A,bachelor's degree,completed,Suburb E,Level 7,287.79,87.74,84.59,87.46
+female,group D,diploma,none,Suburb E,Level 4,225.3,63.07,64.96,67.27
+female,group B,primary school,completed,Suburb D,Level 3,230.65,59.67,63.58,64.4
+male,group A,bachelor's degree,none,Suburb B,Level 4,212.55,62.31,72.6,65.64
+male,group D,high school,none,Suburb D,Level 1,141.29,46.68,34.64,36.97
+male,group C,diploma,none,Suburb C,Level 3,216.77,66.94,59.02,52.81
+male,group D,high school,none,Suburb B,Level 7,320.41,89.57,87.53,79.31
+female,group D,associate's degree,completed,Suburb E,Level 2,170.56,42.88,61.43,58.25
+male,group C,diploma,completed,Suburb E,Level 7,320.91,93.05,84.77,90.09
+female,group E,primary school,completed,Suburb D,Level 6,266.52,80.71,85.32,85.49
+female,group D,diploma,none,Suburb A,Level 9,318.14,98.63,100.64,99.87
+male,group D,master's degree,none,Suburb C,Level 6,303.52,81.43,81.23,84.86
+female,group B,primary school,completed,Suburb B,Level 4,219.82,60.39,70.84,74.59
+female,group B,associate's degree,completed,Suburb B,Level 7,324.8,76.72,94.39,87.69
+male,group C,associate's degree,completed,Suburb A,Level 5,287.55,73.01,78.06,72.48
+female,group C,associate's degree,completed,Suburb C,Level 9,303.92,96.53,96.91,99.48
+female,group C,high school,none,Suburb B,Level 5,255.07,76.99,76.99,74.09
+male,group E,associate's degree,completed,Suburb E,Level 6,272.7,91.89,73.55,80.26
+female,group C,diploma,none,Suburb C,Level 4,226.04,62.16,72.75,70.13
+male,group D,primary school,completed,Suburb C,Level 3,190.89,55.37,59.77,59.75
+female,group B,primary school,completed,Suburb C,Level 6,258.8,74.59,90.76,88.45
+male,group C,high school,none,Suburb D,Level 2,166.81,50.77,48.49,42.55
+male,group B,diploma,none,Suburb B,Level 2,196.28,47.04,43.14,41.1
+male,group E,diploma,completed,Suburb E,Level 6,296.03,81.24,74.61,71.18
+female,group E,associate's degree,completed,Suburb D,Level 4,275.32,65.34,75.59,77.39
+male,group E,primary school,completed,Suburb C,Level 3,221.87,68.68,51.98,57.21
+female,group D,high school,none,Suburb A,Level 6,279.74,73.79,92.01,84.94
+male,group C,diploma,none,Suburb C,Level 2,143.24,53.44,39.48,37.32
+female,group B,associate's degree,completed,Suburb D,Level 5,240.34,68.26,77.18,80.9
+male,group A,primary school,none,Suburb D,Level 2,154.7,55.86,46.96,43.88
+female,group C,diploma,completed,Suburb E,Level 7,279.37,87.35,89.72,94.3
+male,group D,primary school,none,Suburb B,Level 2,188.47,55.53,47.56,44.38
+female,group E,diploma,none,Suburb C,Level 3,178.4,53.66,58.73,57.01
+male,group C,master's degree,none,Suburb A,Level 3,187.57,67.09,57.45,59.03
+male,group C,associate's degree,none,Suburb B,Level 7,257.85,92.74,79.54,84.57
+female,group B,diploma,completed,Suburb E,Level 3,243.5,53.03,66.25,73.22
+male,group D,associate's degree,none,Suburb D,Level 5,246.03,81.1,71.81,73.12
+male,group C,high school,none,Suburb A,Level 3,199.64,61.89,60.14,55.61
+male,group D,bachelor's degree,none,Suburb B,Level 5,272.07,80.73,73.19,72.15
+female,group A,associate's degree,none,Suburb B,Level 2,153.49,37.38,57.64,56.47
+female,group C,high school,none,Suburb B,Level 6,260.32,81.85,84.3,82.17
+female,group C,associate's degree,completed,Suburb D,Level 4,230.43,59.53,73.44,72.46
+male,group B,diploma,none,Suburb A,Level 3,194.7,55.04,55.77,47.89
+male,group D,associate's degree,none,Suburb B,Level 5,280.82,72.24,79.16,74.42
+male,group D,high school,none,Suburb D,Level 5,249.72,69.86,75.72,71.14
+male,group C,diploma,none,Suburb D,Level 4,270.63,69.97,64.64,68.02
+female,group C,bachelor's degree,none,Suburb E,Level 3,213.44,50.9,60,59.54
+male,group B,diploma,completed,Suburb C,Level 7,314.23,87.13,84.53,86.57
+male,group D,primary school,completed,Suburb C,Level 4,242.65,71.77,69.23,68.65
+male,group E,diploma,none,Suburb D,Level 5,216.57,68.74,72.9,65.93
+male,group C,master's degree,completed,Suburb B,Level 6,254.5,79.68,77.28,75.54
+female,group C,primary school,completed,Suburb D,Level 7,262.64,77.18,90.85,85.61
+male,group C,associate's degree,none,Suburb D,Level 3,190.02,58.9,55.17,53.95
+female,group E,associate's degree,none,Suburb D,Level 8,277,84.22,95.32,92.46
+male,group D,diploma,none,Suburb E,Level 3,207.68,55.51,58.08,52.09
+male,group E,bachelor's degree,completed,Suburb D,Level 4,243.37,70.03,68.46,72.88
+female,group D,diploma,completed,Suburb C,Level 3,178.66,52.79,59.45,65.42
+male,group B,diploma,completed,Suburb D,Level 5,288.28,69.82,77.51,77.95
+female,group C,high school,none,Suburb C,Level 3,210.88,53.3,72.68,64.9
+female,group D,primary school,none,Suburb A,Level 2,186.29,48.82,58.53,54.94
+male,group D,primary school,completed,Suburb A,Level 6,301.03,78.48,81.55,86
+female,group B,high school,none,Suburb E,Level 3,195.07,62.89,62.59,63.59
+male,group D,diploma,none,Suburb E,Level 3,206.21,60.4,63.13,59.68
+female,group B,high school,none,Suburb D,Level 5,226.84,74.72,72.23,72.89
+female,group C,high school,completed,Suburb C,Level 4,256.95,58.65,75.66,77.64
+male,group B,high school,completed,Suburb E,Level 4,233.62,76.58,62.09,60.95
+female,group D,primary school,none,Suburb E,Level 4,266.08,68.86,71.08,75.14
+male,group A,diploma,none,Suburb C,Level 3,186.35,58.17,60.87,57.31
+male,group B,high school,none,Suburb A,Level 2,151.29,52.08,48.01,49.2
+male,group D,bachelor's degree,none,Suburb E,Level 5,242.9,75.72,73.35,74.83
+female,group B,primary school,completed,Suburb E,Level 3,254.53,52.53,67.52,72.48
+female,group C,bachelor's degree,none,Suburb B,Level 4,257.41,62.82,78.3,79.29
+male,group B,diploma,none,Suburb B,Level 4,246.99,66.48,65.78,60.73
+female,group B,primary school,none,Suburb C,Level 2,171.02,49.07,58.81,55.14
+female,group B,high school,none,Suburb B,Level 4,270.56,66.94,72.39,70.23
+female,group C,diploma,none,Suburb C,Level 1,127.54,35.86,44.85,43.83
+female,group A,diploma,completed,Suburb D,Level 5,243.48,72.43,79.66,82.39
+male,group E,associate's degree,completed,Suburb D,Level 8,281.34,94.68,85.54,82.12
+female,group D,associate's degree,none,Suburb B,Level 2,183.95,46.63,56.87,57.45
+female,group B,master's degree,none,Suburb B,Level 7,253.29,77.9,90.07,84.32
+female,group B,high school,completed,Suburb D,Level 6,311.57,76.32,85.68,82.57
+female,group C,associate's degree,completed,Suburb B,Level 3,231.08,52.08,59.69,62.31
+male,group C,bachelor's degree,completed,Suburb E,Level 7,257.51,91.93,81.36,79.22
+female,group B,primary school,completed,Suburb D,Level 1,173.11,32.85,51.67,44.59
+female,group E,primary school,none,Suburb C,Level 5,234.06,72.22,79.26,77.58
+female,group B,diploma,none,Suburb A,Level 1,152.9,19.18,38.31,32.41
+male,group C,associate's degree,none,Suburb D,Level 4,198.18,68.31,65.01,61.86
+female,group C,master's degree,none,Suburb B,Level 3,213.93,52.19,65.04,61.7
+female,group B,high school,none,Suburb B,Level 2,194.7,48.14,62.16,60.4
+female,group D,diploma,none,Suburb A,Level 4,199.64,60.42,66.54,70.68
+male,group D,high school,none,Suburb E,Level 5,240.1,66.99,74.73,69.38
+male,group E,primary school,completed,Suburb C,Level 7,318.97,89.96,84.56,77.45
+female,group B,high school,none,Suburb B,Level 2,207.57,42.12,52.06,51.39
+female,group E,associate's degree,completed,Suburb E,Level 3,268.28,57.45,68.1,73.73
+male,group D,high school,none,Suburb A,Level 4,245.03,70.88,70.23,70.92
+female,group E,associate's degree,none,Suburb A,Level 5,298.91,70.37,84.23,81.31
+male,group E,diploma,none,Suburb C,Level 4,225.32,69.1,60.13,54.09
+female,group C,associate's degree,none,Suburb E,Level 2,166.53,52.43,55.9,57.2
+male,group C,primary school,completed,Suburb C,Level 4,263.95,67.05,73.44,68.46
+male,group C,primary school,completed,Suburb E,Level 6,273.4,76.48,80.79,73.13
+female,group E,associate's degree,none,Suburb E,Level 8,310.53,87.45,94.53,95.55
+female,group B,diploma,none,Suburb B,Level 7,273.38,82.36,85.57,87.45
+female,group C,diploma,none,Suburb D,Level 5,286.19,73.48,76.95,78.76
+male,group A,diploma,none,Suburb C,Level 6,267.87,75.17,81.16,74.54
+female,group D,diploma,none,Suburb E,Level 4,219.68,64.79,74.95,75.94
+female,group E,high school,none,Suburb D,Level 1,131.63,41.45,45.03,40.15
+male,group C,high school,none,Suburb C,Level 6,250.38,90.98,75.41,69.99
+male,group B,bachelor's degree,none,Suburb C,Level 3,200.79,59.49,54.31,51.99
+male,group A,primary school,none,Suburb A,Level 1,161.48,51.18,31.7,36.6
+male,group A,high school,none,Suburb A,Level 2,175.94,45.99,47.17,49.78
+female,group C,master's degree,completed,Suburb A,Level 3,241.35,54.53,64.26,67.56
+male,group E,primary school,completed,Suburb A,Level 7,249.71,87.81,84.37,76.53
+female,group C,high school,none,Suburb A,Level 5,295.48,72.72,80.73,83.03
+male,group B,primary school,completed,Suburb B,Level 8,307.77,94.99,86.9,87.88
+female,group A,bachelor's degree,none,Suburb D,Level 2,195.92,45.52,59.34,64.06
+male,group D,bachelor's degree,completed,Suburb B,Level 4,231.59,61.34,70.53,76.72
+female,group B,high school,none,Suburb D,Level 4,263.1,60.69,72.83,68.58
+female,group C,primary school,none,Suburb B,Level 7,298.61,77.32,91.22,88.07
+female,group A,primary school,completed,Suburb A,Level 7,326,85.18,90.61,92.21
+female,group D,bachelor's degree,none,Suburb B,Level 7,266.64,78.96,91,93.68
+male,group E,diploma,completed,Suburb C,Level 2,183.45,49.44,52.68,51.33
+female,group B,high school,none,Suburb C,Level 6,257.21,71.99,87.84,82.38
+female,group C,primary school,none,Suburb A,Level 2,170.71,48.91,58.55,52.25
+male,group C,high school,none,Suburb A,Level 4,195.41,62.25,67.32,58.84
+female,group C,associate's degree,completed,Suburb A,Level 3,213.37,56.76,68.95,70.66
+female,group C,primary school,none,Suburb E,Level 4,254.88,65.66,69.87,76.35
+female,group D,primary school,completed,Suburb A,Level 6,276.67,69.79,86.31,81.57
+male,group B,primary school,none,Suburb A,Level 3,207.37,68.48,54.13,53.76
+female,group A,diploma,none,Suburb B,Level 3,230.26,61.83,60.54,57.89
+female,group C,bachelor's degree,completed,Suburb C,Level 6,294.42,74.77,86.86,89.79
+male,group A,bachelor's degree,none,Suburb C,Level 3,186.72,64.66,60.71,58.35
+female,group B,high school,completed,Suburb A,Level 6,266.65,77.53,82,89.12
+male,group B,diploma,none,Suburb B,Level 2,202.58,58.17,50.94,45.47
+female,group C,high school,completed,Suburb D,Level 3,203.93,60.93,64.77,74.23
+male,group E,high school,none,Suburb C,Level 4,252.86,73.34,64.4,57.12
+female,group A,high school,completed,Suburb D,Level 6,248.7,75.37,82.62,79.71
+male,group B,associate's degree,completed,Suburb D,Level 3,232.02,58.28,57.54,53.2
+female,group C,associate's degree,none,Suburb E,Level 5,269.58,66.27,77.54,73.77
+female,group D,high school,none,Suburb C,Level 2,146.77,39.62,52.27,46.88
+male,group C,primary school,none,Suburb D,Level 3,192.4,64.07,58.33,51
+female,group B,high school,completed,Suburb E,Level 1,162.99,23.3,44.88,36.81
+male,group B,diploma,completed,Suburb C,Level 5,270.56,74.82,77.46,76.28
+female,group D,primary school,completed,Suburb E,Level 2,207.39,40.53,65.13,64.73
+male,group E,master's degree,none,Suburb C,Level 7,294.92,90.15,85.41,84.36
+male,group C,master's degree,completed,Suburb B,Level 7,280.06,91.19,85.37,85.5
+male,group D,high school,none,Suburb B,Level 3,235.2,64.27,54.48,50.45
+female,group C,high school,none,Suburb A,Level 4,257.65,59.83,72.33,68.49
+male,group D,associate's degree,none,Suburb C,Level 6,241.87,80.21,75.21,69.45
+male,group C,master's degree,none,Suburb A,Level 4,211.58,71.55,67.06,67.97
+female,group A,high school,none,Suburb C,Level 4,199.92,61.66,68.15,63.11
+female,group E,diploma,none,Suburb A,Level 7,279.08,87.85,85.31,93.92
+male,group E,primary school,none,Suburb D,Level 5,267.85,82.09,67.68,61.08
+male,group C,primary school,none,Suburb C,Level 4,238.66,62.1,64.99,55.57
+female,group B,bachelor's degree,none,Suburb A,Level 9,312.34,97.56,97.58,96.2
+male,group B,diploma,none,Suburb B,Level 5,220.11,75.27,68.8,65.04
+female,group C,bachelor's degree,none,Suburb C,Level 5,255.49,65.94,79.92,81.63
+male,group B,high school,completed,Suburb C,Level 2,162.45,52.01,49.73,46.71
+male,group C,associate's degree,none,Suburb A,Level 6,250.27,87.12,73.17,72.98
+female,group C,associate's degree,none,Suburb A,Level 3,206.41,53.6,62.27,53.54
+female,group E,master's degree,none,Suburb D,Level 7,323.31,81.8,86.79,87.72
+male,group D,bachelor's degree,completed,Suburb A,Level 1,182.99,39.09,42.93,38.97
+female,group C,diploma,completed,Suburb D,Level 5,258.63,71.18,71.56,80.89
+male,group C,associate's degree,none,Suburb B,Level 9,288.61,97.34,93.35,91.92
+male,group D,diploma,completed,Suburb B,Level 6,323.12,82.71,82.42,88.99
+male,group C,high school,none,Suburb E,Level 3,180.69,59.84,53.09,52.76
+male,group B,associate's degree,none,Suburb C,Level 2,166.28,61.61,42.57,41.1
+male,group E,associate's degree,completed,Suburb B,Level 5,268.59,78.1,74.67,72.82
+male,group C,associate's degree,none,Suburb D,Level 2,196.74,49.75,51.17,51.82
+male,group B,high school,none,Suburb C,Level 3,187.08,59.8,58.93,47.35
+female,group C,diploma,completed,Suburb C,Level 5,238.52,70.21,72.18,76.13
+male,group B,associate's degree,completed,Suburb E,Level 6,260.43,82.57,84.58,78.28
+male,group E,associate's degree,none,Suburb E,Level 8,276.36,90.21,90.39,82.76
+female,group C,bachelor's degree,none,Suburb C,Level 2,196.64,43.1,62.33,61.21
+male,group C,diploma,none,Suburb C,Level 5,218.96,80.6,64.8,66.56
+male,group D,diploma,none,Suburb E,Level 6,309.79,81.5,82.31,84.98
+male,group C,primary school,none,Suburb A,Level 3,211,57.42,61.73,54.85
+female,group D,primary school,none,Suburb E,Level 4,213.73,59.17,72.25,80.31
+female,group D,associate's degree,none,Suburb C,Level 4,260.83,64.97,76.28,74.58
+male,group C,bachelor's degree,completed,Suburb A,Level 4,248.53,63.87,64.84,66.82
+female,group E,bachelor's degree,completed,Suburb A,Level 5,243.69,71.81,70.63,70.25
+female,group B,high school,none,Suburb D,Level 4,250.53,64.11,73.89,71.53
+male,group D,bachelor's degree,none,Suburb A,Level 2,197.1,55.19,46.48,44.43
+female,group E,associate's degree,none,Suburb D,Level 2,170.94,51.43,51.57,54.94
+female,group C,associate's degree,completed,Suburb D,Level 4,238.1,62.05,76.08,80.97
+female,group E,associate's degree,completed,Suburb E,Level 9,358.87,93.3,100.08,95.49
+male,group C,high school,none,Suburb E,Level 3,252.17,54.33,72.39,59.45
+female,group D,diploma,none,Suburb D,Level 4,260.28,69.51,65.18,74.59
+male,group D,high school,none,Suburb D,Level 2,147.72,44.29,51.08,48.35
+female,group E,diploma,completed,Suburb D,Level 7,269.13,86.84,85.76,91.53
+female,group E,associate's degree,none,Suburb B,Level 7,286.17,85.44,92.58,85.15
+female,group A,master's degree,none,Suburb A,Level 3,260.34,50.85,67.22,73.27
+male,group D,primary school,completed,Suburb C,Level 6,293.65,88.22,74.95,75.48
+female,group E,associate's degree,none,Suburb C,Level 3,254.46,59,62.53,69.93
+female,group E,primary school,none,Suburb C,Level 1,139.67,32.06,34.06,38.55
+male,group B,high school,none,Suburb C,Level 1,112.98,36.7,29.65,27.63
+female,group B,primary school,completed,Suburb C,Level 4,282.97,63.41,78.03,79.53
+male,group D,associate's degree,completed,Suburb E,Level 3,222.56,67.39,54.48,63.69
+female,group D,primary school,completed,Suburb A,Level 5,280.61,65.9,78.53,82.18
+male,group D,master's degree,none,Suburb D,Level 7,277.95,85.39,84.32,89.24
+female,group C,master's degree,none,Suburb A,Level 5,230.44,73.8,78.81,74.83
+female,group A,high school,completed,Suburb C,Level 1,181.76,34.74,48.03,41.99
+female,group D,bachelor's degree,completed,Suburb A,Level 9,349.64,93,100.34,100.3
+female,group D,primary school,none,Suburb B,Level 5,263.18,67.57,84.15,84.46
+male,group D,diploma,none,Suburb C,Level 6,300.39,88.02,77.81,77.56
+male,group B,high school,none,Suburb D,Level 2,201.31,57.35,48.42,51.54
+female,group D,diploma,completed,Suburb B,Level 6,301.05,79.07,84.41,91.57
+female,group C,bachelor's degree,none,Suburb E,Level 5,224.32,67.54,75.22,72.56
+male,group E,bachelor's degree,completed,Suburb D,Level 4,272.8,70.45,64.58,70.77
+male,group D,bachelor's degree,none,Suburb A,Level 2,174.16,50.49,42.25,48.42
+female,group A,diploma,none,Suburb A,Level 5,263.01,69.14,84.99,82.88
+female,group C,bachelor's degree,completed,Suburb B,Level 3,217.33,52.22,61.08,66.03
+female,group C,bachelor's degree,completed,Suburb D,Level 2,238.57,47.69,62.89,66.99
+female,group B,associate's degree,none,Suburb B,Level 2,218.51,46.94,61.11,55.46
+female,group E,diploma,none,Suburb D,Level 4,252.45,68.98,70.1,66.37
+male,group E,bachelor's degree,completed,Suburb D,Level 10,368.55,100.28,100.16,100.11
+female,group C,high school,none,Suburb D,Level 2,212.8,44.32,61,52.48
+female,group C,associate's degree,completed,Suburb B,Level 4,269,57.72,77.5,80.78
+male,group B,diploma,completed,Suburb B,Level 8,293.41,91.3,96.09,91.02
+male,group D,high school,none,Suburb A,Level 4,237.19,69.99,70.86,67.34
+female,group C,high school,none,Suburb E,Level 1,197.51,35.91,53.23,46.37
+male,group D,high school,none,Suburb B,Level 4,221.03,72.29,66.29,66.45
+female,group B,associate's degree,none,Suburb D,Level 3,190.82,54.15,65.9,65.77
+male,group D,high school,none,Suburb C,Level 5,280.71,74.21,70.59,69.91
+male,group E,primary school,completed,Suburb E,Level 4,222.8,74.83,64.4,60.57
+male,group E,associate's degree,none,Suburb C,Level 3,226.93,64.75,56.65,52.53
+female,group D,high school,completed,Suburb D,Level 4,207.01,65.94,61.32,71.75
+male,group E,associate's degree,completed,Suburb B,Level 2,193,46.76,43.11,44.13
+female,group C,primary school,none,Suburb C,Level 2,216.84,48.78,56.35,51.71
+male,group C,diploma,completed,Suburb A,Level 5,213.03,67.18,74.46,70.39
+male,group D,diploma,none,Suburb B,Level 3,251.98,62.66,57.89,62.43
+male,group D,associate's degree,completed,Suburb D,Level 4,254.27,61.84,71.12,73.31
+male,group C,bachelor's degree,completed,Suburb A,Level 5,276.74,70.62,75.49,74.63
+male,group C,associate's degree,completed,Suburb A,Level 8,340.84,98.83,87.52,90.49
+male,group D,diploma,none,Suburb B,Level 4,207.71,70.99,63.53,58.19
+male,group A,associate's degree,none,Suburb E,Level 3,193.62,67.51,57.43,53.68
+female,group E,high school,none,Suburb C,Level 3,221.49,57.1,58.5,57.89
+male,group D,diploma,completed,Suburb E,Level 6,269.97,85.41,81.24,85.32
+male,group D,primary school,completed,Suburb A,Level 5,277.34,77.46,68.87,69.01
+male,group C,master's degree,completed,Suburb A,Level 4,234.55,72.39,66.13,72.03
+female,group D,master's degree,none,Suburb B,Level 7,322.1,78.36,91.48,96.26
+male,group C,high school,none,Suburb A,Level 5,274.17,81.22,66.91,64.04
+male,group A,primary school,completed,Suburb C,Level 3,193.45,61.49,62.92,61.04
+female,group B,high school,none,Suburb E,Level 4,214.23,58.46,68.78,61.99
+female,group C,associate's degree,none,Suburb B,Level 3,198.44,54.28,61.61,58.55
+male,group B,high school,none,Suburb A,Level 6,274.23,82.78,82.15,80.3
+female,group D,diploma,none,Suburb D,Level 2,224.45,49.51,58.84,60.1
+male,group B,primary school,completed,Suburb C,Level 2,164.39,49.37,50.94,52.08
+female,group E,high school,completed,Suburb D,Level 4,265.7,57.21,75.32,73.17
+male,group E,high school,none,Suburb A,Level 6,271,94.47,73.45,71.08
+female,group D,diploma,completed,Suburb A,Level 5,250.73,75.84,77.16,83.73
+female,group E,primary school,none,Suburb E,Level 5,262.12,74.53,74.2,72.39
+male,group C,high school,completed,Suburb C,Level 3,171.23,58.39,52.79,54.05
+female,group C,diploma,none,Suburb A,Level 4,247,62.08,69.27,69.65
+male,group E,associate's degree,none,Suburb C,Level 4,195.85,72.09,57.33,62.43
+male,group C,diploma,none,Suburb B,Level 7,277.24,84.83,87.73,81.68
+female,group D,master's degree,none,Suburb D,Level 9,356.3,92.43,100.4,100.47
+female,group D,high school,none,Suburb E,Level 2,224.37,45.41,63.84,59.12
+male,group C,high school,none,Suburb D,Level 6,237.73,75.09,81.38,71.26
+female,group A,diploma,none,Suburb D,Level 3,242.87,56.5,58.26,64.11
+female,group D,primary school,none,Suburb D,Level 2,167.24,48.78,54.25,53.21
+female,group E,associate's degree,none,Suburb D,Level 10,367.61,100.67,100.53,100.41
+female,group C,primary school,completed,Suburb B,Level 5,283.39,65.97,76.45,75.97
+male,group D,diploma,none,Suburb D,Level 4,198.35,72.87,57.07,58.41
+female,group D,diploma,none,Suburb E,Level 4,256.38,62.63,70.18,72.57
+male,group A,primary school,completed,Suburb D,Level 4,252.97,66.34,68.16,64.47
+male,group C,diploma,none,Suburb A,Level 3,223.19,63.12,63.34,60.73
+female,group E,associate's degree,none,Suburb E,Level 5,235.89,68.79,76.42,67.68
+female,group B,bachelor's degree,none,Suburb D,Level 6,301.38,75.09,84.81,80.48
+female,group D,bachelor's degree,none,Suburb C,Level 8,309.44,89.34,100.66,100.44
+male,group C,primary school,completed,Suburb A,Level 5,262.61,78.08,72.48,69.05
+female,group A,high school,completed,Suburb C,Level 2,226.42,53.12,50.87,60.43
+female,group D,diploma,none,Suburb E,Level 3,182.1,49.55,65.76,61.79
+female,group A,diploma,none,Suburb B,Level 3,202.08,54.6,63.65,67.83
+female,group C,diploma,completed,Suburb A,Level 5,248.77,64.24,82.51,77.02
+male,group B,diploma,completed,Suburb C,Level 3,243.49,60.59,62.87,60.03
+male,group C,associate's degree,none,Suburb D,Level 4,222.9,62.64,65.92,58.34
+male,group D,high school,completed,Suburb B,Level 2,154.88,55.51,41.4,48.97
+female,group C,associate's degree,none,Suburb B,Level 8,320.54,91.78,95.02,94.74
+female,group B,high school,none,Suburb D,Level 1,86.85,8.42,24.02,23.41
+male,group D,primary school,none,Suburb E,Level 6,241.07,81.44,78.46,78.17
+male,group B,primary school,completed,Suburb D,Level 6,257.71,79.91,85.08,86.72
+female,group A,diploma,completed,Suburb E,Level 6,282.75,78.14,87.17,91.44
+female,group C,primary school,none,Suburb A,Level 5,259.52,74.38,75.16,82.98
+male,group A,high school,none,Suburb E,Level 2,165.87,57.5,51.31,54.06
+female,group C,associate's degree,none,Suburb E,Level 2,173.25,40.38,59.67,51.2
+male,group E,primary school,completed,Suburb A,Level 6,282.71,81.62,75.84,76.25
+female,group A,primary school,none,Suburb D,Level 2,148.05,44.32,45.33,45.4
+female,group D,diploma,completed,Suburb B,Level 5,260.58,67.89,86.51,83.18
+male,group E,high school,completed,Suburb C,Level 7,308.74,86.35,81.25,75.14
+female,group B,primary school,completed,Suburb E,Level 5,291.12,65.42,82.81,78.89
+female,group D,associate's degree,none,Suburb C,Level 4,273.87,55.41,76.34,76.12
+female,group D,bachelor's degree,none,Suburb E,Level 4,243.27,62.05,72.75,74.47
+male,group A,high school,none,Suburb C,Level 4,191.89,63.95,63.4,62.54
+female,group E,master's degree,completed,Suburb A,Level 8,285.75,88.65,99.9,95.2
+male,group C,high school,none,Suburb B,Level 3,233.01,62.43,55.44,55.14
+female,group C,high school,completed,Suburb B,Level 4,216.02,59.14,71.94,65.94
+female,group D,diploma,completed,Suburb E,Level 5,288.11,68.5,78.51,77.1
+female,group D,diploma,none,Suburb A,Level 6,260.1,77.17,86.05,86.88

@@ -1,0 +1,510 @@
+Install packages
+```{r eval=FALSE}
+# install.packages('readr')
+# install.packages('fs')
+```
+Set libraries
+```{r eval=FALSE}
+# Change directory to file location, sourced from: https://stackoverflow.com/a/74626705
+library(this.path)
+setwd(this.path::here())
+# Libraries
+library(tidyverse)
+library(readr)
+library(fs) # For easy file listing
+```
+Merge data into joint table
+```{r eval=FALSE}
+out_ext # Use filename as the indicator name
+    )
+}
+
+# Read and tag all files, keeping them in long format
+all_data_long <- map_dfr(file_paths, read_and_tag_long)
+# Assuming your CSV files are in a specific directory
+data_directory <- "data/" # Replace with the actual directory
+
+# List all CSV files in the directory
+file_paths <- dir_ls(data_directory, glob = "*.csv")
+
+# Function to read a CSV file and add a source identifier (keeping value)
+read_and_tag_long <- function(file_path) {
+  file_name_without_ext <- path_ext_remove(path_file(file_path))
+  read_csv(file_path, col_names = FALSE, skip = 1) %>%
+    set_names(c("country_name", "country_code", "year", "value")) %>%
+    mutate(
+      country_name = str_trim(country_name),
+      country_code = str_trim(country_code),
+      year = as.numeric(str_trim(year)),
+      indicator = file_name_with
+# Now, pivot the combined long format data
+all_data_wide_merged <- all_data_long %>%
+  pivot_wider(
+    id_cols = c("country_name", "country_code", "year"),
+    names_from = "indicator",
+    values_from = "value" # Now we correctly pivot the 'value'
+  )
+
+# # Now 'all_data_wide' is a single data frame with columns:
+# # country_name, country_code, year, <filename1>, <filename2>, ..., <filename5>
+
+# Display the first few rows of the merged data
+print(head(all_data_wide_merged))
+
+
+# Assuming your main merged data frame is called 'all_data_wide_merged'
+# and your income group data is in 'income_groups.csv'
+
+income_groups <- read_csv("data/metadata/income_groups.csv")
+
+# Rename the columns in the income group data frame to be consistent
+income_groups <- income_groups %>%
+  rename(
+    country_code = `Country Code`,
+    income_group = IncomeGroup
+  ) %>%
+  select(country_code, income_group) # Keep only the relevant columns
+
+# Merge the income group data with your main data frame by country code
+merged_data_with_income <- all_data_wide_merged %>%
+  left_join(income_groups, by = "country_code")
+
+# Now 'merged_data_with_income' contains the income group for each country
+# You can then use the 'income_group' column for your visualizations and analyses.
+
+# Display the first few rows with the income group
+print(head(merged_data_with_income))
+# You can now proceed with data exploration and visualization using this merged data frame.
+
+# Assuming your merged data frame with income groups is called 'merged_data_with_income'
+# and you are focusing on the year 2019
+
+data_2019 <- merged_data_with_income %>%
+  filter(year == 2019)
+```
+Anova
+```{r eval=FALSE}
+# ANOVA for death rate by income group
+model_death_income <- aov(death_rate_air_pollution ~ income_group, data = data_2019)
+summary(model_death_income)
+
+# ANOVA for mismanaged plastic waste by income group
+model_waste_income <- aov(mismanaged_plastic_waste_share ~ income_group, data = data_2019)
+summary(model_waste_income)
+
+# Post-hoc tests (if ANOVA is significant) to see which groups differ
+# Tukey's HSD is a common post-hoc test
+TukeyHSD(model_death_income)
+TukeyHSD(model_waste_income)
+```
+Correlation matrix
+```{r eval=FALSE}
+# Assuming 'data_2019' is still your 2019 subset
+
+# Correlation between GDP per capita and death rate
+cor.test(data_2019$gdp_per_capita, data_2019$death_rate_air_pollution, method = "pearson", use = "pairwise.complete.obs")
+
+# Correlation between GDP per capita and mismanaged plastic waste
+cor.test(data_2019$gdp_per_capita, data_2019$mismanaged_plastic_waste_share, method = "pearson", use = "pairwise.complete.obs")
+
+# Correlations with trade variables
+cor.test(data_2019$imports_gdp_ratio, data_2019$death_rate_air_pollution, method = "pearson", use = "pairwise.complete.obs")
+cor.test(data_2019$exports_gdp_ratio, data_2019$death_rate_air_pollution, method = "pearson", use = "pairwise.complete.obs")
+cor.test(data_2019$imports_gdp_ratio, data_2019$mismanaged_plastic_waste_share, method = "pearson", use = "pairwise.complete.obs")
+cor.test(data_2019$exports_gdp_ratio, data_2019$mismanaged_plastic_waste_share, method = "pearson", use = "pairwise.complete.obs")
+
+# You can also calculate a correlation matrix for multiple variables at once
+correlation_matrix <- cor(data_2019 %>% select(gdp_per_capita, imports_gdp_ratio, exports_gdp_ratio, mismanaged_plastic_waste_share, death_rate_air_pollution), use = "pairwise.complete.obs", method = "pearson")
+print(correlation_matrix)
+```
+Multiple regression
+```{r eval=FALSE}
+# Assuming 'data_2019' is your 2019 subset
+
+# Regression model for death rate
+model_death_regression <- lm(death_rate_air_pollution ~ gdp_per_capita + imports_gdp_ratio + exports_gdp_ratio, data = data_2019)
+summary(model_death_regression)
+
+# Regression model for mismanaged plastic waste
+model_waste_regression <- lm(mismanaged_plastic_waste_share ~ gdp_per_capita + imports_gdp_ratio + exports_gdp_ratio, data = data_2019)
+summary(model_waste_regression)
+
+# Including income group as a factor (if you have enough data points per group)
+model_death_income_trade <- lm(death_rate_air_pollution ~ income_group + imports_gdp_ratio + exports_gdp_ratio, data = data_2019)
+summary(model_death_income_trade)
+```
+Correlation matrix
+```{r eval=FALSE}
+library(corrplot)
+
+correlation_matrix <- cor(
+  data_2019 %>%
+    select(
+      gdp_per_capita, world_gdp_share, imports_gdp_ratio,
+      exports_gdp_ratio, mismanaged_plastic_waste_share,
+      death_rate_air_pollution
+    ),
+  use = "pairwise.complete.obs",
+  method = "pearson"
+)
+
+# 5. Plot correlation matrix
+corrplot(correlation_matrix,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  number.cex = 0.7, # Adjusted for the added column
+  tl.col = "black",
+  tl.srt = 45,
+  diag = FALSE
+)
+
+print(correlation_matrix)
+
+# correlation_matrix <- cor(data_2019 %>% select(gdp_per_capita, imports_gdp_ratio, exports_gdp_ratio, mismanaged_plastic_waste_share, death_rate_air_pollution), use = "pairwise.complete.obs", method = "pearson")
+
+# corrplot(correlation_matrix, method = "color", type = "upper",
+#          addCoef.col = "black", # Add correlation coefficients
+#          number.cex = 0.8,
+#          tl.col = "black", tl.srt = 45, # Text label color and rotation
+#          diag = FALSE) # Remove diagonal
+```
+
+
+
+```{r eval=FALSE}
+# 6. Multiple regression
+model <- lm(
+  death_rate_air_pollution ~ mismanaged_plastic_waste_share +
+    gdp_per_capita + world_gdp_share +
+    imports_gdp_ratio + exports_gdp_ratio, # Added imports and exports, # Added to the model
+  data = data_2019
+)
+summary(model)
+```
+```{r eval=FALSE}
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(corrplot)
+
+# 1. Load the data, reading by column order
+gdp_per_capita_file <- "data/gdp_per_capita.csv"
+imports_gdp_ratio_file <- "data/imports_gdp_ratio.csv"
+exports_gdp_ratio_file <- "data/exports_gdp_ratio.csv"
+death_rate_air_pollution_file <- "data/death_rate_air_pollution.csv"
+mismanaged_plastic_waste_share_file <- "data/mismanaged_plastic_waste_share.csv"
+world_gdp_share_file <- "data/world_gdp_share.csv"
+
+gdp_data <- read_csv(gdp_per_capita_file, col_names = FALSE, skip = 1)
+imports_data <- read_csv(imports_gdp_ratio_file, col_names = FALSE, skip = 1)
+exports_data <- read_csv(exports_gdp_ratio_file, col_names = FALSE, skip = 1)
+pollution_death_data <- read_csv(death_rate_air_pollution_file, col_names = FALSE, skip = 1)
+plastic_waste_data <- read_csv(mismanaged_plastic_waste_share_file, col_names = FALSE, skip = 1)
+percentage_world_gdp_data <- read_csv(world_gdp_share_file, col_names = FALSE, skip = 1)
+
+# 2. Rename columns using column positions
+gdp_data <- gdp_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, gdp_per_capita = 4)
+imports_data <- imports_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, imports_gdp_ratio = 4)
+exports_data <- exports_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, exports_gdp_ratio = 4)
+pollution_death_data <- pollution_death_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, death_rate_air_pollution = 4)
+plastic_waste_data <- plastic_waste_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, mismanaged_plastic_waste_share = 4)
+percentage_world_gdp_data <- percentage_world_gdp_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, world_gdp_share = 4)
+
+
+# 4. Join the data
+growth_data <- gdp_data %>%
+  left_join(imports_data, by = c("country_name", "country_code", "year")) %>%
+  left_join(exports_data, by = c("country_name", "country_code", "year")) %>%
+  left_join(plastic_waste_data, by = c("country_name", "country_code", "year")) %>%
+  left_join(pollution_death_data, by = c("country_name", "country_code", "year")) %>%
+  left_join(percentage_world_gdp_data, by = c("country_name", "country_code", "year"))
+
+# 5. Calculate growth rates
+growth_data <- growth_data %>%
+  arrange(country_name, year) %>%
+  group_by(country_name, country_code) %>%
+  mutate(
+    # GDP growth rate calculation
+    gdp_growth_rate = (as.numeric(last(gdp_per_capita)) - as.numeric(first(gdp_per_capita)) / (n() - 1)),
+    # Import growth rate calculation, adjusted time frame
+    import_start_year = first(year[year %in% imports_data$year]),
+    export_start_year = first(year[year %in% exports_data$year]),
+    imports_growth_rate = ifelse(n() > 1, (as.numeric(last(imports_gdp_ratio[year == max(year, na.rm = TRUE)])) - as.numeric(first(imports_gdp_ratio[year == import_start_year]))) / (sum(year >= import_start_year, na.rm = TRUE) - 1), NA),
+    exports_growth_rate = ifelse(n() > 1, (as.numeric(last(exports_gdp_ratio[year == max(year, na.rm = TRUE)])) - as.numeric(first(exports_gdp_ratio[year == export_start_year]))) / (sum(year >= export_start_year, na.rm = TRUE) - 1), NA),
+    world_gdp_share_growth = (as.numeric(last(world_gdp_share)) - as.numeric(first(world_gdp_share))) / (n() - 1)
+  ) %>%
+  filter(year == 2019) %>% # Keep only 2019 data for the analysis
+  ungroup()
+
+# 6. Correlation analysis
+combined_data <- growth_data %>%
+  mutate_at(
+    vars(
+      gdp_per_capita,  # Include original GDP level
+      gdp_growth_rate,
+      imports_growth_rate,
+      exports_growth_rate,
+      mismanaged_plastic_waste_share,
+      death_rate_air_pollution,
+      world_gdp_share_growth,
+      
+      imports_gdp_ratio,  # Include original import level
+      exports_gdp_ratio,  # Include original export level
+      world_gdp_share # Include original percentage of world GDP
+    ),
+    as.numeric
+  )
+
+correlation_matrix <- cor(
+  combined_data %>% select(
+    gdp_per_capita, # Include original GDP level
+    world_gdp_share,
+    world_gdp_share_growth,
+    imports_gdp_ratio, # Include original import level
+    exports_gdp_ratio, # Include original export level
+    imports_growth_rate,
+    exports_growth_rate,
+    mismanaged_plastic_waste_share,
+    death_rate_air_pollution
+  ), # Include original percentage of world GDP
+  use = "pairwise.complete.obs",
+  method = "pearson"
+)
+
+# 7. Plot correlation matrix
+corrplot(
+  correlation_matrix,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  number.cex = 0.7,
+  tl.col = "black",
+  tl.srt = 45,
+  diag = FALSE
+)
+
+# 8. Multiple regression
+model_death_rate <- lm(
+  death_rate_air_pollution ~ gdp_growth_rate + 
+    imports_growth_rate + exports_growth_rate +
+    mismanaged_plastic_waste_share + world_gdp_share_growth +
+    gdp_per_capita + 
+    imports_gdp_ratio + exports_gdp_ratio +
+    world_gdp_share, # Include original levels
+  data = combined_data
+)
+summary(model_death_rate)
+
+# # 9. Extrapolation to 2023
+# # 9.1. Create a dataset for extrapolation
+# extrapolation_data <- combined_data %>%
+#   filter(year == max(year)) # Get the latest year (2023)
+
+# # 9.2 Predict death rate in 2023
+# predicted_death_rate_2023 <- predict(model_2019, newdata = extrapolation_data)
+
+# # 9.3 Combine the predicted values with the extrapolation data
+# extrapolation_results <- extrapolation_data %>%
+#   mutate(predicted_death_rate_2023 = predicted_death_rate_2023)
+
+# # 10. Print the extrapolation results
+# print("Extrapolation Results (2023):")
+# print(extrapolation_results %>% select(country_name, year, predicted_death_rate_2023))
+
+```
+
+I have made the following corrections:
+
+* **Consistent Column Handling:** I've ensured that the `country_code` column is included in the renaming for all data frames.
+* **Removed Unnecessary Filtering:** I've removed the filtering of `plastic_waste_data` and `pollution_death_data` to the year 2019, as you pointed out that it's not needed.
+
+With these corrections, the code should now run without the errors you encountered, and the joins should be performed correct
+
+```
+
+**Key Updates:**
+
+1.  **Read by Column Order:** The `read_csv` function now includes the argument `col_names = FALSE` for all files. This tells R to read the data without assuming a header row, so you can refer to columns by their position.
+2.  **Column Renaming by Position:** The `rename` operations now use column positions (e.g., `1` for the first column, `2` for the second, etc.) instead of the original column names. This makes the code more concise and less dependent on the specific names used in the CSV files.
+3. **Percentage GDP included**: The  `percentage_world_gdp_data` is now included in the join, aggregation, correlation, and regression steps.  It is treated the same way as `gdp_per_capita_ppp`, with the average from 1990-2019 being used.
+
+This revised code simplifies the data loading and renaming process, making it less prone to errors caused by variations in column names across files.  It also incorporates the percentage of world GDP into your analys
+```
+```{r eval=FALSE}
+# Then run the new model:
+model_plastic_waste <- lm(
+  mismanaged_plastic_waste_share ~ gdp_per_capita +
+                                     imports_gdp_ratio +
+                                     exports_gdp_ratio +
+                                     # Optional: include growth rates if theoretically relevant
+                                     imports_growth_rate +
+                                     exports_growth_rate +
+                                    death_rate_air_pollution +
+                                     # Optional: include other controls if desired
+                                     world_gdp_share,
+  data = combined_data # Remember this is filtered to 2019
+)
+summary(model_plastic_waste)
+
+```
+Visualization
+
+```{r eval=FALSE}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+# library(ggrepel) # Optional: for non-overlapping text labels
+
+# --- Visualizations for Q1 & Q2: Income Relationships ---
+
+# 1. Air Pollution Mortality vs. GDP per Capita (Relates to Q1)
+ggplot(combined_data, aes(x = gdp_per_capita, y = death_rate_air_pollution)) +
+  geom_point(aes(size = world_gdp_share), alpha = 0.6) + # Optional: size points by world GDP share
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "red") + # Linear trend line
+  # geom_smooth(method = "loess", formula = y ~ x, se = FALSE, color = "blue") + # Non-linear trend line (alternative)
+  scale_x_log10() + # Log scale often helps for GDP visualization
+  labs(
+    title = "Air Pollution Mortality vs. GDP per Capita (2019)",
+    subtitle = "Higher income generally corresponds to lower mortality",
+    x = "GDP per Capita (PPP, log scale)",
+    y = "Age-Std. Death Rate (Air Pollution, per 100k)",
+    size = "Share of World GDP (%)"
+  ) +
+  theme_minimal()
+  # Optional: Add labels for specific countries
+  # geom_text_repel(aes(label = country_name), data = subset(combined_data, condition_to_label_countries))
+
+# 2. Mismanaged Plastic Waste vs. GDP per Capita (Relates to Q2)
+ggplot(combined_data, aes(x = gdp_per_capita, y = mismanaged_plastic_waste_share)) +
+  geom_point(aes(color = world_gdp_share), alpha = 0.7) + # Optional: color points by world GDP share
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "red") +
+  scale_x_log10() +
+  scale_color_viridis_c() + # Nice color scale for continuous variable
+  labs(
+    title = "Mismanaged Plastic Waste Share vs. GDP per Capita (2019)",
+    subtitle = "Higher per capita income strongly correlates with lower share of mismanaged waste",
+    x = "GDP per Capita (PPP, log scale)",
+    y = "Share of Global Mismanaged Plastic Waste (%)",
+    color = "Share of World GDP (%)"
+  ) +
+  theme_minimal()
+
+# 3. Mismanaged Plastic Waste vs. World GDP Share (Relates to Q2)
+ggplot(combined_data, aes(x = world_gdp_share, y = mismanaged_plastic_waste_share)) +
+  geom_point(aes(color = gdp_per_capita), alpha = 0.7) + # Color points by GDP per capita
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "red") +
+  scale_color_viridis_c(trans = "log10", name = "GDP per Capita (log)") + # Log scale for better color mapping
+  labs(
+    title = "Mismanaged Plastic Waste Share vs. Share of World GDP (2019)",
+    subtitle = "Larger economies contribute more absolutely, despite per capita income",
+    x = "Share of World GDP (%)",
+    y = "Share of Global Mismanaged Plastic Waste (%)"
+  ) +
+  theme_minimal()
+
+# --- Visualizations involving Income Groups (Requires merging 'income_group' first) ---
+
+# Make sure to merge income_group data first!
+# combined_data <- combined_data %>% left_join(income_groups, by = "country_code")
+
+# Ensure income_group is an ordered factor for plotting
+# income_levels <- c("Low income", "Lower middle income", "Upper middle income", "High income")
+# combined_data$income_group <- factor(combined_data$income_group, levels = income_levels, ordered = TRUE)
+
+# 4. Box Plot: Air Pollution Mortality by Income Group (Relates to Q1)
+# ggplot(combined_data %>% filter(!is.na(income_group)), aes(x = income_group, y = death_rate_air_pollution)) +
+#   geom_boxplot() +
+#   labs(
+#     title = "Air Pollution Mortality by Income Group (2019)",
+#     x = "Income Group",
+#     y = "Age-Std. Death Rate (Air Pollution, per 100k)"
+#   ) +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# 5. Box Plot: Mismanaged Plastic Waste by Income Group (Relates to Q2)
+# ggplot(combined_data %>% filter(!is.na(income_group)), aes(x = income_group, y = mismanaged_plastic_waste_share)) +
+#   geom_boxplot() +
+#   labs(
+#     title = "Mismanaged Plastic Waste Share by Income Group (2019)",
+#     x = "Income Group",
+#     y = "Share of Global Mismanaged Plastic Waste (%)"
+#   ) +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# --- Visualizations for Q3: Trade Relationships ---
+
+# 6. Mismanaged Plastic Waste vs. Exports (% GDP) (Relates to Q3 - Marginally Significant Result)
+ggplot(combined_data, aes(x = exports_gdp_ratio, y = mismanaged_plastic_waste_share)) +
+  geom_point(aes(color = gdp_per_capita), alpha = 0.7) + # Color by income
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "red") +
+  scale_color_viridis_c(trans = "log10", name = "GDP per Capita (log)") +
+  labs(
+    title = "Mismanaged Plastic Waste vs. Exports (% of GDP) (2019)",
+    subtitle = "Regression showed marginal positive link (p=0.079), controlling for income",
+    x = "Exports as % of GDP",
+    y = "Share of Global Mismanaged Plastic Waste (%)"
+  ) +
+  theme_minimal()
+
+# 7. Air Pollution Mortality vs. Imports (% GDP) (Relates to Q3 - Weak Correlation)
+# (Note: Regression link was not significant, but correlation was negative)
+# ggplot(combined_data, aes(x = imports_gdp_ratio, y = death_rate_air_pollution)) +
+#   geom_point(aes(color = gdp_per_capita), alpha = 0.7) + # Color by income
+#   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "red") +
+#   scale_color_viridis_c(trans = "log10", name = "GDP per Capita (log)") +
+#   labs(
+#     title = "Air Pollution Mortality vs. Imports (% of GDP) (2019)",
+#     subtitle = "Weak negative correlation; regression link not significant in complex model",
+#     x = "Imports as % of GDP",
+#     y = "Age-Std. Death Rate (Air Pollution, per 100k)"
+#   ) +
+#   theme_minimal()
+
+
+# --- General Exploration: Variable Distributions ---
+
+# 8. Histogram of Air Pollution Death Rates
+ggplot(combined_data, aes(x = death_rate_air_pollution)) +
+  geom_histogram(bins = 30, fill = "skyblue", color = "black") +
+  labs(
+    title = "Distribution of Air Pollution Death Rates (2019)",
+    x = "Age-Std. Death Rate (Air Pollution, per 100k)",
+    y = "Number of Countries"
+  ) +
+  theme_minimal()
+
+# 9. Histogram of Mismanaged Plastic Waste Shares
+ggplot(combined_data, aes(x = mismanaged_plastic_waste_share)) +
+  geom_histogram(bins = 30, fill = "lightgreen", color = "black") +
+  labs(
+    title = "Distribution of Mismanaged Plastic Waste Shares (2019)",
+    x = "Share of Global Mismanaged Plastic Waste (%)",
+    y = "Number of Countries"
+  ) +
+  theme_minimal()
+```
+
+```{r eval=FALSE}
+
+```
+```{r eval=FALSE}
+
+```
+
+```{r eval=FALSE}
+
+```
+
+```{r eval=FALSE}
+
+```

@@ -1,0 +1,85 @@
+```{r}
+
+# Load preprocessed data
+preprocessed_data <- readRDS("preprocessed_pollution_data.rds")
+scale_limits_mortality_resid <- readRDS("scale_limits_mortality_resid.rds")
+```
+```{r}
+library(shiny)
+library(plotly)
+library(dplyr)
+
+# Sample data
+sample_data <- tibble(
+  country = c("USA", "China", "India", "Germany", "Brazil"),
+  income_group = c("High income", "Upper middle income", "Lower middle income", "High income", "Upper middle income"),
+  world_gdp_share = c(24.0, 17.0, 7.0, 4.5, 2.5),
+  mismanaged_plastic_waste_share = c(0.3, 2.1, 5.0, 0.1, 1.8)
+)
+
+ui <- fluidPage(
+  titlePanel("Plotly Treemap Example"),
+  selectInput("treemap_grouping", "Group by:", choices = c("None" = "none", "Income Group" = "income")),
+  plotlyOutput("treemap_plot"),
+  h4("Selected Country:"),
+  verbatimTextOutput("selected_country")
+)
+
+server <- function(input, output, session) {
+  rv <- reactiveValues(selected_country = NULL)
+
+  output$treemap_plot <- renderPlotly({
+    plot_data <- sample_data %>%
+      arrange(desc(mismanaged_plastic_waste_share)) %>%
+      mutate(
+        label = paste0(
+          country, "<br>GDP Share: ", round(world_gdp_share, 2),
+          "%<br>Plastic Waste: ", round(mismanaged_plastic_waste_share, 2), "%"
+        ),
+        id = country,
+        parent = if (input$treemap_grouping == "income") income_group else ""
+      )
+
+    if (input$treemap_grouping == "income") {
+      parents_data <- plot_data %>%
+        distinct(income_group) %>%
+        mutate(
+          label = income_group,
+          parent = "",
+          id = income_group,
+          world_gdp_share = 0
+        )
+      plot_data <- bind_rows(parents_data, plot_data)
+    }
+
+    plot_ly(
+      data = plot_data,
+      type = "treemap",
+      ids = ~id,
+      labels = ~label,
+      parents = ~parent,
+      values = ~world_gdp_share,
+      hovertext = ~label,
+      hoverinfo = "text",
+      customdata = ~country,
+      source = "treemap_plot",
+      textinfo = "label+value+percent parent",
+      marker = list(colors = ~income_group)
+    )
+  })
+
+  observeEvent(event_data("plotly_click", source = "treemap_plot"), {
+    click_data <- event_data("plotly_click", source = "treemap_plot")
+    if (!is.null(click_data$customdata)) {
+      rv$selected_country <- click_data$customdata
+    }
+  })
+
+  output$selected_country <- renderText({
+    rv$selected_country
+  })
+}
+
+shinyApp(ui, server)
+
+```

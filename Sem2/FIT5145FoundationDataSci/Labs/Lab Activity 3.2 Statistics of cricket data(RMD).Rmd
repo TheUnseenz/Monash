@@ -1,0 +1,235 @@
+---
+title: "Applied class 3"
+author: "Quang Bui and Chris Yun"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: haddock
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+This applied class explores cricket statistics from 2 different sources: an R package and via web scraping.
+
+## Cricket data
+
+[`cricketdata`](https://github.com/ropenscilabs/cricketdata) is an R package from rOpenSci, which contains data on all international cricket matches is provided by ESPNCricinfo.
+
+## T20 batting
+
+* Load the `tidyverse` 
+* Read the Cricket_data.csv 
+* Filter the data for your two favourite countries. Here we have chosen Australia and India.
+
+```{r}
+# Load tidyverse
+library(tidyverse)
+
+# import the dataset
+mt20 <- read_csv('CricketData.csv')
+
+# Filter for only Australia and India
+mt20_aus_ind <- mt20 %>%
+  filter(Country %in% c("India", "Australia"))
+```
+
+### Look at `mt20_aus_ind`
+
+In a game of cricket, teams take turns batting and bowling. The objective of the batting team is to score as many runs as possible, while the bowling team's objective is prevent the batting team from scoring runs. At the end of an innings, the batting and bowling team swaps. The team with the highest runs wins the match.
+
+Look at what is inside of `mt20_aus_ind` by running it from a code chunk.
+
+```{r}
+# Print mt20_aus_ind
+# mt20_aus_ind
+head(mt20_aus_ind)
+```
+
+* How many rows and columns are in `mt20_aus_ind`?
+* What does each row in `mt20_aus_ind` represent?
+* What function returns the top of `mt20_aus_ind`, i.e., the first 6 rows?
+
+
+We can learn more about `mt20_aus_ind` by visualising it. For continuous numerical variables, e.g., 
+
+* average run score 
+* strike rate 
+
+or discrete numerical variables that take on a wide range of numbers, e.g., 
+
+* player's highest run score
+* total runs scored 
+
+we can visualise their distribution with histograms or box plots. Understanding how these variables are distributed provides us with information about their central tendency (mean, median, mode), variability (standard deviation, IQR, range) and shape (skewness).
+
+Before performing any analysis, we will need to convert the data into a tidy long form:
+
+* Take `mt20_aus_ind` and select only variables `Player`, `Country`, `NotOuts`, `HighScore`, `Average`, `StrikeRate`, `Hundreds`, `Fifties`, `Ducks`, `Fours`, `Sixes`.
+* Convert this data into a tidy long form using `gather()`
+* Gather all columns in `mt20_aus_ind` except `Player` and `Country`, specifying the `key` and `value` as `Bat_Stats` and `Value`.
+* Store this tidy long form data of men's T20 batting statistics in an object named `mt20_aus_ind_long`.
+* Print `mt20_aus_ind_long`
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Convert mt20_aus_ind to long form
+mt20_aus_ind_long <- mt20_aus_ind %>%
+  select(Player, Country, NotOuts, HighScore, Average, StrikeRate, Hundreds, Fifties, Ducks, Fours, Sixes) %>%
+  gather(Bat_Stats, Value, -Player, -Country)
+
+# Print mt20_aus_ind_long
+mt20_aus_ind_long
+```
+
+
+* How many rows and columns are in `mt20_aus_ind_long`?
+* What information does the column `Bat_Stats` contain?
+* What information does the column `Value` contain?
+
+### Comparing batting statistics
+
+We can compare each country's batting statistics by visualising how they are distributed. A good way to do this with side-by-side box plots:
+
+* Take `mt20_aus_ind_long` and pipe in the `ggplot()` function.
+* Add layers to the `ggplot` call:
+  * 1st layer: The `x` aesthetic should be `Country` and the `y` aesthetic the values of the battling statistics.
+  * 2nd layer: Box plots are the visual elements we want to use for our graph, so add `geom_boxplot()`.
+  * 3rd layer: Another visual element we want to include is jittered data, so add `geom_jitter()`.
+  * 4th layer: Facet the graph by the variable that represents batting statistics.
+  * 5th layer: Add labels to your graph with `labs()`.
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE, fig.width=8, fig.height=8}
+# Box plots of countries by batting statistics
+mt20_aus_ind_long %>%
+  ggplot(aes(x = Country,  y = Value)) +
+  geom_boxplot(outlier.alpha = 0) + # hide the outliers
+  geom_jitter(alpha = 0.3) +
+  facet_wrap(~ Bat_Stats, scales = "free") +
+  labs(title = "Distribution of Australian and Indian batting statistics",
+       caption = "Data source: https://github.com/ropenscilabs/cricketdata")
+```
+
+
+* Explain what do the warning messages tell us about our data?
+* Based on the above 9 numerical variables that contain batting statistics from Australian and Indian cricket players, what do you conclude about each countries batting performance?
+* Which 2 variables look most symmetrically distributed?
+
+
+### Computing grouped statistics
+
+While it is not insightful to compare each country's batting performance based on total runs (some countries may have players that collectively have played many more matches than other countries, so these countries may have higher total runs simply because they have played more matches), we might want to compare each country's total runs divided by total matches. Of course, in many cricket games (T20 included), there will be players that play a match without batting at all and that should be kept in mind. To develop this checking mechanism, we need to understand the data that we're analysing. Here, some research on cricket and how a T20 match is played may be helpful.
+
+Returning back to the wide form data, `mt20_aus_ind`, fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Compute mean of total runs divided by total matches
+mt20_aus_ind %>%
+  group_by(Country) %>%
+  summarise(total_runs = sum(Runs, na.rm = TRUE),
+            total_matches = sum(Matches, na.rm = TRUE),
+            totalruns_totalmatches = total_runs/total_matches) %>%
+  ungroup()
+```
+
+* Which country has players with more experience in T20 cricket, i.e., has played more matches?
+* Which country has the higher average of total runs by total matches? Can you confidently conclude that this country's batting performing in T20 cricket is superior?
+
+
+### Relationship between average runs and strike rate
+
+Another statistic that we can explore is the [strike rate](https://en.wikipedia.org/wiki/Cricket_statistics), which represents the average number of runs scored per 100 balls faced.
+
+Again, using the wide form data, `mt20_aus_ind`, fill out the missing parts of the code chunk (`???`) to obtain a scatter plot of average runs by strike rate:
+
+```{r eval=FALSE}
+# Scatter plot of average runs and strike rate
+mt20_aus_ind %>%
+  ggplot(aes(x = StrikeRate, y = Average, colour = Country)) +
+  geom_jitter(alpha = 0.5) +
+  labs(title = "Relationship between average runs and strike rate")
+```
+
+
+* What does the warning message tell you about the data?
+* What is the relationship between average run and strike rate? Does this differ by country?
+* How might you inspect values of average run along the upper limit of the graph (above 50 runs)?
+* Explain what these values represent. 
+
+
+
+## Web scraping T20I cricket data
+
+The ICC Men's T20I Team Rankings is an international Twenty20 cricket rankings system of the International Cricket Council. We want to scrap the "Current rankings" table on the wikipedia page from [https://en.wikipedia.org/wiki/ICC_Men%27s_T20I_Team_Rankings](https://en.wikipedia.org/wiki/ICC_Men%27s_T20I_Team_Rankings). 
+
+### `rvest` pakage for web scraping
+
+To scrape the T20I ratings data from the web:
+
+* Load the `rvest` package
+* Store the T2oI URL as a object
+  * T20 URL can be stored as an object named `t20i_url`
+* Use the `read_html()` function from the `rvest` package to scrape data from `t20i_url`
+  * T20 scraped data can be stored as a object named `t20i_page`
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Load rvest
+library(rvest)
+
+# Store T20 URL as an object named t20_url
+t20i_url <- "https://en.wikipedia.org/wiki/ICC_Men%27s_T20I_Team_Rankings"
+
+# Scrape T20 data
+t20i_page <- read_html(t20i_url)
+```
+
+
+The HTML table element inside of `t20i_page`  can be extracted and returned as a data frame with the `html_element and html_table()` functions from the `rvest` package.
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Extract T20I ratings table from t20i_page
+t20i_tables <- html_element(t20i_page, "table.sortable") %>% 
+  html_table()
+
+### Pre-process the dataset (e.g.: Change column names and remove some rows)
+# rename columns
+colnames(t20i_tables)=c("Team", "Matches","Points", "Rating" )
+
+# remove some rows
+t20i_tables <- t20i_tables[-100, ] # data before element 100
+
+  # To simplify, keep top 20 countries
+t20i_tables <- t20i_tables[1:20, ]
+```
+
+
+### Country's rating in T20I
+
+Below are bar plots of each countries' rating in T20I cricket, arranged from highest to lowest. To replicate this plot, you will need to add an `x` and `y` aesthetic (with the variable in the `x` aesthetic ordered using the `fct_reorder()` function), add a geom layer that tells R to use bars as visual elements for the plot, add a layer to flip the x and y axis (`coord_flip()`) and add the last layer to lab the titles of the plot.
+
+```{r fig.height=8, fig.width=11, echo=TRUE}
+# converting the Rating column into the integer data type
+t20i_tables$Rating <- as.integer()
+
+# Bar plots of country rating in T20I
+t20i_tables %>%
+  ggplot(aes(???)) +
+  ??? +
+  ??? +
+  labs(title = "Country rating for T20I cricket")
+```
+
+All of the material is copyrighted under the [Creative Commons BY-SA 4.0](https://creativecommons.org/licenses/by/4.0/) copyright.

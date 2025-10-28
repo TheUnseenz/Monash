@@ -1,0 +1,9 @@
+**/git_ignore/**
+**/data/**
+data*
+.*/
+models*
+cloned_repos*
+**/cloned_repos/
+checkpoints*
+**/checkpoints/

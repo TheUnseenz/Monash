@@ -1,0 +1,295 @@
+
+```{r}
+install.packages("car") # For vif() to check multicollinearity
+```
+```{r}
+library(this.path)
+setwd(this.path::here())
+# Install packages if you haven't already (only run once)
+# install.packages("tidyverse")
+# install.packages("corrplot")
+# install.packages("dplyr")
+
+# Load necessary libraries
+library(tidyverse)
+library(corrplot)
+library(dplyr)
+library(car) # Useful for VIF (Variance Inflation Factor) to check multicollinearity
+library(broom)  # For tidy()
+
+# --- Read Your CSV File ---
+social_media_addiction_df <- read_csv("data/Students Social Media Addiction.csv")
+
+# --- Basic Data Inspection ---
+cat("--- Head of Data ---\n")
+head(social_media_addiction_df)
+cat("\n--- Summary of Data ---\n")
+summary(social_media_addiction_df)
+cat("\n--- Structure of Data ---\n")
+str(social_media_addiction_df)
+cat("\n--- Dimensions of Data ---\n")
+dim(social_media_addiction_df)
+cat("\n--- Column Names ---\n")
+names(social_media_addiction_df)
+cat("\n--- Missing Values Count Per Column ---\n")
+colSums(is.na(social_media_addiction_df))
+
+# --- Data Cleaning and Type Conversion ---
+
+# This dataset seems to have cleaner headers, so no complex renaming needed.
+# Convert relevant columns to factors.
+social_media_addiction_df_cleaned <- social_media_addiction_df %>%
+  mutate(
+    Gender = as.factor(Gender),
+    Academic_Level = as.factor(Academic_Level),
+    Country = as.factor(Country),
+    Most_Used_Platform = as.factor(Most_Used_Platform),
+    Relationship_Status = as.factor(Relationship_Status),
+    # Affects_Academic_Performance needs to be a factor, and for logistic regression,
+    # it's best if the "positive" outcome (Yes) is the higher factor level (usually 1).
+    # We'll reorder levels to ensure 'Yes' is the reference for logistic regression.
+    Affects_Academic_Performance = factor(Affects_Academic_Performance,
+                                          levels = c("No", "Yes")),
+    # Conflicts_Over_Social_Media can be treated as numeric if it's a count, or factor if few categories.
+    # Assuming it's a count (0, 1, 2, 3, 4 etc.) based on your snippet.
+    # If it's more like categories, convert to factor.
+    # Addicted_Score is already numeric, based on summary.
+    # Mental_Health_Score is already numeric.
+  )%>%
+  # Handle missing values: Removing rows with any NAs for simplicity in this quick analysis.
+  na.omit()
+
+# --- NEW ADDITION/MODIFICATION FOR MOST_USED_PLATFORM GROUPING ---
+# Create the new grouped variable based on your specified categories
+social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
+  mutate(
+    Most_Used_Platform_Grouped = case_when(
+      Most_Used_Platform %in% c("LINE", "KakaoTalk", "WeChat", "VKontakte", "WhatsApp") ~ "Messaging Apps",
+      TRUE ~ as.character(Most_Used_Platform) # Keep all other platforms as their original names
+    )
+  ) %>%
+  # Convert the new grouped column to a factor
+  mutate(Most_Used_Platform_Grouped = as.factor(Most_Used_Platform_Grouped))
+
+# Drop linkedin - outlier
+# Filter out rows where Most_Used_Platform is LinkedIn, Twitter, or YouTube
+social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
+  filter(!Most_Used_Platform %in% c("LinkedIn", "Twitter", "YouTube")) %>%
+  # After filtering, some factor levels might become unused. It's good practice to drop them.
+  # This makes sure the GLM doesn't try to fit coefficients for levels that no longer exist.
+  mutate(Most_Used_Platform = fct_drop(Most_Used_Platform))
+
+
+# # Building on the previous fct_drop()
+# social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
+#   mutate(
+#     Most_Used_Platform_Grouped = case_when(
+#       Most_Used_Platform_Grouped %in% c("Twitter", "YouTube", "LinkedIn") ~ "Other_Platforms", # Group non-significant ones
+#       TRUE ~ as.character(Most_Used_Platform_Grouped) # Keep others as they are
+#     )
+#   ) %>%
+#   mutate(Most_Used_Platform_Grouped_Final = as.factor(Most_Used_Platform_Grouped))
+
+
+# 
+# 
+# # Check the structure again to confirm conversions
+# cat("\n--- Structure of Cleaned Data ---\n")
+# str(social_media_addiction_df_cleaned)
+# cat("\n--- Summary of Cleaned Data ---\n")
+# summary(social_media_addiction_df_cleaned)
+# Check the new factor levels and distribution
+
+cat("\n--- New Most_Used_Platform_Grouped Factor Levels and Distribution ---\n")
+levels(social_media_addiction_df_cleaned$Most_Used_Platform_Grouped)
+table(social_media_addiction_df_cleaned$Most_Used_Platform_Grouped)
+
+# You might want to reorder levels if you want a specific reference level for 'Most_Used_Platform_Grouped'
+# For example, to make 'Facebook' the reference (if it's not alphabetically first in the new set)
+# social_media_addiction_df_cleaned$Most_Used_Platform_Grouped <-
+#   relevel(social_media_addiction_df_cleaned$Most_Used_Platform_Grouped, ref = "Facebook")
+
+
+# Check the structure again to confirm conversions and the new column
+cat("\n--- Structure of Cleaned Data with Grouped Platforms ---\n")
+str(social_media_addiction_df_cleaned)
+cat("\n--- Summary of Cleaned Data with Grouped Platforms ---\n")
+summary(social_media_addiction_df_cleaned)
+
+
+```
+---
+
+### Correlation Analysis
+
+We'll focus on the numeric columns for the correlation matrix.
+
+```{R}
+# Select only numeric columns for correlation matrix
+numeric_cols <- social_media_addiction_df_cleaned %>%
+  dplyr::select(
+    Age, Avg_Daily_Usage_Hours, Sleep_Hours_Per_Night,
+    Mental_Health_Score, Conflicts_Over_Social_Media, Addicted_Score
+  )
+
+# Calculate the correlation matrix
+correlation_matrix <- cor(numeric_cols, use = "pairwise.complete.obs") # Handles NAs if any remain
+cat("\n--- Correlation Matrix of Numeric Variables ---\n")
+print(correlation_matrix)
+
+# Visualize the correlation matrix
+cat("\n--- Visualizing Correlation Matrix ---\n")
+corrplot(correlation_matrix, method = "circle", type = "upper", order = "hclust",
+         tl.col = "black", tl.srt = 45, addCoef.col = "darkgrey")
+```
+```{r}
+# --- 3. Binary Logistic Regression Analysis ---
+
+cat("\n--- Summary of Logistic Regression Model (Predicting Academic Performance) ---\n")
+logistic_model_academic_performance <- glm(Affects_Academic_Performance ~
+                                             Avg_Daily_Usage_Hours + Sleep_Hours_Per_Night +
+                                             Academic_Level + Most_Used_Platform_Grouped + Age, # Changed here
+                                           data = social_media_addiction_df_cleaned,
+                                           family = "binomial")
+summary(logistic_model_academic_performance)
+
+cat("\n--- Odds Ratios for Logistic Regression Model ---\n")
+odds_ratios <- exp(coef(logistic_model_academic_performance))
+print(odds_ratios)
+
+# --- Check for multicollinearity (important given your strong correlations) ---
+cat("\n--- Variance Inflation Factors (VIF) for Predictors ---\n")
+# VIF is calculated on a linear model, but it's a good proxy for multicollinearity in GLMs.
+# Be cautious if VIF values are above 5 or 10, as it indicates high multicollinearity,
+# which can make individual coefficient estimates unstable.
+# If VIFs are high, consider removing one of the highly correlated variables.
+vif_values <- vif(logistic_model_academic_performance)
+print(vif_values)
+```
+```{r}
+# --- 1. Descriptive Statistics and Distribution Visualizations ---
+
+cat("\n--- Visualizing Distributions of Key Variables ---\n")
+
+# Histogram for Numeric Variables:
+# Avg_Daily_Usage_Hours
+ggplot(social_media_addiction_df_cleaned, aes(x = Avg_Daily_Usage_Hours)) +
+  geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Average Daily Social Media Usage Hours", x = "Hours per Day") +
+  theme_minimal()
+
+# Sleep_Hours_Per_Night
+ggplot(social_media_addiction_df_cleaned, aes(x = Sleep_Hours_Per_Night)) +
+  geom_histogram(binwidth = 0.5, fill = "darkgreen", color = "black") +
+  labs(title = "Distribution of Sleep Hours Per Night", x = "Hours") +
+  theme_minimal()
+
+# Mental_Health_Score
+ggplot(social_media_addiction_df_cleaned, aes(x = Mental_Health_Score)) +
+  geom_histogram(binwidth = 1, fill = "purple", color = "black") +
+  labs(title = "Distribution of Mental Health Score", x = "Score") +
+  theme_minimal()
+
+# Addicted_Score
+ggplot(social_media_addiction_df_cleaned, aes(x = Addicted_Score)) +
+  geom_histogram(binwidth = 1, fill = "orange", color = "black") +
+  labs(title = "Distribution of Addicted Score", x = "Score") +
+  theme_minimal()
+
+# Conflicts_Over_Social_Media
+ggplot(social_media_addiction_df_cleaned, aes(x = Conflicts_Over_Social_Media)) +
+  geom_histogram(binwidth = 1, fill = "red", color = "black") +
+  labs(title = "Distribution of Conflicts Over Social Media", x = "Number of Conflicts") +
+  theme_minimal()
+
+# Box plots for numeric variables by Affects_Academic_Performance
+cat("\n--- Box Plots of Numeric Variables by Academic Performance Impact ---\n")
+
+ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Avg_Daily_Usage_Hours, fill = Affects_Academic_Performance)) +
+  geom_boxplot() +
+  labs(title = "Daily Usage Hours by Academic Performance Impact", x = "Academic Performance Affected", y = "Avg Daily Usage Hours") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+
+ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Addicted_Score, fill = Affects_Academic_Performance)) +
+  geom_boxplot() +
+  labs(title = "Addiction Score by Academic Performance Impact", x = "Academic Performance Affected", y = "Addiction Score") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+
+ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Mental_Health_Score, fill = Affects_Academic_Performance)) +
+  geom_boxplot() +
+  labs(title = "Mental Health Score by Academic Performance Impact", x = "Academic Performance Affected", y = "Mental Health Score") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+
+ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Sleep_Hours_Per_Night, fill = Affects_Academic_Performance)) +
+  geom_boxplot() +
+  labs(title = "Sleep Hours by Academic Performance Impact", x = "Academic Performance Affected", y = "Sleep Hours Per Night") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+```
+```{r}
+# --- 2. Univariate Analysis for Categorical Variables ---
+
+cat("\n--- Frequency and Proportion Tables for Categorical Variables ---\n")
+
+# Gender distribution
+cat("\nGender Distribution:\n")
+social_media_addiction_df_cleaned %>%
+  count(Gender) %>%
+  mutate(proportion = n / sum(n)) %>%
+  print()
+
+# Academic_Level distribution
+cat("\nAcademic Level Distribution:\n")
+social_media_addiction_df_cleaned %>%
+  count(Academic_Level) %>%
+  mutate(proportion = n / sum(n)) %>%
+  print()
+
+# Most_Used_Platform distribution
+cat("\nMost Used Platform Distribution:\n")
+social_media_addiction_df_cleaned %>%
+  count(Most_Used_Platform) %>%
+  mutate(proportion = n / sum(n)) %>%
+  print()
+
+# Affects_Academic_Performance distribution
+cat("\nAffects Academic Performance Distribution:\n")
+social_media_addiction_df_cleaned %>%
+  count(Affects_Academic_Performance) %>%
+  mutate(proportion = n / sum(n)) %>%
+  print()
+
+# Bar plots for categorical variables by Affects_Academic_Performance
+cat("\n--- Bar Plots of Categorical Variables by Academic Performance Impact ---\n")
+
+# Gender vs. Academic Performance
+ggplot(social_media_addiction_df_cleaned, aes(x = Gender, fill = Affects_Academic_Performance)) +
+  geom_bar(position = "fill") + # position="fill" shows proportions
+  labs(title = "Academic Performance Impact by Gender", y = "Proportion") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+
+# Academic_Level vs. Academic Performance
+ggplot(social_media_addiction_df_cleaned, aes(x = Academic_Level, fill = Affects_Academic_Performance)) +
+  geom_bar(position = "fill") +
+  labs(title = "Academic Performance Impact by Academic Level", y = "Proportion") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+
+# Most_Used_Platform vs. Academic Performance
+ggplot(social_media_addiction_df_cleaned, aes(x = Most_Used_Platform_Grouped, fill = Affects_Academic_Performance)) +
+  geom_bar(position = "fill") +
+  labs(title = "Academic Performance Impact by Most Used Platform", y = "Proportion") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate labels if too many
+```
+```{r}
+
+```
+```{r}
+
+```

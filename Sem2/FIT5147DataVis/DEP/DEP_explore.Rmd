@@ -1,0 +1,523 @@
+Set libraries
+```{r}
+# Change directory to file location, sourced from: https://stackoverflow.com/a/74626705
+library(this.path)
+setwd(this.path::here())
+# Libraries
+library(tidyverse)
+library(readr)
+library(fs) # For easy file listing
+```
+Merge data into joint table
+```{r}
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(corrplot)
+
+# 1. Load the data, reading by column order
+gdp_per_capita_file <- "data/gdp_per_capita.csv"
+imports_gdp_ratio_file <- "data/imports_gdp_ratio.csv"
+exports_gdp_ratio_file <- "data/exports_gdp_ratio.csv"
+death_rate_air_pollution_file <- "data/death_rate_air_pollution.csv"
+mismanaged_plastic_waste_share_file <- "data/mismanaged_plastic_waste_share.csv"
+world_gdp_share_file <- "data/world_gdp_share.csv"
+
+gdp_data <- read_csv(gdp_per_capita_file, col_names = FALSE, skip = 1)
+imports_data <- read_csv(imports_gdp_ratio_file, col_names = FALSE, skip = 1)
+exports_data <- read_csv(exports_gdp_ratio_file, col_names = FALSE, skip = 1)
+pollution_death_data <- read_csv(death_rate_air_pollution_file, col_names = FALSE, skip = 1)
+plastic_waste_data <- read_csv(mismanaged_plastic_waste_share_file, col_names = FALSE, skip = 1)
+percentage_world_gdp_data <- read_csv(world_gdp_share_file, col_names = FALSE, skip = 1)
+
+# 2. Rename columns using column positions
+gdp_data <- gdp_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, gdp_per_capita = 4)
+imports_data <- imports_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, imports_gdp_ratio = 4)
+exports_data <- exports_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, exports_gdp_ratio = 4)
+pollution_death_data <- pollution_death_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, death_rate_air_pollution = 4)
+plastic_waste_data <- plastic_waste_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, mismanaged_plastic_waste_share = 4)
+percentage_world_gdp_data <- percentage_world_gdp_data %>%
+  rename(country_name = 1, country_code = 2, year = 3, world_gdp_share = 4)
+
+
+# 4. Join the data
+growth_data <- gdp_data %>%
+  left_join(imports_data, by = c("country_name", "country_code", "year")) %>%
+  left_join(exports_data, by = c("country_name", "country_code", "year")) %>%
+  left_join(plastic_waste_data, by = c("country_name", "country_code", "year")) %>%
+  left_join(pollution_death_data, by = c("country_name", "country_code", "year")) %>%
+  left_join(percentage_world_gdp_data, by = c("country_name", "country_code", "year"))
+
+# 5. Calculate growth rates
+growth_data <- growth_data %>%
+  arrange(country_name, year) %>%
+  group_by(country_name, country_code) %>%
+  mutate(
+    # GDP growth rate calculation
+    gdp_growth_rate = (as.numeric(last(gdp_per_capita)) - as.numeric(first(gdp_per_capita)) / (n() - 1)),
+    # Import growth rate calculation, adjusted time frame
+    import_start_year = first(year[year %in% imports_data$year]),
+    export_start_year = first(year[year %in% exports_data$year]),
+    imports_growth_rate = ifelse(n() > 1, (as.numeric(last(imports_gdp_ratio[year == max(year, na.rm = TRUE)])) - as.numeric(first(imports_gdp_ratio[year == import_start_year]))) / (sum(year >= import_start_year, na.rm = TRUE) - 1), NA),
+    exports_growth_rate = ifelse(n() > 1, (as.numeric(last(exports_gdp_ratio[year == max(year, na.rm = TRUE)])) - as.numeric(first(exports_gdp_ratio[year == export_start_year]))) / (sum(year >= export_start_year, na.rm = TRUE) - 1), NA),
+    world_gdp_share_growth = (as.numeric(last(world_gdp_share)) - as.numeric(first(world_gdp_share))) / (n() - 1)
+  ) %>%
+  # filter(year == 2019) %>% # Keep only 2019 data for the analysis
+  ungroup()
+
+# 6. Correlation analysis
+combined_data <- growth_data %>%
+  mutate_at(
+    vars(
+      gdp_per_capita,  # Include original GDP level
+      gdp_growth_rate,
+      imports_growth_rate,
+      exports_growth_rate,
+      mismanaged_plastic_waste_share,
+      death_rate_air_pollution,
+      world_gdp_share_growth,
+      
+      imports_gdp_ratio,  # Include original import level
+      exports_gdp_ratio,  # Include original export level
+      world_gdp_share # Include original percentage of world GDP
+    ),
+    as.numeric
+  )
+
+
+income_groups <- read_csv("data/metadata/income_groups.csv")
+
+# Rename the columns in the income group data frame to be consistent
+income_groups <- income_groups %>%
+  rename(
+    country_code = `Country Code`,
+    income_group = IncomeGroup
+  ) %>%
+  select(country_code, income_group) # Keep only the relevant columns
+
+# Merge the income group data with your main data frame by country code
+combined_data <- combined_data %>%
+  left_join(income_groups, by = "country_code")
+
+combined_data_2019 <- combined_data %>%
+  filter(year == 2019) # Keep only 2019 data for the analysis
+  
+correlation_matrix <- cor(
+  combined_data_2019 %>% select(
+    gdp_per_capita, # Include original GDP level
+    world_gdp_share,
+    world_gdp_share_growth,
+    imports_gdp_ratio, # Include original import level
+    exports_gdp_ratio, # Include original export level
+    imports_growth_rate,
+    exports_growth_rate,
+    mismanaged_plastic_waste_share,
+    death_rate_air_pollution
+  ), # Include original percentage of world GDP
+  use = "pairwise.complete.obs",
+  method = "pearson"
+)
+
+# 7. Plot correlation matrix
+corrplot(
+  correlation_matrix,
+  method = "color",
+  type = "upper",
+  addCoef.col = "black",
+  number.cex = 0.7,
+  tl.col = "black",
+  tl.srt = 45,
+  diag = FALSE
+)
+```
+Multiple regression
+``` {r eval = FALSE}
+# 8. Multiple regression
+model_death_rate <- lm(
+  death_rate_air_pollution ~ gdp_growth_rate + 
+    imports_growth_rate + exports_growth_rate +
+    mismanaged_plastic_waste_share + world_gdp_share_growth +
+    gdp_per_capita + 
+    imports_gdp_ratio + exports_gdp_ratio +
+    world_gdp_share, # Include original levels
+  data = combined_data_2019
+)
+summary(model_death_rate)
+
+```
+```{r}
+
+# Then run the new model:
+model_plastic_waste <- lm(
+  mismanaged_plastic_waste_share ~ gdp_per_capita +
+                                     imports_gdp_ratio +
+                                     exports_gdp_ratio +
+                                     imports_growth_rate +
+                                     exports_growth_rate +
+                                    death_rate_air_pollution + world_gdp_share_growth +
+                                     # Optional: include other controls if desired
+                                     world_gdp_share,
+          
+  data = combined_data_2019 # Remember this is filtered to 2019
+)
+summary(model_plastic_waste)
+
+```
+```{r}
+# Assuming 'data_2019' is your 2019 subset
+
+# Regression model for death rate
+model_death_regression <- lm(death_rate_air_pollution ~ gdp_per_capita + mismanaged_plastic_waste_share, data = combined_data_2019)
+summary(model_death_regression)
+
+```
+```{r}
+# Regression model for mismanaged plastic waste
+model_waste_regression <- lm(mismanaged_plastic_waste_share ~ income_group + world_gdp_share + world_gdp_share_growth + imports_gdp_ratio + exports_gdp_ratio, data = combined_data_2019)
+summary(model_waste_regression)
+
+```
+
+```{r}
+# Regression model for mismanaged plastic waste
+model_waste_regression <- lm(mismanaged_plastic_waste_share ~ income_group + world_gdp_share +  imports_gdp_ratio + exports_gdp_ratio, data = combined_data_2019)
+summary(model_waste_regression)
+
+```
+```{r}
+# Including income group as a factor (if you have enough data points per group)
+model_death_income_trade <- lm(death_rate_air_pollution ~ income_group + imports_gdp_ratio + exports_gdp_ratio, data = combined_data_2019)
+summary(model_death_income_trade)
+
+```
+```{r}
+# Including income group as a factor (if you have enough data points per group)
+model_death_income_trade <- lm(death_rate_air_pollution ~ income_group , data = combined_data_2019)
+summary(model_death_income_trade)
+
+```
+
+
+
+Visualization
+```{r}
+ggplot(combined_data, aes(x = gdp_per_capita, y = death_rate_air_pollution, color = income_group)) +
+  geom_point() +
+  labs(title = "Pollution Mortality vs. GDP per Capita (2019)",
+       x = "GDP per Capita (PPP)",
+       y = "Pollution Mortality Rate",
+       color = "Income Group") +
+  theme_minimal()
+```
+
+
+```{r}
+
+```
+```{r}
+# --- 0. Setup: Load Libraries and Prepare Data ---
+library(tidyverse)
+library(sf)          # For spatial data handling
+library(rnaturalearth) # For map geometries
+library(rnaturalearthdata) # For map geometries data
+library(ggplot2)
+library(patchwork)   # For combining plots (optional)
+library(viridis)     # For nice color scales
+
+# Ensure you have your merged dataframe from previous steps
+# Assuming it's called 'merged_data_with_income'
+
+# Filter for the year 2019 as pollution data is only available then
+data_2019 <- combined_data_2019 %>%
+  filter(year == 2019) %>%
+  # Ensure key numeric columns are actually numeric
+  mutate(
+    gdp_per_capita = as.numeric(gdp_per_capita),
+    death_rate_air_pollution = as.numeric(death_rate_air_pollution),
+    mismanaged_plastic_waste_share = as.numeric(mismanaged_plastic_waste_share),
+    imports_gdp_ratio = as.numeric(imports_gdp_ratio),
+    exports_gdp_ratio = as.numeric(exports_gdp_ratio)
+  ) %>%
+  # Clean income groups (remove NAs if necessary or reclassify)
+  filter(!is.na(income_group), income_group != "") %>%
+  mutate(income_group = factor(income_group, levels = c("Low income", "Lower middle income", "Upper middle income", "High income"))) # Ensure correct order
+
+# --- Get World Map Geometry ---
+# Using ISO 3 codes (iso_a3) is usually robust for merging
+world_map <- ne_countries(scale = "medium", returnclass = "sf") %>%
+  select(iso_a3, geometry) # Keep only ISO code and geometry
+
+# --- Merge your data with map geometry ---
+# Ensure your 'country_code' column in data_2019 contains ISO3 codes
+# If not, you might need a lookup table (e.g., using the 'countrycode' package)
+# Assuming 'country_code' is ISO3:
+map_data_2019 <- world_map %>%
+  left_join(data_2019, by = c("iso_a3" = "country_code")) %>%
+  filter(!is.na(year)) # Keep only countries present in your 2019 data
+
+# --- Helper Function for Creating Maps ---
+plot_map <- function(sf_data, fill_var, title, legend_title, low_color = "blue", mid_color = "white", high_color = "red", midpoint = 0, scale_type = "diverging") {
+  # Use {{}} for tidy evaluation within ggplot
+  fill_var_enquo <- enquo(fill_var)
+
+  p <- ggplot(data = sf_data) +
+    geom_sf(aes(fill = !!fill_var_enquo), color = "darkgrey", size = 0.1) + # Use !! for unquoting
+    theme_void() + # Minimal theme
+    labs(title = title, fill = legend_title)
+
+  if (scale_type == "diverging") {
+    p <- p + scale_fill_gradient2(
+      low = low_color, mid = mid_color, high = high_color,
+      midpoint = midpoint, na.value = "lightgrey"
+    )
+  } else if (scale_type == "sequential") {
+     p <- p + scale_fill_viridis_c(option = "plasma", na.value = "lightgrey", direction = -1) # Or another sequential scale
+  } else { # Add other scale types if needed
+     p <- p + scale_fill_viridis_c(na.value = "lightgrey") # Default sequential
+  }
+
+  p + theme(legend.position = "bottom",
+            plot.title = element_text(hjust = 0.5)) # Center title
+}
+
+
+# --- Question 2: How does a country's income level influence its disposition to pollute? ---
+# Using Mismanaged Plastic Waste as the indicator for "disposition to pollute"
+
+# 2a. Scatter plot: Plastic Waste vs GDP per capita, colored by income
+p2a <- ggplot(data_2019, aes(x = gdp_per_capita, y = mismanaged_plastic_waste_share, color = income_group)) +
+  geom_point(alpha = 0.7) +
+  scale_x_log10(labels = scales::dollar) +
+  scale_y_continuous(labels = scales::percent) + # If it's a proportion/percentage
+  scale_color_viridis_d(option="plasma", name = "Income Group") +
+  labs(
+    title = "Mismanaged Plastic Waste vs. GDP per Capita (2019)",
+    x = "GDP per Capita (PPP, log scale)",
+    y = "Share of Global Mismanaged Plastic Waste (%)"
+  ) +
+  theme_minimal()
+print(p2a)
+
+# 2b. Calculate Residuals: Waste mismanagement unexplained by GDP per capita
+# Simple linear model (again, consider log GDP)
+model_plastic_gdp <- lm(mismanaged_plastic_waste_share ~ log(gdp_per_capita), data = data_2019)
+summary(model_plastic_gdp)
+
+# Add residuals to map data (handle potential NAs from model/data)
+data_2019_with_resid <- data_2019 %>%
+  filter(!is.na(gdp_per_capita) & !is.na(mismanaged_plastic_waste_share)) %>% # Ensure model can run
+  mutate(plastic_residual_gdp = residuals(model_plastic_gdp))
+
+map_data_2019 <- map_data_2019 %>%
+  left_join(select(data_2019_with_resid, iso_a3 = country_code, plastic_residual_gdp), by = "iso_a3")
+
+# 2c. Map the Residuals
+p2c <- plot_map(
+  map_data_2019,
+  fill_var = plastic_residual_gdp,
+  title = "Mismanaged Plastic Waste Residuals (vs. log GDP per Capita, 2019)",
+  legend_title = "Residuals\n(Higher means more waste than expected for income)",
+  scale_type = "diverging"
+)
+print(p2c)
+
+# Interpretation: Red areas mismanage more plastic than expected given their GDP/capita, Blue areas mismanage less.
+
+# 3c. Calculate Residuals for Plastic Waste: Unexplained by GDP *and* Trade
+model_plastic_gdp_trade <- lm(mismanaged_plastic_waste_share ~ log(gdp_per_capita) + imports_gdp_ratio + exports_gdp_ratio, data = data_2019)
+summary(model_plastic_gdp_trade)
+
+# Add residuals to map data
+data_2019_with_resid_trade_plast <- data_2019 %>%
+  filter(!is.na(gdp_per_capita) & !is.na(mismanaged_plastic_waste_share) & !is.na(imports_gdp_ratio) & !is.na(exports_gdp_ratio)) %>%
+  mutate(plastic_residual_gdp_trade = residuals(model_plastic_gdp_trade))
+
+map_data_2019 <- map_data_2019 %>%
+  left_join(select(data_2019_with_resid_trade_plast, iso_a3 = country_code, plastic_residual_gdp_trade), by = "iso_a3")
+
+# --- Question 3: How do trade dynamics conflate with waste management and pollution-related mortality? ---
+
+# 3d. Map Plastic Waste Residuals (controlled for GDP & Trade)
+p3d <- plot_map(
+  map_data_2019,
+  fill_var = plastic_residual_gdp_trade,
+  title = "Mismanaged Plastic Waste Residuals (vs. log GDP & Trade Ratios, 2019)",
+  legend_title = "Residuals\n(Unexplained by Income & Trade Volume)",
+  scale_type = "diverging"
+)
+print(p3d)
+```
+
+```{r}
+
+```
+
+```{r}
+# --- 0. Setup: Load Libraries and Prepare Data ---
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(ggplot2)
+library(patchwork)
+library(viridis)
+library(scales)
+
+# --- Use the correct dataframe name ---
+# Ensure 'combined_data' is loaded and prepared
+# It should contain: country_code (ISO3), year, gdp_per_capita, death_rate_air_pollution,
+# imports_gdp_ratio, exports_gdp_ratio, world_gdp_share
+
+# Convert relevant columns to numeric, handle potential parsing errors
+combined_data <- combined_data %>%
+  mutate(
+    across(c(gdp_per_capita, death_rate_air_pollution, mismanaged_plastic_waste_share, # Keep this conversion just in case
+             imports_gdp_ratio, exports_gdp_ratio, world_gdp_share),
+           ~suppressWarnings(as.numeric(.))),
+    # Add log GDP per capita column
+    log_gdp_per_capita = log(gdp_per_capita)
+  ) %>%
+  filter(!is.na(country_code)) # Ensure country code exists
+
+# --- Filter Data for 2019 ---
+data_2019 <- combined_data %>%
+  filter(year == 2019) %>%
+  # Ensure essential data for models is present
+  filter(!is.na(log_gdp_per_capita) & !is.na(death_rate_air_pollution) &
+         !is.na(imports_gdp_ratio) & !is.na(exports_gdp_ratio))
+
+# --- Get World Map Geometry ---
+world_map <- ne_countries(scale = "medium", returnclass = "sf") %>%
+  select(iso_a3, geometry) %>%
+  filter(iso_a3 != "ATA") # Filter out Antarctica
+
+# --- Calculate Residuals and Determine Common Scale ---
+
+# Model 1: Mortality vs log GDP
+model_mortality_gdp <- lm(death_rate_air_pollution ~ log_gdp_per_capita, data = data_2019)
+# Add residuals to a temporary data frame to keep original data clean
+residuals_gdp <- tibble(
+  country_code = data_2019$country_code[complete.cases(data_2019[, c("death_rate_air_pollution", "log_gdp_per_capita")])], # Match rows used in model
+  mortality_residual_gdp = residuals(model_mortality_gdp)
+)
+
+# Model 2: Mortality vs log GDP & Trade Ratios
+model_mortality_gdp_trade <- lm(death_rate_air_pollution ~ log_gdp_per_capita + imports_gdp_ratio + exports_gdp_ratio, data = data_2019)
+# Add residuals
+residuals_gdp_trade <- tibble(
+  country_code = data_2019$country_code[complete.cases(data_2019[, c("death_rate_air_pollution", "log_gdp_per_capita", "imports_gdp_ratio", "exports_gdp_ratio")])], # Match rows
+  mortality_residual_gdp_trade = residuals(model_mortality_gdp_trade)
+)
+
+# Merge residuals back into the main 2019 data
+data_2019_residuals <- data_2019 %>%
+  left_join(residuals_gdp, by = "country_code") %>%
+  left_join(residuals_gdp_trade, by = "country_code")
+
+# Determine the combined range for consistent scaling
+combined_min <- min(c(data_2019_residuals$mortality_residual_gdp, data_2019_residuals$mortality_residual_gdp_trade), na.rm = TRUE)
+combined_max <- max(c(data_2019_residuals$mortality_residual_gdp, data_2019_residuals$mortality_residual_gdp_trade), na.rm = TRUE)
+
+# Find the largest absolute value to make the scale symmetric around 0
+max_abs_residual <- max(abs(combined_min), abs(combined_max), na.rm = TRUE)
+scale_limits <- c(-max_abs_residual, max_abs_residual)
+
+print(paste("Combined Residual Range:", round(combined_min, 2), "to", round(combined_max, 2)))
+print(paste("Symmetric Scale Limits:", round(scale_limits[1], 2), "to", round(scale_limits[2], 2)))
+
+
+# --- Merge 2019 data (with residuals) to map geometry ---
+map_data_2019 <- world_map %>%
+  left_join(data_2019_residuals, by = c("iso_a3" = "country_code"))
+
+
+# --- Helper Function for Creating Maps (from previous response) ---
+plot_map_with_legend <- function(sf_data, fill_var, title, legend_title,
+                                 low_color = "#377EB8", mid_color = "white", high_color = "#E41A1C", # Blue-White-Red default
+                                 midpoint = 0, scale_type = "diverging", limits = NULL) {
+  fill_var_enquo <- enquo(fill_var)
+
+  p <- ggplot(data = sf_data) +
+    # Draw borders for all countries using the base map data first (light grey)
+    geom_sf(data = world_map, fill = "grey85", color = "white", size = 0.2) +
+    # Then draw the data layer on top
+    geom_sf(aes(fill = !!fill_var_enquo), color = "darkgrey", size = 0.1) + # Data layer borders
+    theme_void() +
+    labs(title = title) # Legend title set in scale
+
+  common_theme <- theme(
+    legend.position = "bottom",
+    legend.title.align = 0.5,
+    plot.title = element_text(hjust = 0.5),
+    legend.key.width = unit(1.5, "cm") # Make legend key wider
+  )
+
+  # Choose scale based on type
+  if (scale_type == "diverging") {
+    p <- p + scale_fill_gradient2(
+      name = legend_title, # Set legend title here
+      low = low_color, mid = mid_color, high = high_color,
+      midpoint = midpoint,
+      limits = limits, # Apply common limits here
+      na.value = "grey85", # Use the same light grey for missing values in data layer
+      guide = guide_colorbar(title.position = "top", title.hjust = 0.5)
+    )
+  } else { # Add other scale types if needed (e.g., sequential)
+     p <- p + scale_fill_viridis_c(
+        name = legend_title,
+        option = "plasma",
+        limits = limits, # Apply common limits here
+        na.value = "grey85",
+        guide = guide_colorbar(title.position = "top", title.hjust = 0.5)
+        )
+  }
+
+  p + common_theme
+}
+
+
+# --- Plot 1c: Air Pollution Mortality Residuals (vs. log GDP) - Corrected Scale ---
+plot_1c_corrected <- plot_map_with_legend(
+  sf_data = map_data_2019,
+  fill_var = mortality_residual_gdp,
+  title = "Air Pollution Mortality Residuals (vs. log GDP per Capita, 2019)",
+  legend_title = "Residuals (Higher = More Deaths than Expected for Income)",
+  scale_type = "diverging",
+  limits = scale_limits # Apply the common symmetric limits
+)
+print(plot_1c_corrected)
+
+
+# --- Plot 3b: Air Pollution Mortality Residuals (vs. log GDP & Trade) - Using Common Scale ---
+# Re-plotting Q3b just to ensure it uses the exact same scale as Q1c for comparison
+plot_3b_common_scale <- plot_map_with_legend(
+  sf_data = map_data_2019,
+  fill_var = mortality_residual_gdp_trade,
+  title = "Air Pollution Mortality Residuals (vs. log GDP & Trade Ratios, 2019)",
+  legend_title = "Residuals (Unexplained by Income & Trade Volume)",
+  scale_type = "diverging",
+  limits = scale_limits # Apply the common symmetric limits
+)
+print(plot_3b_common_scale)
+
+
+```
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

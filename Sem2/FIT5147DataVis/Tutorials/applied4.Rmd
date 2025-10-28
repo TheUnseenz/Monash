@@ -1,0 +1,43 @@
+
+```{r eval=FALSE}
+# ---- Init ----
+#install.packages("maps")
+library(maps)
+map("nz")
+
+library(ggmap) # load ggmap
+
+# Define location 3 ways
+# 1. location/address
+myLocation1 <- "Melbourne"
+myLocation1
+
+# 2. lat/long
+myLocation2 <- c(lon = -95.3632715, lat = 29.7632836) # not "Melbourne"
+myLocation2
+
+# 3. an area or bounding box (using 4 points),
+#   lower left lon,
+#   lower left lat,
+#   upper right lon,
+#   upper right lat
+# (this can be a little glitchy for Google maps)
+myLocation3 <- c(-130, 30, -105, 50)
+myLocation3
+
+library(tmaptools) # Convert location/address to its lat/long coordinates:
+myLocation4 <- geocode_OSM("Melbourne")
+myLocation4$coords
+# Yes, Melbourne is where it's supposed to be in, in Australia
+# longitude 144.96316
+# latitude -37.81422
+
+# ---- Stadiamaps ----
+?get_stadiamap
+.
+
+remove.packages("ggmap") # get rid of the default version
+install.packages("devtools")
+devtools::install_github("stadiamaps/ggmap") # get a more recent trusted version
+ggmap::register_stadiamaps("2424a0a5-d7b6-4e26-b357-4a857fb16bce",write=TRUE)
+```

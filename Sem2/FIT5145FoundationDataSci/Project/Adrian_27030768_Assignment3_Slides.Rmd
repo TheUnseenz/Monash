@@ -1,0 +1,500 @@
+---
+title: "The Unspoken Epidemic - Analysis to Combat the Rise of 'Brain Rot'"
+author: "Adrian Leong, 27030768"
+output:
+  beamer_presentation:
+    # Optional: You can add themes here
+    theme: "Warsaw"
+    colortheme: "dolphin"
+    fonttheme: "structurebold"
+    df_print: kable # Optional: for nicer looking data frames
+    highlight: tango # Optional: code highlighting style
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center")
+```
+```{r}
+# Install packages if you haven't already (only run once)
+# install.packages("tidyverse")
+# install.packages("corrplot")
+# install.packages("dplyr")
+# install.packages("car") # For vif() to check multicollinearity
+# install.packages("broom") # For tidy()
+```
+```{r}
+library(this.path)
+setwd(this.path::here())
+
+# Load necessary libraries
+library(tidyverse)
+library(corrplot)
+library(dplyr)
+library(car) # Useful for VIF (Variance Inflation Factor) to check multicollinearity
+library(broom) # For tidy()
+
+# --- Read Your CSV File ---
+social_media_addiction_df <- read_csv("data/Students Social Media Addiction.csv")
+```
+
+```{r}
+# # --- Basic Data Inspection ---
+# cat("--- Head of Data ---\n")
+# head(social_media_addiction_df)
+# cat("\n--- Summary of Data ---\n")
+# summary(social_media_addiction_df)
+# cat("\n--- Structure of Data ---\n")
+# str(social_media_addiction_df)
+# cat("\n--- Dimensions of Data ---\n")
+# dim(social_media_addiction_df)
+# cat("\n--- Column Names ---\n")
+# names(social_media_addiction_df)
+# cat("\n--- Missing Values Count Per Column ---\n")
+# colSums(is.na(social_media_addiction_df))
+
+# --- Data Cleaning and Type Conversion ---
+
+# This dataset seems to have clean headers, so no complex renaming needed.
+# Convert relevant columns to factors.
+social_media_addiction_df_cleaned <- social_media_addiction_df %>%
+  mutate(
+    Gender = as.factor(Gender),
+    Academic_Level = as.factor(Academic_Level),
+    Country = as.factor(Country),
+    Most_Used_Platform = as.factor(Most_Used_Platform),
+    Relationship_Status = as.factor(Relationship_Status),
+    # Affects_Academic_Performance needs to be a factor, and for logistic regression,
+    # it's best if the "positive" outcome (Yes) is the higher factor level (usually 1).
+    # We'll reorder levels to ensure 'Yes' is the reference for logistic regression.
+    Affects_Academic_Performance = factor(Affects_Academic_Performance,
+      levels = c("No", "Yes")
+    ),
+    # Conflicts_Over_Social_Media is already numeric as it's a count
+    # Addicted_Score is already numeric.
+    # Mental_Health_Score is already numeric.
+  ) %>%
+  # Handle missing values: Removing rows with any NAs for simplicity in this quick analysis.
+  na.omit()
+
+# --- NEW ADDITION/MODIFICATION FOR MOST_USED_PLATFORM GROUPING ---
+# Create the new grouped variable based on your specified categories
+social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
+  mutate(
+    Most_Used_Platform = case_when(
+      Most_Used_Platform %in% c("LINE", "KakaoTalk", "WeChat", "VKontakte", "WhatsApp") ~ "Messaging Apps",
+      TRUE ~ as.character(Most_Used_Platform) # Keep all other platforms as their original names
+    )
+  ) %>%
+  # Convert the new grouped column to a factor
+  mutate(Most_Used_Platform = as.factor(Most_Used_Platform))
+
+# Drop linkedin - is not a platform for brain rot
+social_media_addiction_df_cleaned <- social_media_addiction_df_cleaned %>%
+  filter(!Most_Used_Platform %in% c("LinkedIn")) %>%
+  # After filtering, some factor levels might become unused. It's good practice to drop them.
+  # This makes sure the GLM doesn't try to fit coefficients for levels that no longer exist.
+  mutate(Most_Used_Platform = fct_drop(Most_Used_Platform))
+
+
+# cat("\n--- New Most_Used_Platform Factor Levels and Distribution ---\n")
+# levels(social_media_addiction_df_cleaned$Most_Used_Platform)
+# table(social_media_addiction_df_cleaned$Most_Used_Platform)
+#
+# # Check the structure again to confirm conversions and the new column
+# cat("\n--- Structure of Cleaned Data with Grouped Platforms ---\n")
+# str(social_media_addiction_df_cleaned)
+# cat("\n--- Summary of Cleaned Data with Grouped Platforms ---\n")
+# summary(social_media_addiction_df_cleaned)
+```
+```{r}
+# # --- 1. Descriptive Statistics and Distribution Visualizations ---
+# # Histogram for Numeric Variables:
+# # Avg_Daily_Usage_Hours
+# ggplot(social_media_addiction_df_cleaned, aes(x = Avg_Daily_Usage_Hours)) +
+#   geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+#   labs(title = "Distribution of Average Daily Social Media Usage Hours", x = "Hours per Day") +
+#   theme_minimal()
+# 
+# # Sleep_Hours_Per_Night
+# ggplot(social_media_addiction_df_cleaned, aes(x = Sleep_Hours_Per_Night)) +
+#   geom_histogram(binwidth = 0.5, fill = "darkgreen", color = "black") +
+#   labs(title = "Distribution of Sleep Hours Per Night", x = "Hours") +
+#   theme_minimal()
+# 
+# # Mental_Health_Score
+# ggplot(social_media_addiction_df_cleaned, aes(x = Mental_Health_Score)) +
+#   geom_histogram(binwidth = 1, fill = "purple", color = "black") +
+#   labs(title = "Distribution of Mental Health Score", x = "Score") +
+#   theme_minimal()
+# 
+# # Addicted_Score
+# ggplot(social_media_addiction_df_cleaned, aes(x = Addicted_Score)) +
+#   geom_histogram(binwidth = 1, fill = "orange", color = "black") +
+#   labs(title = "Distribution of Addicted Score", x = "Score") +
+#   theme_minimal()
+# 
+# # Conflicts_Over_Social_Media
+# ggplot(social_media_addiction_df_cleaned, aes(x = Conflicts_Over_Social_Media)) +
+#   geom_histogram(binwidth = 1, fill = "red", color = "black") +
+#   labs(title = "Distribution of Conflicts Over Social Media", x = "Number of Conflicts") +
+#   theme_minimal()
+```
+```{R}
+# # Select only numeric columns for correlation matrix
+# numeric_cols <- social_media_addiction_df_cleaned %>%
+#   dplyr::select(
+#     Age, Avg_Daily_Usage_Hours, Sleep_Hours_Per_Night,
+#     Mental_Health_Score, Conflicts_Over_Social_Media, Addicted_Score
+#   )
+# 
+# # Calculate the correlation matrix
+# correlation_matrix <- cor(numeric_cols, use = "pairwise.complete.obs") # Handles NAs if any remain
+# 
+# # Visualize the correlation matrix
+# corrplot(correlation_matrix,
+#   method = "circle", type = "upper", order = "hclust",
+#   tl.col = "black", tl.srt = 45, addCoef.col = "darkgrey"
+# )
+```
+```{r}
+# # Hybrid box-violin for numeric variables by Affects_Academic_Performance
+# ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Avg_Daily_Usage_Hours, fill = Affects_Academic_Performance)) +
+#   geom_violin(trim = FALSE) + # Violin plot
+#   geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", alpha = 0.5) + # Boxplot inside
+#   labs(title = "Daily Usage Hours by Academic Performance Impact", x = "Academic Performance Affected", y = "Avg Daily Usage Hours") +
+#   theme_minimal() +
+#   scale_fill_brewer(palette = "Set1")
+# 
+# ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Addicted_Score, fill = Affects_Academic_Performance)) +
+#   geom_violin(trim = FALSE) + # Violin plot
+#   geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", alpha = 0.5) + # Boxplot inside
+#   labs(title = "Addiction Score by Academic Performance Impact", x = "Academic Performance Affected", y = "Addiction Score") +
+#   theme_minimal() +
+#   scale_fill_brewer(palette = "Set1")
+# 
+# ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Mental_Health_Score, fill = Affects_Academic_Performance)) +
+#   geom_violin(trim = FALSE) + # Violin plot
+#   geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", alpha = 0.5) + # Boxplot inside
+#   labs(title = "Mental Health Score by Academic Performance Impact", x = "Academic Performance Affected", y = "Mental Health Score") +
+#   theme_minimal() +
+#   scale_fill_brewer(palette = "Set1")
+# 
+# ggplot(social_media_addiction_df_cleaned, aes(x = Affects_Academic_Performance, y = Sleep_Hours_Per_Night, fill = Affects_Academic_Performance)) +
+#   geom_violin(trim = FALSE) + # Violin plot
+#   geom_boxplot(width = 0.1, outlier.shape = NA, fill = "white", alpha = 0.5) + # Boxplot inside
+#   labs(title = "Sleep Hours by Academic Performance Impact", x = "Academic Performance Affected", y = "Sleep Hours Per Night") +
+#   theme_minimal() +
+#   scale_fill_brewer(palette = "Set1")
+```
+```{r}
+# # --- 2. Univariate Analysis for Categorical Variables ---
+# 
+# # # Gender distribution
+# # social_media_addiction_df_cleaned %>%
+# #   count(Gender) %>%
+# #   mutate(proportion = n / sum(n)) %>%
+# #   print()
+# #
+# # # Academic_Level distribution
+# # social_media_addiction_df_cleaned %>%
+# #   count(Academic_Level) %>%
+# #   mutate(proportion = n / sum(n)) %>%
+# #   print()
+# #
+# # # Most_Used_Platform distribution
+# # social_media_addiction_df_cleaned %>%
+# #   count(Most_Used_Platform) %>%
+# #   mutate(proportion = n / sum(n)) %>%
+# #   print()
+# #
+# # # Affects_Academic_Performance distribution
+# # social_media_addiction_df_cleaned %>%
+# #   count(Affects_Academic_Performance) %>%
+# #   mutate(proportion = n / sum(n)) %>%
+# #   print()
+# 
+# # Bar plots for categorical variables by Affects_Academic_Performance
+# # Gender vs. Academic Performance
+# ggplot(social_media_addiction_df_cleaned, aes(x = Gender, fill = Affects_Academic_Performance)) +
+#   geom_bar(position = "fill") + # position="fill" shows proportions
+#   labs(title = "Academic Performance Impact by Gender", y = "Proportion") +
+#   theme_minimal() +
+#   scale_fill_brewer(palette = "Set2")
+# 
+# # Academic_Level vs. Academic Performance
+# ggplot(social_media_addiction_df_cleaned, aes(x = Academic_Level, fill = Affects_Academic_Performance)) +
+#   geom_bar(position = "fill") +
+#   labs(title = "Academic Performance Impact by Academic Level", y = "Proportion") +
+#   theme_minimal() +
+#   scale_fill_brewer(palette = "Set2")
+# 
+# # Most_Used_Platform vs. Academic Performance
+# ggplot(social_media_addiction_df_cleaned, aes(x = Most_Used_Platform, fill = Affects_Academic_Performance)) +
+#   geom_bar(position = "fill") +
+#   labs(title = "Academic Performance Impact by Most Used Platform", y = "Proportion") +
+#   theme_minimal() +
+#   scale_fill_brewer(palette = "Set2") +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate labels if too many
+```
+```{r}
+# --- 3. Binary Logistic/Linear Regression Analysis ---
+
+logistic_model_academic_performance <- glm(
+  Affects_Academic_Performance ~
+    Avg_Daily_Usage_Hours + Sleep_Hours_Per_Night +
+    Academic_Level + Most_Used_Platform + Age, # Changed here
+  data = social_media_addiction_df_cleaned,
+  family = "binomial"
+)
+
+# cat("\n--- Summary of Logistic Regression Model (Predicting Academic Performance) ---\n")
+# summary(logistic_model_academic_performance)
+# cat("\n--- Odds Ratios for Logistic Regression Model ---\n")
+# odds_ratios <- exp(coef(logistic_model_academic_performance))
+
+# --- Check for multicollinearity (important given your strong correlations) ---
+# VIF is calculated on a linear model, but it's a good proxy for multicollinearity in GLMs.
+# Be cautious if VIF values are above 5 or 10, as it indicates high multicollinearity,
+# which can make individual coefficient estimates unstable.
+# If VIFs are high, consider removing one of the highly correlated variables.
+vif_values <- vif(logistic_model_academic_performance)
+# cat("\n--- Variance Inflation Factors (VIF) for Predictors ---\n")
+# print(vif_values)
+```
+```{r}
+# --- Linear Regression Model: Predicting Sleep_Hours_Per_Night ---
+# cat("\n=======================================================\n")
+# cat("          PREDICTING SLEEP_HOURS_PER_NIGHT           \n")
+# cat("=======================================================\n")
+
+# Model 2: Predict Sleep_Hours_Per_Night based on relevant social media and demographic factors
+# We'll use all non-outcome variables except the ones we already identified as too close to academic performance
+# (Addicted_Score, Conflicts_Over_Social_Media, Mental_Health_Score).
+# Also, exclude Affects_Academic_Performance as it's an outcome of social media use.
+sleep_model <- lm(
+  Sleep_Hours_Per_Night ~ Avg_Daily_Usage_Hours + Academic_Level +
+    Most_Used_Platform + Age + Gender + Relationship_Status,
+  data = social_media_addiction_df_cleaned
+)
+
+# cat("\n--- Summary of Linear Regression Model (Predicting Sleep Hours) ---\n")
+# summary(sleep_model)
+#
+# cat("\n--- Variance Inflation Factors (VIF) for Sleep Hours Model Predictors ---\n")
+# vif(sleep_model)
+#
+# # You can also get confidence intervals for coefficients
+# cat("\n--- Confidence Intervals for Sleep Hours Model Coefficients ---\n")
+# confint(sleep_model)
+```
+```{r}
+# --- Linear Regression Model: Predicting Mental_Health_Score ---
+# cat("\n=======================================================\n")
+# cat("          PREDICTING MENTAL_HEALTH_SCORE             \n")
+# cat("=======================================================\n")
+
+# Model 3: Predict Mental_Health_Score based on social media usage, academic and demographic factors.
+# We'll include Addicted_Score and Conflicts_Over_Social_Media here, as they are often
+# direct indicators or highly related to mental health. Be aware of their high correlation.
+# Exclude Affects_Academic_Performance and Sleep_Hours_Per_Night as they are also potential outcomes or related.
+mental_health_model <- lm(
+  Mental_Health_Score ~ Avg_Daily_Usage_Hours + # Addicted_Score +
+    Conflicts_Over_Social_Media + Academic_Level +
+    Most_Used_Platform + Age + Gender + Relationship_Status,
+  data = social_media_addiction_df_cleaned
+)
+
+# cat("\n--- Summary of Linear Regression Model (Predicting Mental Health Score) ---\n")
+# summary(mental_health_model)
+#
+# cat("\n--- Variance Inflation Factors (VIF) for Mental Health Model Predictors ---\n")
+# vif(mental_health_model)
+#
+# # You can also get confidence intervals for coefficients
+# cat("\n--- Confidence Intervals for Mental Health Model Coefficients ---\n")
+# confint(mental_health_model)
+```
+```{r}
+plot_coefficients <- function(model, title) {
+  tidy_model <- tidy(model, conf.int = TRUE, exponentiate = ifelse(family(model)$family == "binomial", TRUE, FALSE)) %>%
+    filter(term != "(Intercept)") # Remove intercept for cleaner plot
+
+  # 1. Define the breaks and labels for your desired p-value bins (intervals)
+  p_value_breaks <- c(0, 0.001, 0.025, 0.05, 0.075, 0.1, 0.2, 1)
+
+  # Define the labels for each interval
+  p_value_labels_for_intervals <- c(
+    "P < 0.001",
+    "0.001 \u2264 P < 0.025",
+    "0.025 \u2264 P < 0.05",
+    "0.05 \u2264 P < 0.075",
+    "0.075 \u2264 P < 0.1",
+    "0.1 \u2264 P < 0.2",
+    "P \u2265 0.2"
+  )
+
+  # Define the colors for each interval
+  custom_colors <- c(
+    "#004d00", # Corresponds to P < 0.001
+    "#008000", # Corresponds to 0.001 <= P < 0.025
+    "#90EE90", # Corresponds to 0.025 <= P < 0.05
+    "#FFD700", # Corresponds to 0.05 <= P < 0.075
+    "#FFA500", # Corresponds to 0.075 <= P < 0.1
+    "#FF4500", # Corresponds to 0.1 <= P < 0.2
+    "#8B0000" # Corresponds to P >= 0.2
+  )
+
+  # Safety check: Number of labels and colors must match the number of intervals
+  if (length(p_value_labels_for_intervals) != length(p_value_breaks) - 1 ||
+    length(custom_colors) != length(p_value_breaks) - 1) {
+    stop("Error: Number of interval labels and custom colors must be one less than the number of p_value_breaks.")
+  }
+
+  # 2. Create a new binned factor variable for p.value
+  #    Crucially, define the levels explicitly using `factor()` with all possible labels.
+  tidy_model <- tidy_model %>%
+    mutate(
+      p_value_binned = cut(p.value,
+        breaks = p_value_breaks,
+        labels = p_value_labels_for_intervals,
+        right = FALSE, # (lower, upper]
+        include.lowest = TRUE # Include 0 in the first bin
+      ),
+      # Ensure all possible factor levels are explicitly set, even if not present in the data
+      p_value_binned = factor(p_value_binned, levels = p_value_labels_for_intervals)
+    )
+
+  # 3. Create the ggplot using the new binned variable for color
+  ggplot(tidy_model, aes(x = estimate, y = reorder(term, estimate), color = p_value_binned)) +
+    geom_point() +
+    geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0.2) +
+    geom_vline(xintercept = ifelse(family(model)$family == "binomial", 1, 0), linetype = "dashed", color = "grey") +
+    labs(
+      title = title,
+      x = ifelse(family(model)$family == "binomial", "Odds Ratio", "Coefficient Estimate"),
+      y = "Predictor Term"
+    ) +
+    scale_color_manual(
+      values = custom_colors,
+      name = "P-value Significance", # Title for the legend
+      # Specify `drop = FALSE` to show all levels in the legend, even if not present in data
+      drop = FALSE
+    ) +
+    theme_minimal() +
+    theme(
+      legend.text.align = 0, # Align legend text to the left
+      legend.key.height = unit(0.8, "cm"), # Adjust height of legend key (color block)
+      legend.key.width = unit(0.5, "cm") # Adjust width of legend key
+    )
+}
+```
+## The "Brain Rot" Phenomenon
+
+* **What is "Brain Rot"?**
+    * Cognitive and linguistic decline from excessive digital content (Oxford Word of the Year 2024).
+    * Linked to decreased attention, simplified language, and impacts on well-being.
+* **Project Goal:**
+    * Analyze social media's impact on student academic performance, sleep, and mental health.
+    * Demonstrate feasibility for a comprehensive, data-driven solution.
+
+---
+
+## Data & Methodology
+
+* **Data Sources:**
+    * Student survey data (~700x13) on usage, well-being, demographics.
+* **Data Characteristics (The 4 V's):**
+    * **Volume:** Small
+    * **Variety:** Structured.
+    * **Velocity:** Static.
+    * **Veracity:** Self-reported bias.
+* **Methodology:**
+    * **Key Techniques:** Regression (Logistic, Linear).
+
+---
+
+## Academic Performance Impact
+
+**How Social Media Affects Academic Performance**
+
+```{r out.width="70%"}
+# Generate plots for each model
+plot_coefficients(logistic_model_academic_performance, "Academic Performance Impact Coefficients: Logistic Regression")
+```
+---
+
+## Academic Performance Impact
+
+**How Social Media Affects Academic Performance**
+
+* **Key Drivers:**
+    * **Higher Usage Hours:** Significantly increases odds of academic impact.
+    * **Less Sleep:** Strong negative link to academic performance.
+    * **Academic Level & Age:** High School/Undergraduate & older students show lower odds of impact (compared to Graduate/younger).
+* **Platform Influence (vs. Facebook baseline):**
+    * **TikTok (129x), Snapchat (23x), Instagram (18x), Messaging Apps (5.6x):** Significantly higher odds of academic impact.
+    * **Twitter & YouTube:** Not statistically significant in this model.
+
+---
+
+## Sleep Hours Impact
+
+**Factors Influencing Student Sleep Hours**
+
+```{r out.width="70%"}
+plot_coefficients(sleep_model, "Sleep Hours Per Night Coefficients: Linear Regression")
+```
+---
+
+## Sleep Hours Impact
+
+**Factors Influencing Student Sleep Hours**
+
+* **Key Drivers:**
+    * **Higher Usage Hours:** Directly linked to **less sleep** (-0.76 hours/day).
+    * **Platforms:** Snapchat (-0.79 hrs), YouTube (-0.95 hrs), TikTok (-0.35 hrs) users sleep significantly **less** (vs. Facebook baseline).
+    * **Academic Level:** High Schoolers sleep less (-0.55 hrs) than Graduate students.
+    * **Relationship Status:** "In Relationship" (+0.55 hrs) and "Single" (+0.76 hrs) sleep more than "It's Complicated."
+* **Not Significant:** Age, Gender, Instagram, Messaging Apps, Twitter.
+
+---
+
+## Mental Health Impact
+
+**Predictors of Student Mental Health Score**
+
+```{r out.width="70%"}
+plot_coefficients(mental_health_model, "Mental Health Score Coefficients: Linear Regression")
+```
+## Mental Health Impact
+
+**Predictors of Student Mental Health Score**
+
+* **Key Drivers (Negative Impact):**
+    * **Higher Usage Hours:** Linked to **lower mental health** (-0.24 score).
+    * **Social Media Conflicts:** Strongest negative predictor (-0.79 score).
+    * **Platforms:** Instagram (-0.15 score), Snapchat (-0.36 score) users have **lower** scores (vs. Facebook).
+    * **Gender:** Males have **lower** scores (-0.13 score) than Females.
+* **Marginal Platform Effects:**
+    * **YouTube:** Marginally negative trend (-0.32 score, p=0.054).
+    * **Twitter:** Marginally positive trend (+0.16 score, p=0.099) (better than Facebook).
+* **Not Significant:** Academic Level, TikTok, Messaging Apps, Age, Relationship Status.
+
+---
+
+## Conclusion & Future Outlook
+
+* **Feasibility Confirmed:**
+    * Project successfully identifies significant, nuanced links between social media and student well-being.
+    * Highlights platform-specific impacts (e.g., TikTok vs. Twitter).
+* **Future Directions:**
+    * Integrate objective behavioral data (e.g., app usage logs, academic marks).
+    * Develop predictive models for early intervention strategies.
+* **Ethical Commitment:** 
+    * Aligns with CRISP-DM
+    * Anonymous online survey, emphasizing correlation, not causation, to inform solutions.
+
+
+
+

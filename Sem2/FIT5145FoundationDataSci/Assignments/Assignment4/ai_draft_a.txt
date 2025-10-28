@@ -1,0 +1,642 @@
+---------------------------------------------------------------------------
+------- Task A and the answers I got -----------------------
+# Task A - Shell commands
+help me to explore and wrangle my data file, consumer_complaints.csv. use only shell script commands. the format of the columns in consumer_complaints.csv is:
+Column Name - Description 
+Complaint ID - The unique identification number for a complaint 
+Date_received - The date of the complaint received 
+Product - The type of product the consumer identified in the complaint 
+Sub-product - The type of sub-product the consumer identified in the complaint 
+Issue - The issue the consumer identified in the complaint 
+Sub-issue - The sub-issue the consumer identified in the complaint 
+Consumer complaint narrative - Consumer complaint narrative is the consumer-submitted 
+description of "what happened" from the complaint 
+Company public response - Companies can choose to select a response from a pre-set list of 
+options that will be posted on the public database 
+Company - The complaint is about this company 
+State - The state of the mailing address provided by the consumer 
+ZIP code - The mailing ZIP code provided by the consumer 
+Tags - Data that supports easier searching and sorting of complaints submitted by or on behalf of consumers. 
+Consumer consent provided? - Identifies whether the consumer opted in to publish their complaint 
+narrative. 
+Submitted via - How the complaint was submitted 
+
+with that, help me with the shell script commands to identify the following:
+1.  What is the Date_received range of the collected complaints?   
+01/01/2012
+31/12/2019 
+2.  I want to preprocess the Complaint_ID and Date_received columns.   
+a.  Count lines with a complaint id that is not a number of 7 digits long, i.e., id values that contain anything other than numbers OR are of a length more/less than 7.
+285336   
+
+b.  Remove the lines mentioned in 2-a and remove time values in the Date_received 
+column. For example, the Date_received column will contain “29/04/2020”, instead 
+of having “29/04/2020 23:13”.   
+c.  Display  the  first  3  lines  (including  a  header)  of  the  dataset  that  was  filtered  in Question 2-b. Store the filtered dataset in a file named “filtered_complaints.csv” and use this file for the remaining questions in Task A.  
+Complaint_ID,Date_received,Product,Sub_product,Issue,Sub_issue,Consumer_complaint_narrative,Company_public_response,Company,State,ZIP_code,Tags,Consumer_consent_provided,Submitted_via
+1509954,09/08/2015,Credit reporting,NA,Incorrect information on credit report,Information is not mine,NA,Company chooses not to provide a public response,Experian Information Solutions Inc.,NJ,08872,NA,Consent not provided,Web
+3475943,23/12/2019,Student loan,Federal student loan servicing,Dealing with your lender or servicer,Trouble with how payments are being handled,NA,NA,AES/PHEAA,MA,019XX,NA,NA,Web
+
+3.  When  was  the  first  and  last  mention  of  the  term  “Student  loan”  in  the  column Consumer_complaint_narrative? Please note that the first and last mention of a term refers  to  the  chronologically  earliest  and latest paragraph containing the term in the dataset and the term to be searched is case sensitive.   
+01/01/2016
+31/12/2019
+4.  Let’s investigate the product column.   
+a.  How many unique values are there in the product column?
+8   
+
+b.  Write commands to list the top 5 most frequent product values in the dataset 
+(i.e., the top 5 products with the largest number of paragraphs)?   
+ 427484 Credit reporting and credit repair
+ 237902 Debt collection
+ 175319 Mortgage
+ 119168 Credit card or prepaid card
+ 106261 Bank account or service
+5.  Let’s investigate the Consumer complaint narrative column.   
+a.  How many complaints mention fraud in relation to a credit card? (Note: Please ignore cases and consider variations.)   
+11939
+b.  How many complaints are there about long wait times? (Note: Please ignore cases, consider variations, and include the time period waited.)  
+649
+
+
+----------------------------------------------------------------------------
+------- The commands I used --------------------
+cd /cygdrive/c/PersonalStuff/Monash/Sem2/FIT5145FoundationDataSci/Assignments/Assignment4/git_ignore
+
+# 1. What is the Date_received range of the collected complaints?
+# Get the Date_received column (assuming it's the 2nd column based on your description)
+# Skip the header row (NR > 1)
+# Extract the date part only (awk '{print $1}' to split by space and get first part of the date)
+# Sort in ascending order
+# Get the first and last unique dates
+# Earliest Date_received, excluding "NA" or "N/A"
+awk -F',' 'NR > 1 {print $2}' consumer_complaints.csv | \
+awk '{if ($1 != "NA" && $1 != "N/A") print $1}' | \
+sort -u | head -n 1
+
+# Latest Date_received, excluding "NA" or "N/A"
+awk -F',' 'NR > 1 {print $2}' consumer_complaints.csv | \
+awk '{if ($1 != "NA" && $1 != "N/A") print $1}' | \
+sort -u | tail -n 1
+
+# 2. Preprocess Complaint_ID and Date_received columns.
+# 2a. Count lines with a complaint id that is not a number of 7 digits long, i.e., id values that contain anything other than numbers OR are of a length more/less than 7.
+# Assuming Complaint ID is the 1st column
+awk -F',' 'NR > 1 {print $1}' consumer_complaints.csv | grep -vE '^[0-9]{7}$' | wc -l
+
+# 2b. Remove the lines mentioned in 2-a and remove time values in the Date_received column.
+
+# 2c. Display the first 3 lines (including a header) of the dataset that was filtered in Question 2-b. Store the filtered dataset in a file named “filtered_complaints.csv” and use this file for the remaining questions in Task A.
+# Get the header
+head -n 1 consumer_complaints.csv > filtered_complaints.csv
+
+# Filter data:
+# 1. Skip header (NR > 1)
+# 2. Check if Complaint ID (column 1) is exactly 7 digits
+# 3. Reformat Date_received (column 2) by removing time part
+# 4. Print the entire line, ensuring comma delimiters are maintained
+awk -F',' 'BEGIN {OFS = ","} NR > 1 {
+    if ($1 ~ /^[0-9]{7}$/) {
+        gsub(/ .*/, "", $2); # Remove space and everything after it from column 2
+        print $0;           # Print the entire modified line with original delimiters
+    }
+}' consumer_complaints.csv >> filtered_complaints.csv
+
+
+# Display the first 3 lines of the filtered file
+head -n 3 filtered_complaints.csv
+
+# 3. When was the first and last mention of the term “Student loan” in the column Consumer_complaint_narrative?
+# Assuming Date_received is column 2 and Consumer complaint narrative is column 7
+# (adjust column numbers if necessary based on your file structure after filtering)
+
+# Find lines containing "Student loan" (case-sensitive)
+# Extract Date_received (column 2) and Consumer complaint narrative (column 7)
+# Remove time from Date_received for consistent sorting
+# Sort chronologically by date
+# Get the first and last occurrences
+
+<!-- # Earliest mention of "Student loan" (and variations)
+awk -F',' '{print $2, $7}' filtered_complaints.csv | \
+grep -iE 'student[[:space:]_.-]*loans?' | \
+awk '{gsub(/ .*/, "", $1); print $1, $0}' | sort -k1,1 | head -n 1
+
+# Latest mention of "Student loan" (and variations)
+awk -F',' '{print $2, $7}' filtered_complaints.csv | \
+grep -iE 'student[[:space:]_.-]*loans?' | \
+awk '{gsub(/ .*/, "", $1); print $1, $0}' | sort -k1,1 | tail -n 1 -->
+
+# Earliest mention of "Student loan" (and variations)
+awk -F',' '{print $2, $7}' filtered_complaints.csv | \
+grep -iE 'student[[:space:]_.-]*loans?' | \
+awk '{gsub(/ .*/, "", $1); print $1}' | \
+sort | head -n 1
+
+# Latest mention of "Student loan" (and variations)
+awk -F',' '{print $2, $7}' filtered_complaints.csv | \
+grep -iE 'student[[:space:]_.-]*loans?' | \
+awk '{gsub(/ .*/, "", $1); print $1}' | \
+sort | tail -n 1
+
+# 4. Let’s investigate the Product column.
+# Begin wrangling
+# 1. Product: "Credit reporting and credit repair"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (trim spaces, single spaces)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s) # Trim leading/trailing spaces
+    gsub(/[[:space:]]+/, " ", s)            # Replace multiple spaces with single space
+    return s
+}
+
+NR == 1 { # Print header as is
+    print $0
+    next
+}
+{
+    # Store original values before potential modification
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Credit reporting and credit repair"
+    # Using normalized versions for comparison
+    if (original_product == "Credit reporting  credit repair services  or other personal consumer reports" || \
+        original_product == "Credit reporting" || \
+        original_product == "Credit reporting Credit reporting Credit reporting" || \
+        original_sub_product == "Credit repair" || \
+        original_sub_product == "Credit repair services" || \
+        original_sub_product == "Credit reporting" || \
+        original_sub_product == "Other personal consumer report") {
+
+        $3 = "Credit reporting and credit repair" # Set new Product
+
+        # Apply the Sub-Product rule
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product # Use the original (normalized) Product as new Sub-Product
+        }
+        # Else: Sub-product remains as is
+    }
+
+    print $0 # Print the (potentially modified) line
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 2. Product: "Credit card or prepaid card"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (same as above)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Credit card or prepaid card"
+    if (original_product == "Credit card" || \
+        original_product == "Prepaid card") {
+
+        $3 = "Credit card or prepaid card" # Set new Product
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 3. Product: "Money transfer  virtual currency  or money service"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (same as above)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Money transfer virtual currency or money service"
+    if (original_product == "Money transfer virtual currency or money service" || \
+        original_product == "Money transfers" || \
+        original_product == "Virtual currency" || \
+        original_sub_product == "Check cashing" || \
+        original_sub_product == "Debt settlement" || \
+        original_sub_product == "Foreign currency exchange" || \
+        original_sub_product == "Money order" || \
+        original_sub_product == "Refund anticipation check" || \
+        original_sub_product == "Traveler’s/Cashier’s checks") {
+
+        $3 = "Money transfer virtual currency or money service" # Set new Product
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 4. Product: "Consumer Loan"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (same as above)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Consumer Loan"
+    if (original_product == "Payday loan title loan or personal loan" || \
+        original_product == "Payday loan" || \
+        original_product == "Vehicle loan or lease" || \
+        original_sub_product == "Personal line of credit") {
+
+        $3 = "Consumer Loan" # Set new Product
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 5. Product: "Bank account or service"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (same as above)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Bank account or service"
+    if (original_sub_product == "CD (Certificate of Deposit)" || \
+        original_sub_product == "Checking account" || \
+        original_sub_product == "Other banking product or service" || \
+        original_sub_product == "Savings account" || \
+        original_product == "NA" || original_product == "N/A") { # Handles "NA" as a product
+
+        $3 = "Bank account or service" # Set new Product
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 6. Product: "Debt collection"
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (same as above)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Debt collection"
+    if (original_product == "debt collection") { # Matched using lowercase
+        $3 = "Debt collection" # Set new Product (with proper capitalization)
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# 7. Mortgage
+awk -F',' '
+BEGIN {OFS = ","}
+
+# Function to normalize string (trim spaces, single spaces)
+function normalize(s) {
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", s)
+    gsub(/[[:space:]]+/, " ", s)
+    return s
+}
+
+NR == 1 {
+    print $0
+    next
+}
+{
+    original_product = normalize($3)
+    original_sub_product = normalize($4)
+
+    # Check for merge conditions for "Mortgage"
+    if (original_sub_product == "Conventional home mortgage") {
+        $3 = "Mortgage" # Set new Product
+
+        if (original_sub_product == "NA" || original_sub_product == "N/A") {
+            $4 = original_product
+        }
+    }
+
+    print $0
+}' filtered_complaints.csv > temp_filtered_complaints.csv && mv temp_filtered_complaints.csv filtered_complaints.csv
+
+# End wrangling
+
+# 4a. How many unique values are there in the product column?
+# Assuming Product is column 3
+awk -F',' 'NR > 1 {print $3}' filtered_complaints.csv | sort -u | wc -l
+
+# 4b. Write commands to list the top 5 most frequent product values in the dataset.
+# Assuming Product is column 3
+awk -F',' 'NR > 1 {print $3}' filtered_complaints.csv | sort | uniq -c | sort -rn | head -n 5
+
+# 5. Let’s investigate the Consumer complaint narrative column.
+# 5a. How many complaints mention fraud in relation to a credit card? (Note: Please ignore cases and consider variations.)
+# Assuming Consumer complaint narrative is column 7
+awk -F',' 'NR > 1 {print tolower($7)}' filtered_complaints.csv | \
+grep -Ei '(fraud[a-z]*|scam+[a-z]*|phish+[a-z]*)' | \
+grep -Ei 'credit[[:space:]_.-]*cards?' | \
+wc -l
+<!-- awk -F',' 'NR > 1 {print tolower($7)}' filtered_complaints.csv | \
+grep -E 'fraud' | \
+grep -E 'credit[[:space:]_.-]?card' | wc -l -->
+# 5b. How many complaints are there about long wait times? (Note: Please ignore cases, consider variations, and include the time period waited.)
+# Assuming Consumer complaint narrative is column 7
+awk -F',' 'NR > 1 {print tolower($7)}' filtered_complaints.csv | grep -E 'long wait time|wait long time|wait time long|waited [0-9]+ (minutes?|hours?|days?|weeks?|months?|years?)' | wc -l
+
+
+
+echo "--- Unique Product Categories ---"
+# Assuming Product is column 3
+awk -F',' 'NR > 1 {print $3}' filtered_complaints.csv | sort -u
+
+echo "" # Add a blank line for readability
+
+echo "--- Unique Sub-Product Categories ---"
+# Assuming Sub-product is column 4
+awk -F',' 'NR > 1 {print $4}' filtered_complaints.csv | sort -u
+
+# Search for all Sub-products under a specific Product
+# Example: Find all sub-products for "Credit reporting, credit repair services, or other personal consumer reports"
+PRODUCT_NAME="Other financial service"
+awk -F',' -v product_name="$PRODUCT_NAME" '
+NR > 1 && $3 == product_name {
+    print $4
+}' filtered_complaints.csv | sort -u
+
+
+# Search for all Products associated with a specific Sub-product
+# Example: Find all products associated with the sub-product "Other (i.e. phone, health club, etc.)"
+SUB_PRODUCT_NAME="Other (i.e. phone, health club, etc.)"
+awk -F',' -v sub_product_name="$SUB_PRODUCT_NAME" '
+NR > 1 && $4 == sub_product_name {
+    print $3
+}' filtered_complaints.csv | sort -u
+
+
+echo "--- Number of items per Product Category ---"
+# Assuming Product is column 3 and we're using filtered_complaints.csv
+awk -F',' 'NR > 1 {print $3}' filtered_complaints.csv | sort | uniq -c | sort -rn
+
+---------------------------------------------------------------------------
+------- Prompt I used to classify -------------------
+after manual analysis, i want shell script commands for the wrangling i will describe. you are allowed to iteratively modify "filtered_complaints.csv", so you can make a series of commands without needing to make one excessively command. The changes to make below are formatted to be as such:
+Product: "Category" describes the items to merge into Product of type Category. Each item listed below, if enclosed in double quotes "Item", means to take every item tagged with that Product category. If there are no double quotes enclosing the item listed, then every item tagged with that Sub-Product category are to be merged in instead. When merging items into the Product Category, the sub-product should use the original Sub-Product the item has, but if the original item has a Sub-Product of "NA", then the original item's Product becomes its new Sub-Product after the merge.
+now that you have the instructions, the list of changes to make are as below:
+
+Product: "Credit reporting and credit repair"
+"Credit reporting"
+"Credit reporting Credit reporting Credit reporting"
+Credit repair
+Credit repair services
+Credit reporting
+Other personal consumer report
+
+Product: "Credit card or prepaid card"
+"Credit card"
+"Prepaid card"
+
+Product: "Money transfer  virtual currency  or money service"
+"Money transfers"
+"Virtual currency"
+Check cashing
+Debt settlement
+Foreign currency exchange
+Money order
+Refund anticipation check
+Traveler’s/Cashier’s checks
+
+Product: "Consumer Loan"
+"Payday loan  title loan  or personal loan"
+"Payday loan"
+"Vehicle loan or lease"
+Personal line of credit
+
+Product: "Bank account or service"
+CD (Certificate of Deposit)
+Checking account
+Other banking product or service
+Savings account
+"NA"
+
+Product: "Debt collection"
+"debt collection"
+
+Product: "Mortgage"
+Conventional home mortgage
+
+-----------------------------------------------------------------------------
+---------- Product subgroups I found ---------------
+i've inspected the products vs sub-products. they are formatted as "Product" in double quotes, followed by a list of sub-products, and then a line break. can you make up the aliasing categories for these?
+the products vs sub-products are:
+"Credit reporting  credit repair services  or other personal consumer reports"
+Conventional home mortgage
+Credit repair services
+Credit reporting
+Other personal consumer report
+
+"Credit card or prepaid card"
+General-purpose credit card or charge card
+General-purpose prepaid card
+Gift card
+Government benefit card
+Payroll card
+Store credit card
+Student prepaid card
+
+"Credit card"
+NA
+
+"Prepaid card"
+Electronic Benefit Transfer / EBT card
+General purpose card
+Gift or merchant card
+Government benefit payment card
+ID prepaid card
+Mobile wallet
+Other special purpose card
+Payroll card
+Transit card
+
+"Credit reporting"
+NA
+
+"Credit reporting Credit reporting Credit reporting"
+NA
+
+"Money transfer  virtual currency  or money service"
+Check cashing service
+Debt settlement
+Domestic (US) money transfer
+Foreign currency exchange
+International money transfer
+Mobile or digital wallet
+Money order
+Refund anticipation check
+Traveler's check or cashier's check
+Virtual currency
+
+"Money transfers"
+Domestic (US) money transfer
+International money transfer
+
+"Virtual currency"
+Domestic (US) money transfer
+International money transfer
+
+"Other financial service"
+Check cashing
+Credit repair
+Debt settlement
+Foreign currency exchange
+Money order
+Refund anticipation check
+Traveler’s/Cashier’s checks
+
+"Payday loan  title loan  or personal loan"
+Installment loan
+Pawn loan
+Payday loan
+Personal line of credit
+Title loan
+
+"Payday loan"
+NA
+
+"Student loan"
+Federal student loan servicing
+Non-federal student loan
+Private student loan
+
+"Consumer Loan"
+Installment loan
+Pawn loan
+Personal line of credit
+Title loan
+Vehicle lease
+Vehicle loan
+
+"Vehicle loan or lease"
+Lease
+Loan
+Title loan
+
+"Bank account or service"
+(CD) Certificate of deposit
+Cashing a check without an account
+Checking account
+Other bank product/service
+Savings account
+
+
+"Checking or savings account"
+CD (Certificate of Deposit)
+Checking account
+Other banking product or service
+Personal line of credit
+Savings account
+
+"NA"
+Checking account
+
+"Mortgage"
+Conventional adjustable mortgage (ARM)
+Conventional fixed mortgage
+Conventional home mortgage
+FHA mortgage
+Home equity loan or line of credit
+Home equity loan or line of credit (HELOC)
+Other mortgage
+Other type of mortgage
+Reverse mortgage
+Second mortgage
+VA mortgage
+
+"Debt collection"
+Auto
+Auto debt
+Credit card
+Credit card debt
+Federal student loan
+Federal student loan debt
+I do not know
+Medical
+Medical debt
+Mortgage
+Mortgage debt
+Non-federal student loan
+Other (i.e. phone  health club  etc.)
+Other debt
+Payday loan
+Payday loan debt
+Private student loan debt
+
+"debt collection"
+Credit card

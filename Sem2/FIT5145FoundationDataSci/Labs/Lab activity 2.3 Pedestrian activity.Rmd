@@ -1,0 +1,420 @@
+---
+title: "Applied class 2"
+author: 
+- "Quang Bui"
+- "Updated by Chris Yun"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: haddock
+---
+
+
+## Pedestrian activity
+
+The City of Melbourne has developed an [automated pedestrian counting system](https://www.melbourne.vic.gov.au/about-melbourne/research-and-statistics/city-population/pages/pedestrian-counting-system.aspx) to better understand pedestrian activity. Data is captured from counting sensors across various locations in Melbourne's CBD.
+
+We've stored a subset of this data in comma separated (.csv) file called `melb_walk_wide.csv` [on Github](https://github.com/quangvanbui/FIT5145-data/blob/master/melb_walk_wide.csv) (Please open this link in new tab). If you have trouble accessing it, download it to your working directory from Moodle. Clicking on the **Raw** button on GitHub lets you view `melb_walk_wide.csv` in your web browser:
+
+![](images/img_1_raw_csv_github_web.png)
+
+### Reading a .csv file from GitHub
+
+To read (or import) `melb_walk_wide.csv` into your R:
+
+* Load the `tidyverse`, which contains the `read_csv()` function (from the `readr` package) to read .csv files in R. (A good rule of thumb is to always load the `tidyverse` before you begin any data analysis.)
+* Copy the GitHub URL of `melb_walk_wide.csv` and paste inside the `read_csv()` function. If you have already downloaded it and it is in your working directory, just use the directory path, e.g., `./melb_walk_wide.csv`
+* Store the data in an object named `ped_wide`.
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Load tidyverse
+library(tidyverse)
+
+# Read melb_walk.csv from GitHub URL and store in object named ped_wide
+ped_wide <- read_csv("https://raw.githubusercontent.com/quangvanbui/FIT5145-data/master/melb_walk_wide.csv")
+# Alternatively, read it from your working directory
+# ped_wide <- read_csv("./melb_walk_wide.csv")
+
+# Print ped_wide
+ped_wide
+```
+
+
+
+Note that when we load the `tidyverse`, R returns messages and warnings to inform of the `tidyverse` packages have been loaded into our R session, when some of the packages were built, etc. R also returns a message after reading `melb_walk_wide.csv` using the `read_csv()` function to let us know how it has specified each column type of the data. 
+
+### `read_csv()` or `read.csv()`?
+
+While base R provides the `read.csv()` function to read .csv files into R, the `read_csv()` function (which is a function from the `readr` package and is part of the `tidyverse`) reads .csv files approximately [10 times faster](https://r4ds.had.co.nz/data-import.html) than `read.csv()`. This means a .csv file that would have taken `read.csv()` 60 minutes to read into R would only take `read_csv()` 6 minutes to read.
+
+### Look at `ped_wide`
+
+To **print** out or look at what is inside of `ped_wide`, type `ped_wide` in a code chunk and run it.
+
+```{r}
+# Print ped_wide
+ped_wide 
+```
+
+There are circumstances when printing out all of `ped_wide` is unnecessary, e.g., in a report to communicate our analysis, we should never place a table of the entire data set (if you are a project partner, reading a report from an analyst, how would you feel if the analyst placed a 744 by 46 dimension table for you to read). You can print the **head** of a data set using the `head()`, which returns the first 6 rows of the data - a small extract of the data.
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Head of ped_wide
+head(ped_wide)
+```
+
+
+
+Notice that there are 744 rows and 46 columns. The columns in `ped_wide` and their definition are provided below:
+
+* `Date_time` - date and time stamp of the recorded pedestrian foot traffic count in UTC timezone
+* `Date` - date of recorded pedestrian foot traffic count in Melbourne's timezone (UTC+11 or UTC+10, depending on daylight savings)
+* `Time` - hour of the day (24-hour time) of recorded pedestrian foot traffic count in Melbourne's timezone (UTC+11 or UTC+10, depending on daylight savings)
+* `Alfred Place` - number of pedestrians counted over a one hour period from a sensor located in Alfred Place
+* `Birrarung Marr`- number of pedestrians counted over a one hour period from a sensor located in Birrarung Marr
+* $\vdots$
+* `Webb Bridge` - number of pedestrians counted over a one hour period from a sensor located in Webb Bridge
+
+Note that the dates and hours in variables `Date` and `Time` differ from `Date_Time` because of timezone differences.
+
+This type of data is called a time-series of temporal data because it contains information recorded over time. In this example, we have hourly pedestrian counts for a number of locations in Melbourne from January 1 to 31, 2019. Confirm the time period of our data by following the steps below:
+
+* Take `ped_wide` and pipe in the `arrange()` function.
+* Arrange the data by the column, `Date`.
+* Pipe in the `summarise()` function and return the first and last date with the `first()` and `last()` function.
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# First and last date in the data
+ped_wide %>%
+  arrange(Date) %>%
+  summarise(first_date = first(Date),
+      last_date = last(Date))
+```
+
+
+
+### Convert to long form
+
+![Artwork by @allison_horst](images/tidyr_spread_gather.png)
+
+It is helpful to think of a data set as either **wide** or **long**. The pedestrian count data, `ped_wide`, is presented in a wide form, which is to say that the attributes of the data are presented horizontally. Converting `ped_wide` into a long form presents the same attributes vertically, i.e., no information is lost by reshaping the data. 
+
+So why should we reshape the data into a long form? A data set that is represented in a long form is considered a tidy data set and allows us to use all the tools from the `tidyverse`. The tools created in the `tidyverse` are designed for us to work in a principled and consistent way but they require that the data be represented the tidy way (long form). We will see later how the `dplyr` functions to wrangle the data and `ggplot2` package to produce graphics (both part of the `tidyverse`) work seamlessly when the data is in a tidy long form. 
+
+Of course, there are instances when a wide form representation of the data is necessary (some models need to be trained with data in a wide form).
+
+Following the steps below to convert `ped_wide` into a tidy long form data:
+
+* Take `ped_wide` and pipe in the `gather()` function.
+* Inside `gather()`, specify the `key` as `Sensor` and `value` as `Count` and gather all columns in `ped_wide` except `Date_Time`, `Date` and `Time`.
+* Store this tidy long form data of pedestrian count in an object named `ped`.
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Convert the data into a long form
+ped <- ped_wide %>%
+  gather(key = Sensor, value = Count, -Date_Time, -Date, -Time) %>%
+  # Not necessary but there we use select() to rearrange the columns
+  select(Sensor, everything(), Count)
+
+# Print ped
+ped
+```
+
+
+
+While `ped_wide` contains 744 rows and 46 columns of data and `ped` contains 31,992 rows and 5 columns, no information is loss by reshaping the data. In `ped_wide`, the pedestrian count from each sensor was presented in its own column, but in `ped`, there is a column containing the sensor name/location and another with its pedestrian count. This means that each row in `ped` captures the number of pedestrians counted over a 1 hour time window at given location.
+
+#### **Note about the arguments in a function**
+
+It is not essential to type our the name of a function's argument(s) when specifying what that argument should be. For example, the `gather()` function used above specified the `Sensor` variable in the `key` argument and the `Count` variable in the `value` argument:
+
+* `key = Sensor` 
+* `value = Count`
+
+```{r eval=FALSE}
+ped_wide %>%
+  gather(key = Sensor, value = Count, -Date_Time, -Date, -Time)
+```
+
+We can achieve the same result without explicitly providing the argument names:
+
+```{r eval=FALSE}
+ped_wide %>%
+  gather(Sensor, Count, -Date_Time, -Date, -Time)
+```
+
+This is because the arguments are ordered, i.e., the key goes first, then the value, so by setting `Sensor` first and then `Count` next, `gather()` will know what we wanted `Sensor` to be specified in the `key` argument and `Count` to be specified in the `value` argument.
+ 
+## State Library
+
+We will explore pedestrian activity around the State Library on the 1st of January, 2019. To do this, we will need to filter `ped` for the State Library sensor on the 1st of January, 2019.
+
+* Take `ped` and pipe in the `filter()` function.
+* Filter `Date` to `"2019-01-01"` and `Sensor` to `"State Library"`.
+* Store this filtered data in an object named `state_lib_jan_one`.
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Filter for State Library data on Jan 1, 2019
+state_lib_jan_one <- ped %>% 
+  ???(Date == "???", Sensor == "???")
+
+# Print state_lib_jan_one
+???
+```
+
+This tells R to take `ped` and filter it for data captured by the State Library sensor on the 1st of January, 2019, then store this filtered data in an object named `state_lib_jan_one`. If you have successfully done this, you'll see `state_lib_jan_one` in your RStudio environments tab and your `state_lib_jan_one` data should looks like the following:
+
+
+
+* How many rows and columns are in `state_lib_jan_one`?
+* Explain why there are this many rows. (This may seem obvious, but if you develop a checking mechanism like this, you'll be able to spot data quality or coding issues much sooner, which can save you a lot of time.)
+* In which hour is pedestrian count highest? Explain whether or not this makes sense.
+
+### Line plot
+
+A better way to understand the pedestrian count around the State Library sensor in each hour of the day (of Jan 1st, 2019) is to produce a visualisation. Line plots are typically used to visualise time-series data sets, with the x-axis representing the time or date (or both) and the y-axis representing some time-series process. To produce a line plot of the pedestrian count around the State Library for each hour of the day:
+
+* Take `state_lib_jan_one` and pipe in the `ggplot()` function.
+* Specify the aesthetics layer, i.e., what should be placed in the x and y-axis. This goes inside the `aes()`, which goes inside of `ggplot()`.
+* Add the geometric (or geom) layer to tell R that the visual element we need for our plot is the **line**. 
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Line plot of State Library pedestrian count
+??? %>%
+  ggplot(aes(x = ???, y = ???)) +
+  geom_???()
+```
+
+
+
+Describe the pedestrian count from 0:00 to 23:00 on January 1st, 2019, i.e., when is the peak, trough, steepest decline, etc. Would you expect this pattern to appear the following day?
+
+### Bar plot
+
+You can copy and run the following code chunk to produce the equivalent plot using bars, i.e., a bar plot of the state library pedestrian count for each hour of the day.
+
+```{r}
+# Bar plot of count
+state_lib_jan_one %>%
+  ggplot(aes(x = Time, y = Count)) +
+  geom_bar(stat = "identity")
+```
+
+### Side-by-side box plot
+
+Suppose we wanted to visualise the distribution of pedestrian count from the State Library sensor for each hour of the day (over the month of January, 2019). That is, we want to know what the central tendency, variability and shape of pedestrian count around the State Library looks like at 0:00, 1:00, 2:00, ..., 23:00. We will begin by filtering the data for only pedestrian counts from the State Library:
+
+* Take `ped` and pipe in the `filter()` function.
+* Filter `Sensor` to `"State Library"`.
+* Store this filtered data in an object named `state_lib`.
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Filter for State Library
+state_lib <- ??? %>% 
+  filter(??? == "State Library")
+
+# Print state_lib
+???
+```
+
+
+
+Using `state_lib`, we can plot a side-by-side box plot of the pedestrian count around the State Library with the following steps:
+
+* Take `state_lib` and pipe in the `ggplot()` function
+* Add the aesthetic layer, which should have `Time`, `Count` and `Time` specified in the `x`, `y` and `group` argument inside of `aes()`. Note that `aes()` goes inside of `ggplot()`.
+* Add the geom layer to tell R that the visual element we need for our plot is the **boxplot**. 
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Side-by-side box plot of pedestrian count for each hour of the day
+state_lib %>%
+  ggplot(???(x = ???, y = ???, group = ???)) +
+  geom_???()
+```
+
+
+
+Note that the `group` aesthetic will group the data (`state_lib`) by each hour of the day (`Time`), then create a box plot for each of these groups. Without the `group` aesthetic, `ggplot` will produce a single box plot of pedestrian count and use the `Time` variable as the width of the boxplot (and R will return a warning, asking you if you might have forgotten the `group` aesthetic). 
+
+```{r}
+# Box plot without Time specified as the group aesthetic 
+state_lib %>%
+  ggplot(aes(x = Time, y = Count)) +
+  geom_boxplot()
+```
+
+The reason why `ggplot` does not recognise that `Time` needs to be grouped (and we had to explicitly tell it to group the data by `Time`), is because `Time` is a numeric column. `ggplot` automatically assumes that numeric columns are all 'connected', which is why it would generate a single box plot if the `group` aesthetic is not specified. 
+
+## Multiple locations
+  
+Suppose we are interested in the pedestrian count around Melbourne Central and the State Library (both are located near each other). 
+
+### Filter for multiple sensors
+
+Filter `ped` so that the pedestrian counts from only the Melbourne Central or State Library sensors are kept. This can be done with the following steps:
+
+* Take `ped` and pipe in the `filter()` function.
+* Use the `%in%` operator to filter `Sensor` so that only `"Melbourne Central"` or `"State Library"` are kept.
+* Store this filtered data in an object named `mc_sl`.
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Filter for the Melbourne Central and State Library sensors
+??? <- ped %>% 
+  ???(Sensor %in% c("???", "???"))
+
+# Print mc_sl
+mc_sl
+```
+
+
+
+* How many rows and columns are in the data `mc_sl`?
+* Explain why there are this many rows in `mc_sl`.
+* How would you filter for all sensors **except** Melbourne Central and State Library? (Hint: There are 31,992 rows in `ped` and 1,488 rows in `mc_sl`, so a data set filtered for all sensors except Melbourne Central and State Library should have 30,504 rows.)
+
+
+
+### Facetted side-by-side box plots
+
+We've seen how a side-by-side box plot provides a visualisation of the distribution of the data. To divide a plot into the different categories/measurements of a column in the data, we simply add the `facet_wrap()` layer onto our `ggplot()` call. Follow the steps below to produce side-by-side box plots separated by the sensors in `mc_sl`, i.e., Melbourne Central and State Library:
+
+* Take `mc_sl` and pipe in the `ggplot()` function
+* Add the aesthetic layer, which should have `Time`, `Count` and `Time` specified in the `x`, `y` and `group` argument inside of `aes()`. Note that `aes()` goes inside of `ggplot()`.
+* Add the geom layer to tell R that the visual element we need for our plot is the **boxplot**.
+* Add the `facet_wrap()` layer to split the plot by `Sensor`.
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Side-by-side box plot of pedestrian count for each hour of the day facetted by Sensor
+??? %>%
+  ggplot(???(x = ???, y = ???, group = ???)) +
+  geom_???() +
+  facet_wrap(~ ???)
+```
+
+
+
+Immediately, we notice that it is difficult to compare the side-by-side box plots of the pedestrian count in Melbourne Central and the State Library because of the outliers in the Melbourne Central data. The sensor seems to have picked up moments in the 22nd and 23rd hour of the day, where the number of pedestrians far exceeded the maximum value at any other hour of the day. Filtering our these outliers will improve the interpretability of the side-by-side box plots.
+
+It may be easier to compare the pedestrian count from both locations if the subplots were position from **top-to-bottom**, instead of left-to-right. You can make this change by specifying that the number of columns in your facetted plot be equal to 1, i.e., `ncol = 1`
+
+Fill out the missing parts of the code chunk (`???`) and then run:
+
+```{r eval=FALSE}
+# Remove outliers and produce facetted plot with 1 column
+mc_sl %>%
+  filter(??? < 5000) %>%
+  ggplot(aes(x = Time, y = Count, group = Time)) +
+  geom_boxplot() +
+  facet_wrap(~ Sensor, ncol = ???)
+```
+
+
+
+## Group exercises
+
+Returning to `ped`, complete the following exercises, which will require knowledge of the following concepts:
+
+* Pipe operator `%>%`
+* `dplyr` wrangling functions, e.g., `filter()`, `group_by()`, `summarise()`, `arrange()`, etc.
+* Functions to use inside of `summarise()`, e.g., `n_distinct()`, `sum()`, etc.
+* `ggplot2` to produce a bar chart.
+
+### 1. Using `summarise()`
+
+Use a wrangling verb, to count the number of sensors in the `ped`. Do all the sensors have the same number of measurements?
+
+```{r eval=FALSE}
+ped %>%
+  ???(num_sensors = ???(Sensor))
+```
+
+### 2. Grouping the data
+
+For each sensor, compute the total count for January. Which sensor had the largest count? Which sensor had the smallest count?
+
+```{r eval=FALSE}
+ped %>%
+  group_by(???) %>%
+  summarise(sum = sum(???, na.rm = TRUE)) %>%
+  ungroup() %>%
+  arrange(desc(sum))
+```
+
+### 3. Sum of missing values with `sum(is.na())`
+
+For each sensor, compute the total number of missing counts. Which sensor had the most missing counts? Why might this be?
+
+```{r eval=FALSE}
+ped %>%
+  group_by(???) %>%
+  summarise(tot_missing = sum(is.na(???))) %>%
+  ungroup() %>%
+  arrange(desc(tot_missing))
+```
+
+### 4. Filtering multiple sensors and reshaping the data
+
+Filter `ped` to contain the counts from the Melbourne Central and State Library sensors only, then use a tidying function to create two columns that contain their counts. 
+
+```{r eval=FALSE}
+ped %>%
+  filter(??? %in% c("???", "???")) %>%
+  spread(???, ???)
+```
+
+### 5. Producing a 100 per cent chart
+
+Create the following **100 per cent chart** to compare the foot traffic at Melbourne Central and the State Library during different hours of the day. We can change the dimensions of our plot by changing the code chunk option. 
+
+* By default, an R plot's height and width is set to 5 and 7 inches.
+* Set the height and width to 8 and 12 inches by adding `fig.height=8` and `fig.width=12` inside the **code chunk option**, i.e., from `{r}` to `{r fig.height=8, fig.width=12}`.
+
+Note that R will return a warning to inform you that missing values in the data have been removed. 
+
+```{r eval=FALSE}
+ped %>%
+  filter(Sensor %in% c("Melbourne Central", "State Library")) %>%
+  ggplot(???(x = ???, y = ???, fill = ???)) +
+  geom_???(stat = "identity", position = "fill") +
+  facet_???(~ ???, ncol = ???) +
+  ???(??? = "Comparing foot traffic at Melbourne Central and the State Library during different hours of the day",
+      subtitle = "Greater proportion of foot traffic at the State Library than Melbourne Central during the afternoon")
+```
+
+```{r echo=FALSE, warning=FALSE, fig.height=8, fig.width=12}
+ped %>%
+  filter(Sensor %in% c("Melbourne Central", "State Library")) %>%
+  ggplot(aes(x = Time, y = Count, fill = Sensor)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_wrap(~ Date, ncol = 7) +
+  labs(title = "Comparing foot traffic at Melbourne Central and the State Library during different hours of the day",
+       subtitle = "Greater proportion of foot traffic at the State Library than Melbourne Central during the afternoon")
+```
+
+Explain why the first 8 days of January appear this way.
+
+All of the material is copyrighted under the [Creative Commons BY-SA 4.0](https://creativecommons.org/licenses/by/4.0/) copyright.
