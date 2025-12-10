@@ -7,3 +7,4 @@ cloned_repos*
 **/cloned_repos/
 checkpoints*
 **/checkpoints/
+*.zip
